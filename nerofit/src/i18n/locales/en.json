@@ -1,0 +1,144 @@
+{
+  "brand": "NEROFIT",
+  "tagline": "Editorial training",
+
+  "auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@nerofit.app",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "logIn": "Log in",
+    "createAccount": "Create account",
+    "apple": "Continue with Apple",
+    "appleStubTitle": "Coming soon",
+    "appleStubBody": "Apple Sign In ships in a later phase."
+  },
+
+  "onboarding": {
+    "stepOf": "Step {{step}} of {{total}}",
+    "continue": "Continue",
+    "back": "Back",
+
+    "basics": {
+      "title": "Tell us about yourself",
+      "sexLabel": "Biological sex",
+      "sex": {
+        "male": "Male",
+        "female": "Female",
+        "non_binary": "Non-binary"
+      },
+      "age": "Age",
+      "height": "Height",
+      "weight": "Weight",
+      "cm": "cm",
+      "kg": "kg"
+    },
+
+    "focus": {
+      "title": "What is your focus?",
+      "options": {
+        "lose_fat": "Lose fat",
+        "build_muscle": "Build muscle",
+        "stay_fit": "Stay fit"
+      },
+      "activityLabel": "Activity level",
+      "activity": {
+        "sedentary": "Sedentary",
+        "lightly_active": "Lightly active",
+        "moderately_active": "Moderately active",
+        "very_active": "Very active"
+      }
+    },
+
+    "equipment": {
+      "title": "Your training ground",
+      "subtitle": "Where are you working out, and what do we need to work around?",
+      "accessLabel": "Equipment access",
+      "options": {
+        "no_equipment": {
+          "tag": "Minimal",
+          "title": "No equipment"
+        },
+        "home_gym": {
+          "tag": "Basic",
+          "title": "Home gym"
+        },
+        "full_gym": {
+          "tag": "Comprehensive",
+          "title": "Full gym"
+        }
+      },
+      "injuriesLabel": "Injuries or limitations",
+      "injuriesHint": "Select any areas that require modification.",
+      "injuries": {
+        "lower_back": "Lower back",
+        "knees": "Knees",
+        "shoulders": "Shoulders",
+        "wrists": "Wrists",
+        "ankles": "Ankles"
+      },
+      "notesPlaceholder": "Provide any specific details about your limitations…"
+    },
+
+    "building": {
+      "title": "Building your protocol…",
+      "status": "Assembling movements"
+    }
+  },
+
+  "home": {
+    "welcome": "Welcome back!",
+    "dailyGoal": "You're {{percent}}% to your daily goal",
+    "waterFormat": "{{value}} / {{goal}}",
+    "healthMetrics": "Health Metrics",
+    "metrics": {
+      "bloodPressure": "Blood Pressure",
+      "heartRate": "Heart Rate"
+    },
+    "units": {
+      "bloodPressure": "MG/HG",
+      "heartRate": "BPM"
+    },
+    "workoutPrograms": "Workout Programs",
+    "seeAll": "See All",
+    "filters": {
+      "all": "All type",
+      "strength": "Strength",
+      "chest": "Chest",
+      "arm": "Arm"
+    },
+    "empty": {
+      "programs": "Programs unlock in the next release. Check back soon.",
+      "heartRate": "No heart-rate readings yet.",
+      "bloodPressure": "No blood-pressure readings yet."
+    }
+  },
+
+  "workouts": {
+    "title": "Workouts",
+    "subtitle": "Your training programs",
+    "empty": "No programs yet. Check back soon.",
+    "tasksCount": "{{count}} tasks",
+    "minShort": "min",
+    "kcalShort": "kcal",
+    "currentExercise": "Current exercise",
+    "markSetDone": "Mark set done",
+    "markAsDone": "Mark as done",
+    "skipSet": "Skip set",
+    "skipped": "Skipped",
+    "reps": "Reps",
+    "rest": "Rest",
+    "setOf": "Set {{current}} of {{total}}",
+    "inProgress": "Workout in progress",
+    "workoutComplete": "Workout complete",
+    "completeBody": "Nice work — every exercise is logged.",
+    "done": "Done",
+    "startWorkout": "Start workout"
+  },
+
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong.",
+    "retry": "Retry"
+  }
+}

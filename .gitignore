@@ -1,0 +1,30 @@
+# Dependencies
+nerofit/node_modules/
+
+# Expo
+nerofit/.expo/
+nerofit/dist/
+nerofit/web-build/
+
+# Env — NEVER commit Supabase keys
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Native / build artifacts
+nerofit/ios/
+nerofit/android/
+*.orig.*
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# TypeScript
+*.tsbuildinfo

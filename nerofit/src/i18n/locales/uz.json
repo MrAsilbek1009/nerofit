@@ -1,0 +1,144 @@
+{
+  "brand": "NEROFIT",
+  "tagline": "Editorial training",
+
+  "auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "siz@nerofit.app",
+    "passwordLabel": "Parol",
+    "passwordPlaceholder": "••••••••",
+    "logIn": "Kirish",
+    "createAccount": "Roʻyxatdan oʻtish",
+    "apple": "Apple bilan davom etish",
+    "appleStubTitle": "Tez orada",
+    "appleStubBody": "Apple Sign In keyingi bosqichda qoʻshiladi."
+  },
+
+  "onboarding": {
+    "stepOf": "{{step}} / {{total}} bosqich",
+    "continue": "Davom etish",
+    "back": "Ortga",
+
+    "basics": {
+      "title": "Oʻzingiz haqida ayting",
+      "sexLabel": "Jins",
+      "sex": {
+        "male": "Erkak",
+        "female": "Ayol",
+        "non_binary": "Boshqa"
+      },
+      "age": "Yosh",
+      "height": "Boʻy",
+      "weight": "Vazn",
+      "cm": "sm",
+      "kg": "kg"
+    },
+
+    "focus": {
+      "title": "Asosiy maqsadingiz?",
+      "options": {
+        "lose_fat": "Yogʻ kamaytirish",
+        "build_muscle": "Mushak qurish",
+        "stay_fit": "Forma saqlash"
+      },
+      "activityLabel": "Faollik darajasi",
+      "activity": {
+        "sedentary": "Sedentar",
+        "lightly_active": "Yengil faol",
+        "moderately_active": "Oʻrtacha faol",
+        "very_active": "Juda faol"
+      }
+    },
+
+    "equipment": {
+      "title": "Mashgʻulot joyingiz",
+      "subtitle": "Qayerda mashgʻulot qilasiz va nimaga eʼtibor berishimiz kerak?",
+      "accessLabel": "Asbob-uskunalar",
+      "options": {
+        "no_equipment": {
+          "tag": "Minimal",
+          "title": "Asbob yoʻq"
+        },
+        "home_gym": {
+          "tag": "Asosiy",
+          "title": "Uy mashqi"
+        },
+        "full_gym": {
+          "tag": "Toʻliq",
+          "title": "Toʻliq sportzal"
+        }
+      },
+      "injuriesLabel": "Jarohatlar va cheklovlar",
+      "injuriesHint": "Mashgʻulotni moslashtirish kerak boʻlgan joylarni belgilang.",
+      "injuries": {
+        "lower_back": "Past bel",
+        "knees": "Tizzalar",
+        "shoulders": "Yelkalar",
+        "wrists": "Bilaklar",
+        "ankles": "Toʻpiqlar"
+      },
+      "notesPlaceholder": "Cheklovlaringiz haqida batafsil yozing…"
+    },
+
+    "building": {
+      "title": "Dasturingiz tuzilmoqda…",
+      "status": "Harakatlar yigʻilmoqda"
+    }
+  },
+
+  "home": {
+    "welcome": "Xush kelibsiz!",
+    "dailyGoal": "Kunlik maqsadingizning {{percent}}% iga yetdingiz",
+    "waterFormat": "{{value}} / {{goal}}",
+    "healthMetrics": "Sogʻliq koʻrsatkichlari",
+    "metrics": {
+      "bloodPressure": "Qon bosimi",
+      "heartRate": "Yurak urishi"
+    },
+    "units": {
+      "bloodPressure": "MG/HG",
+      "heartRate": "BPM"
+    },
+    "workoutPrograms": "Mashgʻulot dasturlari",
+    "seeAll": "Hammasi",
+    "filters": {
+      "all": "Barchasi",
+      "strength": "Kuch",
+      "chest": "Koʻkrak",
+      "arm": "Qoʻl"
+    },
+    "empty": {
+      "programs": "Dasturlar keyingi yangilanishda ochiladi.",
+      "heartRate": "Hozircha yurak urishi yozuvlari yoʻq.",
+      "bloodPressure": "Hozircha qon bosimi yozuvlari yoʻq."
+    }
+  },
+
+  "workouts": {
+    "title": "Mashgʻulotlar",
+    "subtitle": "Sizning dasturlaringiz",
+    "empty": "Hozircha dastur yoʻq. Tez orada qaytib keling.",
+    "tasksCount": "{{count}} ta mashq",
+    "minShort": "daq",
+    "kcalShort": "kkal",
+    "currentExercise": "Joriy mashq",
+    "markSetDone": "Setni bajarildi",
+    "markAsDone": "Bajarildi",
+    "skipSet": "Setni oʻtkazib yuborish",
+    "skipped": "Oʻtkazib yuborilgan",
+    "reps": "Takror",
+    "rest": "Dam",
+    "setOf": "{{current}} / {{total}} set",
+    "inProgress": "Mashgʻulot davom etmoqda",
+    "workoutComplete": "Mashgʻulot tugadi",
+    "completeBody": "Zoʻr ish — barcha mashqlar yozildi.",
+    "done": "Tayyor",
+    "startWorkout": "Boshlash"
+  },
+
+  "common": {
+    "loading": "Yuklanmoqda…",
+    "error": "Xatolik yuz berdi.",
+    "retry": "Qayta urinish"
+  }
+}

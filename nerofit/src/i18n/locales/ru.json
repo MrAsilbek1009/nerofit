@@ -1,0 +1,144 @@
+{
+  "brand": "NEROFIT",
+  "tagline": "Editorial training",
+
+  "auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@nerofit.app",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "••••••••",
+    "logIn": "Войти",
+    "createAccount": "Создать аккаунт",
+    "apple": "Продолжить с Apple",
+    "appleStubTitle": "Скоро",
+    "appleStubBody": "Apple Sign In появится позже."
+  },
+
+  "onboarding": {
+    "stepOf": "Шаг {{step}} из {{total}}",
+    "continue": "Продолжить",
+    "back": "Назад",
+
+    "basics": {
+      "title": "Расскажите о себе",
+      "sexLabel": "Биологический пол",
+      "sex": {
+        "male": "Мужской",
+        "female": "Женский",
+        "non_binary": "Иное"
+      },
+      "age": "Возраст",
+      "height": "Рост",
+      "weight": "Вес",
+      "cm": "см",
+      "kg": "кг"
+    },
+
+    "focus": {
+      "title": "Какая ваша цель?",
+      "options": {
+        "lose_fat": "Сжечь жир",
+        "build_muscle": "Набрать мышцы",
+        "stay_fit": "Поддержать форму"
+      },
+      "activityLabel": "Уровень активности",
+      "activity": {
+        "sedentary": "Сидячий",
+        "lightly_active": "Лёгкая активность",
+        "moderately_active": "Умеренная",
+        "very_active": "Высокая"
+      }
+    },
+
+    "equipment": {
+      "title": "Ваша площадка",
+      "subtitle": "Где вы тренируетесь и какие ограничения учитывать?",
+      "accessLabel": "Доступ к оборудованию",
+      "options": {
+        "no_equipment": {
+          "tag": "Минимум",
+          "title": "Без оборудования"
+        },
+        "home_gym": {
+          "tag": "Базовый",
+          "title": "Домашний зал"
+        },
+        "full_gym": {
+          "tag": "Полный",
+          "title": "Полный зал"
+        }
+      },
+      "injuriesLabel": "Травмы и ограничения",
+      "injuriesHint": "Отметьте зоны, требующие адаптации.",
+      "injuries": {
+        "lower_back": "Поясница",
+        "knees": "Колени",
+        "shoulders": "Плечи",
+        "wrists": "Запястья",
+        "ankles": "Лодыжки"
+      },
+      "notesPlaceholder": "Опишите ваши ограничения подробнее…"
+    },
+
+    "building": {
+      "title": "Строим ваш протокол…",
+      "status": "Собираем движения"
+    }
+  },
+
+  "home": {
+    "welcome": "С возвращением!",
+    "dailyGoal": "Вы выполнили {{percent}}% дневной цели",
+    "waterFormat": "{{value}} / {{goal}}",
+    "healthMetrics": "Показатели здоровья",
+    "metrics": {
+      "bloodPressure": "Давление",
+      "heartRate": "Пульс"
+    },
+    "units": {
+      "bloodPressure": "MG/HG",
+      "heartRate": "BPM"
+    },
+    "workoutPrograms": "Тренировочные программы",
+    "seeAll": "Все",
+    "filters": {
+      "all": "Все",
+      "strength": "Сила",
+      "chest": "Грудь",
+      "arm": "Руки"
+    },
+    "empty": {
+      "programs": "Программы появятся в следующем релизе.",
+      "heartRate": "Пока нет данных о пульсе.",
+      "bloodPressure": "Пока нет данных о давлении."
+    }
+  },
+
+  "workouts": {
+    "title": "Тренировки",
+    "subtitle": "Ваши программы",
+    "empty": "Программ пока нет. Загляните позже.",
+    "tasksCount": "{{count}} упражнений",
+    "minShort": "мин",
+    "kcalShort": "ккал",
+    "currentExercise": "Текущее упражнение",
+    "markSetDone": "Отметить подход",
+    "markAsDone": "Готово",
+    "skipSet": "Пропустить подход",
+    "skipped": "Пропущено",
+    "reps": "Повт.",
+    "rest": "Отдых",
+    "setOf": "Подход {{current}} из {{total}}",
+    "inProgress": "Тренировка идёт",
+    "workoutComplete": "Тренировка завершена",
+    "completeBody": "Отличная работа — всё записано.",
+    "done": "Готово",
+    "startWorkout": "Начать"
+  },
+
+  "common": {
+    "loading": "Загрузка…",
+    "error": "Что-то пошло не так.",
+    "retry": "Повторить"
+  }
+}
