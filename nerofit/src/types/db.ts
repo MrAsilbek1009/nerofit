@@ -25,6 +25,9 @@ export type HealthMetricType =
 export type ProgramLevel = "beginner" | "intermediate" | "elite";
 export type SessionStatus = "active" | "completed" | "abandoned";
 export type LogStatus = "done" | "skipped";
+export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+export type MealSource = "catalog" | "scan" | "manual";
+export type DayPart = "morning" | "midday" | "evening";
 
 export type Database = {
   public: {
@@ -39,6 +42,9 @@ export type Database = {
           sex: BiologicalSex | null;
           date_of_birth: string | null;
           daily_water_goal_ml: number;
+          protein_goal_g: number;
+          carbs_goal_g: number;
+          fats_goal_g: number;
           onboarded_at: string | null;
           created_at: string;
         };
@@ -51,6 +57,9 @@ export type Database = {
           sex?: BiologicalSex | null;
           date_of_birth?: string | null;
           daily_water_goal_ml?: number;
+          protein_goal_g?: number;
+          carbs_goal_g?: number;
+          fats_goal_g?: number;
           onboarded_at?: string | null;
           created_at?: string;
         };
@@ -285,6 +294,98 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["exercise_logs"]["Insert"]>;
         Relationships: [];
       };
+      meals: {
+        Row: {
+          id: string;
+          name: string;
+          kcal: number;
+          protein_g: number;
+          carbs_g: number;
+          fats_g: number;
+          image_url: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          kcal?: number;
+          protein_g?: number;
+          carbs_g?: number;
+          fats_g?: number;
+          image_url?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["meals"]["Insert"]>;
+        Relationships: [];
+      };
+      meal_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          meal_id: string | null;
+          slot: MealSlot;
+          log_date: string;
+          name: string | null;
+          kcal: number | null;
+          protein_g: number | null;
+          carbs_g: number | null;
+          fats_g: number | null;
+          source: MealSource;
+          logged_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          meal_id?: string | null;
+          slot: MealSlot;
+          log_date?: string;
+          name?: string | null;
+          kcal?: number | null;
+          protein_g?: number | null;
+          carbs_g?: number | null;
+          fats_g?: number | null;
+          source?: MealSource;
+          logged_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["meal_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      supplements: {
+        Row: {
+          id: string;
+          name: string;
+          default_dose: string | null;
+          time_of_day: DayPart;
+          order_index: number;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          default_dose?: string | null;
+          time_of_day?: DayPart;
+          order_index?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["supplements"]["Insert"]>;
+        Relationships: [];
+      };
+      supplement_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          supplement_id: string;
+          taken: boolean;
+          log_date: string;
+          logged_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          supplement_id: string;
+          taken?: boolean;
+          log_date?: string;
+          logged_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["supplement_logs"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -307,3 +408,8 @@ export type ExerciseVideo =
 export type WorkoutSession =
   Database["public"]["Tables"]["workout_sessions"]["Row"];
 export type ExerciseLog = Database["public"]["Tables"]["exercise_logs"]["Row"];
+export type Meal = Database["public"]["Tables"]["meals"]["Row"];
+export type MealLog = Database["public"]["Tables"]["meal_logs"]["Row"];
+export type Supplement = Database["public"]["Tables"]["supplements"]["Row"];
+export type SupplementLog =
+  Database["public"]["Tables"]["supplement_logs"]["Row"];

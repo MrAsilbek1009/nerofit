@@ -136,9 +136,47 @@
     "startWorkout": "Начать"
   },
 
+  "progress": {
+    "title": "Ваш прогресс",
+    "period": { "week": "Неделя", "month": "Месяц", "year": "Год" },
+    "weightTrend": "Динамика веса",
+    "kg": "кг",
+    "weeklyActivity": "Активность за неделю",
+    "dayStreak": "Серия дней",
+    "totalVolume": "Общий объём",
+    "workouts": "Тренировки",
+    "emptyWeight": "Запишите вес, чтобы увидеть динамику.",
+    "days": { "mon": "П", "tue": "В", "wed": "С", "thu": "Ч", "fri": "П", "sat": "С", "sun": "В" }
+  },
+
+  "nutrition": {
+    "title": "Питание сегодня",
+    "macros": "Макросы",
+    "protein": "Белки",
+    "carbs": "Углеводы",
+    "fats": "Жиры",
+    "g": "г",
+    "meals": "Приёмы пищи",
+    "logMeal": "Добавить приём…",
+    "kcal": "ккал",
+    "slots": {
+      "breakfast": "Завтрак",
+      "lunch": "Обед",
+      "dinner": "Ужин",
+      "snack": "Перекус"
+    },
+    "hydration": "Гидратация",
+    "ofGoal": "из {{goal}} цели",
+    "protocol": "Протокол",
+    "addToSlot": "Добавить в «{{slot}}»",
+    "dayPart": { "morning": "Утро", "midday": "День", "evening": "Вечер" },
+    "emptyMeals": "Блюд пока нет."
+  },
+
   "common": {
     "loading": "Загрузка…",
     "error": "Что-то пошло не так.",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "cancel": "Отмена"
   }
 }
