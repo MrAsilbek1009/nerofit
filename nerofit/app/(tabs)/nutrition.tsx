@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Droplet, Plus } from "lucide-react-native";
 import { ProgressRing } from "@/components/ui";
 import { MacroBar } from "@/features/nutrition/components/MacroBar";
+import { SectionLabel } from "@/features/nutrition/components/SectionLabel";
 import { SupplementRow } from "@/features/nutrition/components/SupplementRow";
 import { useUserId } from "@/hooks/useUser";
 import { useProfile } from "@/lib/queries/profile";
@@ -80,7 +81,7 @@ export default function NutritionScreen() {
 
         {/* Macros */}
         <View style={{ gap: space[4] }}>
-          <Text style={typography.labelCaps}>{t("nutrition.macros")}</Text>
+          <SectionLabel label={t("nutrition.macros")} />
           <MacroBar label={t("nutrition.protein")} current={macros.protein} goal={profile.data?.protein_goal_g ?? 200} />
           <MacroBar label={t("nutrition.carbs")} current={macros.carbs} goal={profile.data?.carbs_goal_g ?? 300} />
           <MacroBar label={t("nutrition.fats")} current={macros.fats} goal={profile.data?.fats_goal_g ?? 80} />
@@ -88,7 +89,7 @@ export default function NutritionScreen() {
 
         {/* Meals */}
         <View style={{ gap: space[4] }}>
-          <Text style={typography.labelCaps}>{t("nutrition.meals")}</Text>
+          <SectionLabel label={t("nutrition.meals")} />
           {MEAL_SLOTS.map((slot) => {
             const slotLogs = logs.filter((l) => l.slot === slot);
             return (
@@ -105,7 +106,7 @@ export default function NutritionScreen() {
 
         {/* Hydration */}
         <View style={{ gap: space[4] }}>
-          <Text style={typography.labelCaps}>{t("nutrition.hydration")}</Text>
+          <SectionLabel label={t("nutrition.hydration")} />
           <View style={{ flexDirection: "row", alignItems: "center", gap: space[5] }}>
             <View style={{ width: 88, height: 88, alignItems: "center", justifyContent: "center" }}>
               <ProgressRing progress={waterRatio} size={88} strokeWidth={4} />
@@ -126,7 +127,7 @@ export default function NutritionScreen() {
 
         {/* Protocol (supplements) */}
         <View style={{ gap: space[2] }}>
-          <Text style={typography.labelCaps}>{t("nutrition.protocol")}</Text>
+          <SectionLabel label={t("nutrition.protocol")} />
           {supplements.isLoading ? (
             <ActivityIndicator color={colors.accent} />
           ) : (

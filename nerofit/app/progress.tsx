@@ -106,6 +106,15 @@ export default function ProgressScreen() {
                 </View>
               </View>
               <TrendChart values={values} />
+              {period === "week" ? (
+                <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                  {(["mon", "wed", "fri", "sun"] as const).map((k) => (
+                    <Text key={k} style={[typography.labelCaps, { fontSize: 10 }]}>
+                      {t(`progress.axis.${k}`)}
+                    </Text>
+                  ))}
+                </View>
+              ) : null}
             </>
           )}
         </View>

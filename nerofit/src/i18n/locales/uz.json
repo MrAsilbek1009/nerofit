@@ -146,7 +146,8 @@
     "totalVolume": "Umumiy hajm",
     "workouts": "Mashgʻulotlar",
     "emptyWeight": "Dinamikani koʻrish uchun vazningizni yozing.",
-    "days": { "mon": "D", "tue": "S", "wed": "C", "thu": "P", "fri": "J", "sat": "S", "sun": "Y" }
+    "days": { "mon": "D", "tue": "S", "wed": "C", "thu": "P", "fri": "J", "sat": "S", "sun": "Y" },
+    "axis": { "mon": "Dush", "wed": "Chor", "fri": "Jum", "sun": "Yak" }
   },
 
   "nutrition": {

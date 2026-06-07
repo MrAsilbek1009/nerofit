@@ -146,7 +146,8 @@
     "totalVolume": "Общий объём",
     "workouts": "Тренировки",
     "emptyWeight": "Запишите вес, чтобы увидеть динамику.",
-    "days": { "mon": "П", "tue": "В", "wed": "С", "thu": "Ч", "fri": "П", "sat": "С", "sun": "В" }
+    "days": { "mon": "П", "tue": "В", "wed": "С", "thu": "Ч", "fri": "П", "sat": "С", "sun": "В" },
+    "axis": { "mon": "Пн", "wed": "Ср", "fri": "Пт", "sun": "Вс" }
   },
 
   "nutrition": {

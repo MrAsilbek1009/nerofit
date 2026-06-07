@@ -44,14 +44,14 @@ export function SupplementRow({
           width: 26,
           height: 26,
           borderRadius: 13,
-          borderWidth: taken ? 0 : 1.5,
-          borderColor: colors.border,
-          backgroundColor: taken ? colors.accent : "transparent",
+          borderWidth: 1.5,
+          borderColor: taken ? colors.accent : colors.border,
+          backgroundColor: "transparent",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        {taken ? <Check size={15} color={colors.canvas} /> : null}
+        {taken ? <Check size={15} color={colors.accent} /> : null}
       </View>
     </Pressable>
   );

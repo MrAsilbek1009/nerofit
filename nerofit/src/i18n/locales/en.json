@@ -146,7 +146,8 @@
     "totalVolume": "Total Volume",
     "workouts": "Workouts",
     "emptyWeight": "Log your weight to see the trend.",
-    "days": { "mon": "M", "tue": "T", "wed": "W", "thu": "T", "fri": "F", "sat": "S", "sun": "S" }
+    "days": { "mon": "M", "tue": "T", "wed": "W", "thu": "T", "fri": "F", "sat": "S", "sun": "S" },
+    "axis": { "mon": "Mon", "wed": "Wed", "fri": "Fri", "sun": "Sun" }
   },
 
   "nutrition": {
