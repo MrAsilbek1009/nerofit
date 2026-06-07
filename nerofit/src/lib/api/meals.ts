@@ -1,0 +1,58 @@
+import { supabase } from "@/lib/supabase";
+import type { Meal, MealLog, MealSlot } from "@/types/db";
+
+function todayDate(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+export async function listMeals(): Promise<Meal[]> {
+  const { data, error } = await supabase
+    .from("meals")
+    .select("*")
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function listTodayMealLogs(userId: string): Promise<MealLog[]> {
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("log_date", todayDate())
+    .order("logged_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function logMeal(
+  userId: string,
+  meal: Meal,
+  slot: MealSlot,
+): Promise<MealLog> {
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .insert({
+      user_id: userId,
+      meal_id: meal.id,
+      slot,
+      name: meal.name,
+      kcal: meal.kcal,
+      protein_g: meal.protein_g,
+      carbs_g: meal.carbs_g,
+      fats_g: meal.fats_g,
+      source: "catalog",
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteMealLog(id: string): Promise<void> {
+  const { error } = await supabase.from("meal_logs").delete().eq("id", id);
+  if (error) throw error;
+}

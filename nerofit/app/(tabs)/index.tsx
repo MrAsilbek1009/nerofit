@@ -1,5 +1,6 @@
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { Activity, HeartPulse } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { SectionHeader } from "@/components/ui";
@@ -23,6 +24,7 @@ function chronological(values: number[]): number[] {
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const userId = useUserId();
 
   const profileQuery = useProfile(userId);
@@ -110,7 +112,7 @@ export default function HomeScreen() {
           <SectionHeader
             title={t("home.healthMetrics")}
             seeAllLabel={t("home.seeAll")}
-            onSeeAll={() => undefined}
+            onSeeAll={() => router.push("/progress")}
           />
           <View style={{ flexDirection: "row", gap: space[3] }}>
             <HealthMetricCard

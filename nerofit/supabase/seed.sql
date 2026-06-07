@@ -56,3 +56,28 @@ insert into public.exercise_videos (id, exercise_id, url, duration_sec, provider
   ('d0000002-0000-0000-0000-000000000002', 'e0000002-0000-0000-0000-000000000002',
    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', 15, 'sample')
 on conflict (id) do update set url = excluded.url;
+
+-- ---------- Meals (catalog) ----------
+insert into public.meals (id, name, kcal, protein_g, carbs_g, fats_g, image_url) values
+  ('f0000001-0000-0000-0000-000000000001', 'Avocado & Egg Toast', 450, 18, 38, 26,
+   'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80&auto=format&fit=crop'),
+  ('f0000002-0000-0000-0000-000000000002', 'Grilled Chicken Bowl', 620, 52, 54, 18,
+   'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80&auto=format&fit=crop'),
+  ('f0000003-0000-0000-0000-000000000003', 'Greek Yogurt & Berries', 220, 18, 24, 6,
+   'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80&auto=format&fit=crop'),
+  ('f0000004-0000-0000-0000-000000000004', 'Salmon & Quinoa', 540, 40, 42, 22,
+   'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80&auto=format&fit=crop'),
+  ('f0000005-0000-0000-0000-000000000005', 'Protein Oats', 380, 28, 48, 9,
+   'https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400&q=80&auto=format&fit=crop')
+on conflict (id) do update set
+  name = excluded.name, kcal = excluded.kcal, protein_g = excluded.protein_g,
+  carbs_g = excluded.carbs_g, fats_g = excluded.fats_g, image_url = excluded.image_url;
+
+-- ---------- Supplements (catalog) ----------
+insert into public.supplements (id, name, default_dose, time_of_day, order_index) values
+  ('50000001-0000-0000-0000-000000000001', 'Magnesium Bisglycinate', '400MG', 'evening', 1),
+  ('50000002-0000-0000-0000-000000000002', 'Vitamin D3 + K2', '5000 IU', 'morning', 2),
+  ('50000003-0000-0000-0000-000000000003', 'Omega 3 Fish Oil', '2000MG', 'morning', 3)
+on conflict (id) do update set
+  name = excluded.name, default_dose = excluded.default_dose,
+  time_of_day = excluded.time_of_day, order_index = excluded.order_index;

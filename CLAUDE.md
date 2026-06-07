@@ -139,3 +139,27 @@ Toolchain
   run the app once to regen `.expo/types/router.d.ts`.
 - New deps this phase: i18next, react-i18next, expo-localization, zod,
   react-hook-form, @hookform/resolvers, expo-video.
+
+---
+
+## Phase 4 build notes (Progress + Nutrition)
+
+Built on branch `phase-4-progress-nutrition` (branch-per-phase strategy).
+- Migration `0006_nutrition.sql`: profiles gain `protein_goal_g` /
+  `carbs_goal_g` / `fats_goal_g`; new catalogs `meals`, `supplements`
+  (read-only RLS) and owner-only logs `meal_logs`, `supplement_logs`
+  (supplement_logs has a unique `(user_id, supplement_id, log_date)` for
+  toggling). `seed.sql` extended with 5 meals + 3 supplements.
+- Progress = top-level route `app/progress.tsx` (not a tab) reached from the
+  Home health-metrics "See All". Reads existing tables only (body_metrics,
+  workout_sessions, exercise_logs). Weight trend (period week/month/year),
+  weekly-activity circles, day streak, total volume, workout count. Charts via
+  `react-native-svg` (`TrendChart`). Streak/volume helpers in
+  `src/features/progress/`.
+- Nutrition tab: macros (today's meal_logs summed vs profile goals), meals by
+  slot with add via `app/meal-picker.tsx` (modal route, `?slot=`), hydration
+  ring (reuses water_logs), supplements "Protocol" with per-day toggle.
+- **Food-scan AI (AI-INTEGRATION.md) deferred to Phase 5** — it needs the
+  shared Edge Function scaffolding + `ANTHROPIC_API_KEY`, and the provided
+  Phase-4 mocks (Progress, Nutrition) don't include a scan screen.
+- No new deps. Run migrations 0006 + re-run `seed.sql` before testing.

@@ -136,9 +136,47 @@
     "startWorkout": "Start workout"
   },
 
+  "progress": {
+    "title": "Your Progress",
+    "period": { "week": "Week", "month": "Month", "year": "Year" },
+    "weightTrend": "Weight Trend",
+    "kg": "kg",
+    "weeklyActivity": "Weekly Activity",
+    "dayStreak": "Day Streak",
+    "totalVolume": "Total Volume",
+    "workouts": "Workouts",
+    "emptyWeight": "Log your weight to see the trend.",
+    "days": { "mon": "M", "tue": "T", "wed": "W", "thu": "T", "fri": "F", "sat": "S", "sun": "S" }
+  },
+
+  "nutrition": {
+    "title": "Today's Fuel",
+    "macros": "Macros",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fats": "Fats",
+    "g": "g",
+    "meals": "Meals",
+    "logMeal": "Log meal…",
+    "kcal": "kcal",
+    "slots": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "hydration": "Hydration",
+    "ofGoal": "of {{goal}} goal",
+    "protocol": "Protocol",
+    "addToSlot": "Add to {{slot}}",
+    "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
+    "emptyMeals": "No catalog meals yet."
+  },
+
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "cancel": "Cancel"
   }
 }

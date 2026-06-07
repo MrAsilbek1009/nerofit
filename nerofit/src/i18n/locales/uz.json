@@ -136,9 +136,47 @@
     "startWorkout": "Boshlash"
   },
 
+  "progress": {
+    "title": "Sizning natijangiz",
+    "period": { "week": "Hafta", "month": "Oy", "year": "Yil" },
+    "weightTrend": "Vazn dinamikasi",
+    "kg": "kg",
+    "weeklyActivity": "Haftalik faollik",
+    "dayStreak": "Kunlik seriya",
+    "totalVolume": "Umumiy hajm",
+    "workouts": "Mashgʻulotlar",
+    "emptyWeight": "Dinamikani koʻrish uchun vazningizni yozing.",
+    "days": { "mon": "D", "tue": "S", "wed": "C", "thu": "P", "fri": "J", "sat": "S", "sun": "Y" }
+  },
+
+  "nutrition": {
+    "title": "Bugungi ratsion",
+    "macros": "Makrolar",
+    "protein": "Oqsil",
+    "carbs": "Uglevod",
+    "fats": "Yogʻlar",
+    "g": "g",
+    "meals": "Taomlar",
+    "logMeal": "Taom qoʻshish…",
+    "kcal": "kkal",
+    "slots": {
+      "breakfast": "Nonushta",
+      "lunch": "Tushlik",
+      "dinner": "Kechki ovqat",
+      "snack": "Yengil taom"
+    },
+    "hydration": "Suv balansi",
+    "ofGoal": "maqsad: {{goal}}",
+    "protocol": "Protokol",
+    "addToSlot": "{{slot}}ga qoʻshish",
+    "dayPart": { "morning": "Ertalab", "midday": "Kunduzi", "evening": "Kechqurun" },
+    "emptyMeals": "Hozircha taomlar yoʻq."
+  },
+
   "common": {
     "loading": "Yuklanmoqda…",
     "error": "Xatolik yuz berdi.",
-    "retry": "Qayta urinish"
+    "retry": "Qayta urinish",
+    "cancel": "Bekor qilish"
   }
 }

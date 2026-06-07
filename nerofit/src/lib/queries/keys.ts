@@ -15,4 +15,13 @@ export const qk = {
   workoutDetail: (workoutId: string) => ["workout-detail", workoutId] as const,
   activeSession: (userId: string, workoutId: string) =>
     ["active-session", userId, workoutId] as const,
+  weightSeries: (userId: string, period: string) =>
+    ["weight-series", userId, period] as const,
+  weekSessions: (userId: string) => ["week-sessions", userId] as const,
+  workoutStats: (userId: string) => ["workout-stats", userId] as const,
+  meals: () => ["meals"] as const,
+  mealLogsToday: (userId: string) => ["meal-logs-today", userId] as const,
+  supplements: () => ["supplements"] as const,
+  supplementLogsToday: (userId: string) =>
+    ["supplement-logs-today", userId] as const,
 };
