@@ -11,7 +11,11 @@
     "createAccount": "Roʻyxatdan oʻtish",
     "apple": "Apple bilan davom etish",
     "appleStubTitle": "Tez orada",
-    "appleStubBody": "Apple Sign In keyingi bosqichda qoʻshiladi."
+    "appleStubBody": "Apple Sign In keyingi bosqichda qoʻshiladi.",
+    "rateLimited": "Juda koʻp urinish. Bir daqiqa kutib, qayta urinib koʻring.",
+    "invalidCredentials": "Email yoki parol notoʻgʻri.",
+    "alreadyRegistered": "Bu email allaqachon roʻyxatdan oʻtgan. Iltimos, kiring.",
+    "checkEmail": "Hisobni tasdiqlash uchun emailingizni tekshiring, soʻng kiring."
   },
 
   "onboarding": {

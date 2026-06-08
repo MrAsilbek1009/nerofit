@@ -25,6 +25,9 @@ export default function BasicsStep() {
     draft.weight_kg?.toString() ?? "",
   );
 
+  const heightRef = useRef<TextInput>(null);
+  const weightRef = useRef<TextInput>(null);
+
   const parsed = basicsSchema.safeParse({
     sex,
     age,
@@ -74,6 +77,9 @@ export default function BasicsStep() {
           value={age}
           onChangeText={setAge}
           placeholder="28"
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => heightRef.current?.focus()}
         />
         <NumberRow
           label={t("onboarding.basics.height")}
@@ -81,6 +87,10 @@ export default function BasicsStep() {
           onChangeText={setHeight}
           suffix={t("onboarding.basics.cm")}
           placeholder="180"
+          inputRef={heightRef}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => weightRef.current?.focus()}
         />
         <NumberRow
           label={t("onboarding.basics.weight")}
@@ -88,6 +98,8 @@ export default function BasicsStep() {
           onChangeText={setWeight}
           suffix={t("onboarding.basics.kg")}
           placeholder="75"
+          inputRef={weightRef}
+          returnKeyType="done"
         />
       </View>
     </StepShell>
@@ -151,17 +163,26 @@ function NumberRow({
   onChangeText,
   suffix,
   placeholder,
+  inputRef,
+  returnKeyType,
+  onSubmitEditing,
+  blurOnSubmit,
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   suffix?: string;
   placeholder?: string;
+  inputRef?: React.RefObject<TextInput | null>;
+  returnKeyType?: "next" | "done";
+  onSubmitEditing?: () => void;
+  blurOnSubmit?: boolean;
 }) {
-  const inputRef = useRef<TextInput>(null);
+  const internalRef = useRef<TextInput>(null);
+  const ref = inputRef ?? internalRef;
   return (
     <Pressable
-      onPress={() => inputRef.current?.focus()}
+      onPress={() => ref.current?.focus()}
       accessibilityRole="button"
       style={{
         backgroundColor: colors.elevated,
@@ -185,12 +206,15 @@ function NumberRow({
       </Text>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[1] }}>
         <TextInput
-          ref={inputRef}
+          ref={ref}
           value={value}
           onChangeText={onChangeText}
           keyboardType="numeric"
           placeholder={placeholder ?? "—"}
           placeholderTextColor={colors.textLo}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
+          blurOnSubmit={blurOnSubmit}
           style={[
             {
               fontFamily: fonts.display,

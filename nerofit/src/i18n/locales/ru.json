@@ -11,7 +11,11 @@
     "createAccount": "Создать аккаунт",
     "apple": "Продолжить с Apple",
     "appleStubTitle": "Скоро",
-    "appleStubBody": "Apple Sign In появится позже."
+    "appleStubBody": "Apple Sign In появится позже.",
+    "rateLimited": "Слишком много попыток. Подождите минуту и повторите.",
+    "invalidCredentials": "Неверный email или пароль.",
+    "alreadyRegistered": "Этот email уже зарегистрирован. Войдите.",
+    "checkEmail": "Проверьте почту для подтверждения, затем войдите."
   },
 
   "onboarding": {
