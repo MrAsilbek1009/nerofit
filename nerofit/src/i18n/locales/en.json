@@ -192,6 +192,28 @@
     }
   },
 
+  "profile": {
+    "title": "Profile",
+    "focusLabels": {
+      "lose_fat": "Fat Loss",
+      "build_muscle": "Hypertrophy & Performance",
+      "stay_fit": "Fitness & Wellness"
+    },
+    "weight": "Weight (kg)",
+    "goal": "Goal (kg)",
+    "workouts": "Workouts",
+    "bodyComposition": "Body Composition",
+    "notifications": "Notification Settings",
+    "subscription": "Subscription",
+    "language": "Language",
+    "logOut": "Log Out",
+    "tierFree": "Free",
+    "tierElite": "Elite",
+    "comingSoonTitle": "Coming soon",
+    "subscriptionBody": "Subscriptions ship in a later update.",
+    "notificationsBody": "Push notifications ship in a later update."
+  },
+
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong.",
