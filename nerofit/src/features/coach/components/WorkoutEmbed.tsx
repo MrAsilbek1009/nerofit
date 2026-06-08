@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { ChatEmbed } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
@@ -31,7 +31,11 @@ export function WorkoutEmbed({ embed }: { embed: ChatEmbed & { type: "workout" }
       {/* Dark overlay */}
       <View
         style={{
-          ...StyleSheet.absoluteFillObject,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           backgroundColor: "rgba(0,0,0,0.45)",
         }}
       />

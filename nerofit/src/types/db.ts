@@ -386,6 +386,44 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["supplement_logs"]["Insert"]>;
         Relationships: [];
       };
+      chat_threads: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["chat_threads"]["Insert"]>;
+        Relationships: [];
+      };
+      chat_messages: {
+        Row: {
+          id: string;
+          thread_id: string;
+          role: ChatRole;
+          content: string;
+          embed: ChatEmbed | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          thread_id: string;
+          role: ChatRole;
+          content: string;
+          embed?: ChatEmbed | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["chat_messages"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

@@ -3,7 +3,7 @@ import { getMessages, getOrCreateThread, sendChatMessage } from "@/lib/api/chat"
 import type { ChatEmbed, ChatMessage } from "@/types/db";
 import { qk } from "./keys";
 
-export function useThread(userId: string | null) {
+export function useThread(userId: string | null | undefined) {
   return useQuery({
     queryKey: qk.chatThread(userId ?? ""),
     queryFn: () => getOrCreateThread(userId!),
