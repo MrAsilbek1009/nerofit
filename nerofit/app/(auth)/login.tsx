@@ -25,18 +25,49 @@ export default function LoginScreen() {
   const [mode, setMode] = useState<Mode>("signIn");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [applePressed, setApplePressed] = useState(false);
 
+  function mapAuthError(msg: string): string {
+    if (/rate limit/i.test(msg)) return t("auth.rateLimited");
+    if (/invalid login credentials/i.test(msg)) return t("auth.invalidCredentials");
+    return msg;
+  }
+
   async function onSubmit() {
+    if (loading) return; // guard against double taps
     setError(null);
+    setNotice(null);
     setLoading(true);
-    const { error } =
-      mode === "signIn"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
-    setLoading(false);
-    if (error) setError(error.message);
-    // success → auth gate redirects.
+    try {
+      if (mode === "signIn") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) setError(mapAuthError(error.message));
+        // success → auth gate redirects.
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setError(mapAuthError(error.message));
+        return;
+      }
+      if (data.session) {
+        // Email confirmation disabled → signed in immediately; gate redirects.
+        return;
+      }
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        // Supabase returns a stub user with no identities when the email
+        // already exists (and confirmation is on). Nudge them to log in.
+        setMode("signIn");
+        setNotice(t("auth.alreadyRegistered"));
+        return;
+      }
+      // A confirmation email was sent.
+      setNotice(t("auth.checkEmail"));
+    } finally {
+      setLoading(false);
+    }
   }
 
   function onApple() {
@@ -106,6 +137,20 @@ export default function LoginScreen() {
                 }}
               >
                 <Text style={typography.body}>{error}</Text>
+              </View>
+            ) : null}
+
+            {notice ? (
+              <View
+                style={{
+                  backgroundColor: colors.elevated,
+                  borderRadius: radii.sm,
+                  padding: space[3],
+                  borderWidth: 1,
+                  borderColor: colors.accent,
+                }}
+              >
+                <Text style={typography.body}>{notice}</Text>
               </View>
             ) : null}
 

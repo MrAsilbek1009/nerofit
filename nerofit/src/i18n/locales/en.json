@@ -11,7 +11,11 @@
     "createAccount": "Create account",
     "apple": "Continue with Apple",
     "appleStubTitle": "Coming soon",
-    "appleStubBody": "Apple Sign In ships in a later phase."
+    "appleStubBody": "Apple Sign In ships in a later phase.",
+    "rateLimited": "Too many attempts. Please wait a minute and try again.",
+    "invalidCredentials": "Wrong email or password.",
+    "alreadyRegistered": "This email is already registered. Please log in.",
+    "checkEmail": "Check your email to confirm your account, then log in."
   },
 
   "onboarding": {
@@ -172,6 +176,20 @@
     "addToSlot": "Add to {{slot}}",
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
     "emptyMeals": "No catalog meals yet."
+  },
+
+  "coach": {
+    "title": "AI Coach",
+    "emptyTitle": "Ask Forge",
+    "emptySubtitle": "Your AI coach knows your goals, workouts, and nutrition. Ask anything.",
+    "inputPlaceholder": "Ask Forge AI Coach…",
+    "sendError": "Failed to send. Check your connection and try again.",
+    "suggestions": {
+      "adjustPlan": "Adjust today's plan",
+      "howAmIDoing": "How am I doing?",
+      "mealIdeas": "Meal ideas",
+      "recoveryTips": "Recovery tips"
+    }
   },
 
   "common": {

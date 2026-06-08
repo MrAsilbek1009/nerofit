@@ -11,7 +11,11 @@
     "createAccount": "Создать аккаунт",
     "apple": "Продолжить с Apple",
     "appleStubTitle": "Скоро",
-    "appleStubBody": "Apple Sign In появится позже."
+    "appleStubBody": "Apple Sign In появится позже.",
+    "rateLimited": "Слишком много попыток. Подождите минуту и повторите.",
+    "invalidCredentials": "Неверный email или пароль.",
+    "alreadyRegistered": "Этот email уже зарегистрирован. Войдите.",
+    "checkEmail": "Проверьте почту для подтверждения, затем войдите."
   },
 
   "onboarding": {
@@ -172,6 +176,20 @@
     "addToSlot": "Добавить в «{{slot}}»",
     "dayPart": { "morning": "Утро", "midday": "День", "evening": "Вечер" },
     "emptyMeals": "Блюд пока нет."
+  },
+
+  "coach": {
+    "title": "ИИ Тренер",
+    "emptyTitle": "Спросите Forge",
+    "emptySubtitle": "Ваш ИИ-тренер знает ваши цели, тренировки и питание. Спрашивайте всё что угодно.",
+    "inputPlaceholder": "Спросите ИИ-тренера…",
+    "sendError": "Не удалось отправить. Проверьте соединение и попробуйте снова.",
+    "suggestions": {
+      "adjustPlan": "Скорректировать план",
+      "howAmIDoing": "Как мои успехи?",
+      "mealIdeas": "Идеи для питания",
+      "recoveryTips": "Советы по восстановлению"
+    }
   },
 
   "common": {

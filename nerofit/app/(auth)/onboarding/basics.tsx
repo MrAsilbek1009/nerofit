@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";  
+import { useRef, useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { StepShell } from "@/features/onboarding/components/StepShell";
 import { useOnboardingStore } from "@/features/onboarding/store";
 import { basicsSchema, SEX_VALUES } from "@/features/onboarding/schema";
+import { noWebOutline } from "@/lib/style";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function BasicsStep() {
@@ -23,6 +24,9 @@ export default function BasicsStep() {
   const [weight, setWeight] = useState<string>(
     draft.weight_kg?.toString() ?? "",
   );
+
+  const heightRef = useRef<TextInput>(null);
+  const weightRef = useRef<TextInput>(null);
 
   const parsed = basicsSchema.safeParse({
     sex,
@@ -72,18 +76,30 @@ export default function BasicsStep() {
           label={t("onboarding.basics.age")}
           value={age}
           onChangeText={setAge}
+          placeholder="28"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => heightRef.current?.focus()}
         />
         <NumberRow
           label={t("onboarding.basics.height")}
           value={height}
           onChangeText={setHeight}
           suffix={t("onboarding.basics.cm")}
+          placeholder="180"
+          inputRef={heightRef}
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => weightRef.current?.focus()}
         />
         <NumberRow
           label={t("onboarding.basics.weight")}
           value={weight}
           onChangeText={setWeight}
           suffix={t("onboarding.basics.kg")}
+          placeholder="75"
+          inputRef={weightRef}
+          returnKeyType="done"
         />
       </View>
     </StepShell>
@@ -146,19 +162,34 @@ function NumberRow({
   value,
   onChangeText,
   suffix,
+  placeholder,
+  inputRef,
+  returnKeyType,
+  onSubmitEditing,
+  submitBehavior,
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   suffix?: string;
+  placeholder?: string;
+  inputRef?: React.RefObject<TextInput | null>;
+  returnKeyType?: "next" | "done";
+  onSubmitEditing?: () => void;
+  submitBehavior?: "submit" | "blurAndSubmit";
 }) {
+  const internalRef = useRef<TextInput>(null);
+  const ref = inputRef ?? internalRef;
   return (
-    <View
+    <Pressable
+      onPress={() => ref.current?.focus()}
+      accessibilityRole="button"
       style={{
         backgroundColor: colors.elevated,
         borderRadius: radii.md,
         paddingHorizontal: space[4],
-        paddingVertical: space[3],
+        paddingVertical: space[4],
+        minHeight: 64,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -175,23 +206,31 @@ function NumberRow({
       </Text>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[1] }}>
         <TextInput
+          ref={ref}
           value={value}
           onChangeText={onChangeText}
           keyboardType="numeric"
-          placeholder="—"
+          placeholder={placeholder ?? "—"}
           placeholderTextColor={colors.textLo}
-          style={{
-            fontFamily: fonts.display,
-            color: colors.textHi,
-            fontSize: 22,
-            minWidth: 48,
-            textAlign: "right",
-          }}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
+          submitBehavior={submitBehavior}
+          style={[
+            {
+              fontFamily: fonts.display,
+              color: colors.textHi,
+              fontSize: 28,
+              minWidth: 56,
+              textAlign: "right",
+              paddingVertical: 0,
+            },
+            noWebOutline,
+          ]}
         />
         {suffix ? (
           <Text style={[typography.bodyMuted, { fontSize: 13 }]}>{suffix}</Text>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
