@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { ArrowUp, Mic } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { noWebOutline } from "@/lib/style";
 import { colors, fonts, radii, space } from "@/theme";
 
 type Props = {
@@ -55,13 +56,16 @@ export function ChatInput({ value, onChange, onSend, sending }: Props) {
           placeholder={t("coach.inputPlaceholder")}
           placeholderTextColor={colors.textLo}
           multiline
-          style={{
-            flex: 1,
-            fontFamily: fonts.body,
-            fontSize: 15,
-            color: colors.textHi,
-            maxHeight: 120,
-          }}
+          style={[
+            {
+              flex: 1,
+              fontFamily: fonts.body,
+              fontSize: 15,
+              color: colors.textHi,
+              maxHeight: 120,
+            },
+            noWebOutline,
+          ]}
           onSubmitEditing={canSend ? onSend : undefined}
         />
         <Pressable

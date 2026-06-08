@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";  
+import { useRef, useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { StepShell } from "@/features/onboarding/components/StepShell";
 import { useOnboardingStore } from "@/features/onboarding/store";
 import { basicsSchema, SEX_VALUES } from "@/features/onboarding/schema";
+import { noWebOutline } from "@/lib/style";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function BasicsStep() {
@@ -72,18 +73,21 @@ export default function BasicsStep() {
           label={t("onboarding.basics.age")}
           value={age}
           onChangeText={setAge}
+          placeholder="28"
         />
         <NumberRow
           label={t("onboarding.basics.height")}
           value={height}
           onChangeText={setHeight}
           suffix={t("onboarding.basics.cm")}
+          placeholder="180"
         />
         <NumberRow
           label={t("onboarding.basics.weight")}
           value={weight}
           onChangeText={setWeight}
           suffix={t("onboarding.basics.kg")}
+          placeholder="75"
         />
       </View>
     </StepShell>
@@ -146,19 +150,25 @@ function NumberRow({
   value,
   onChangeText,
   suffix,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   suffix?: string;
+  placeholder?: string;
 }) {
+  const inputRef = useRef<TextInput>(null);
   return (
-    <View
+    <Pressable
+      onPress={() => inputRef.current?.focus()}
+      accessibilityRole="button"
       style={{
         backgroundColor: colors.elevated,
         borderRadius: radii.md,
         paddingHorizontal: space[4],
-        paddingVertical: space[3],
+        paddingVertical: space[4],
+        minHeight: 64,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -175,23 +185,28 @@ function NumberRow({
       </Text>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[1] }}>
         <TextInput
+          ref={inputRef}
           value={value}
           onChangeText={onChangeText}
           keyboardType="numeric"
-          placeholder="—"
+          placeholder={placeholder ?? "—"}
           placeholderTextColor={colors.textLo}
-          style={{
-            fontFamily: fonts.display,
-            color: colors.textHi,
-            fontSize: 22,
-            minWidth: 48,
-            textAlign: "right",
-          }}
+          style={[
+            {
+              fontFamily: fonts.display,
+              color: colors.textHi,
+              fontSize: 28,
+              minWidth: 56,
+              textAlign: "right",
+              paddingVertical: 0,
+            },
+            noWebOutline,
+          ]}
         />
         {suffix ? (
           <Text style={[typography.bodyMuted, { fontSize: 13 }]}>{suffix}</Text>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
