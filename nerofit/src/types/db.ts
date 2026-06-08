@@ -413,3 +413,31 @@ export type MealLog = Database["public"]["Tables"]["meal_logs"]["Row"];
 export type Supplement = Database["public"]["Tables"]["supplements"]["Row"];
 export type SupplementLog =
   Database["public"]["Tables"]["supplement_logs"]["Row"];
+
+export type ChatRole = "user" | "assistant";
+
+export type ChatEmbed = {
+  type: "workout";
+  id: string;
+  title: string;
+  est_minutes: number | null;
+  category: string | null;
+  image_url: string | null;
+};
+
+export type ChatThread = {
+  id: string;
+  user_id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  thread_id: string;
+  role: ChatRole;
+  content: string;
+  embed: ChatEmbed | null;
+  created_at: string;
+};

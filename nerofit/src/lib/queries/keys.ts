@@ -24,4 +24,6 @@ export const qk = {
   supplements: () => ["supplements"] as const,
   supplementLogsToday: (userId: string) =>
     ["supplement-logs-today", userId] as const,
+  chatThread: (userId: string) => ["chat-thread", userId] as const,
+  chatMessages: (threadId: string) => ["chat-messages", threadId] as const,
 };
