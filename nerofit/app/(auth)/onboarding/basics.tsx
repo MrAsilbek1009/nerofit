@@ -78,7 +78,7 @@ export default function BasicsStep() {
           onChangeText={setAge}
           placeholder="28"
           returnKeyType="next"
-          blurOnSubmit={false}
+          submitBehavior="submit"
           onSubmitEditing={() => heightRef.current?.focus()}
         />
         <NumberRow
@@ -89,7 +89,7 @@ export default function BasicsStep() {
           placeholder="180"
           inputRef={heightRef}
           returnKeyType="next"
-          blurOnSubmit={false}
+          submitBehavior="submit"
           onSubmitEditing={() => weightRef.current?.focus()}
         />
         <NumberRow
@@ -166,7 +166,7 @@ function NumberRow({
   inputRef,
   returnKeyType,
   onSubmitEditing,
-  blurOnSubmit,
+  submitBehavior,
 }: {
   label: string;
   value: string;
@@ -176,7 +176,7 @@ function NumberRow({
   inputRef?: React.RefObject<TextInput | null>;
   returnKeyType?: "next" | "done";
   onSubmitEditing?: () => void;
-  blurOnSubmit?: boolean;
+  submitBehavior?: "submit" | "blurAndSubmit";
 }) {
   const internalRef = useRef<TextInput>(null);
   const ref = inputRef ?? internalRef;
@@ -214,7 +214,7 @@ function NumberRow({
           placeholderTextColor={colors.textLo}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
-          blurOnSubmit={blurOnSubmit}
+          submitBehavior={submitBehavior}
           style={[
             {
               fontFamily: fonts.display,
