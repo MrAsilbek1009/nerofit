@@ -46,6 +46,28 @@ npx expo start --dev-client
 - `preview` — ichki test uchun APK.
 - `production` — Play Store uchun **AAB** (app-bundle), versiya avtomatik oshadi.
 
+## 7. EAS Update (OTA) — JS'ni build'siz yuborish
+`expo-updates` qo'shildi. Bu JS/asset o'zgarishlarini do'kon yoki yangi
+build'siz telefonga yuborishga imkon beradi. `app.json` da `updates.url` va
+`runtimeVersion` (fingerprint) allaqachon sozlangan; `eas.json` profillariga
+`channel` qo'shildi.
+
+> ⚠️ **Muhim:** `expo-updates` yangi native modul. OTA ishlashi uchun **dev
+> client'ni bir marta qayta build qiling**:
+> `npx eas-cli build --profile development --platform android`
+> Eski build'da (expo-updates'siz) OTA ishlamaydi.
+
+OTA yangilanish yuborish:
+```powershell
+npx eas-cli update --branch preview --message "Nima o'zgardi"
+```
+- `--branch` build profilidagi `channel` bilan mos bo'lishi kerak
+  (development / preview / production).
+- production build'lar `production` kanalidan yangilanish oladi.
+
+> Faol development paytida OTA shart emas — `npx expo start --dev-client`
+> (Metro) o'zgarishni darrov ko'rsatadi. OTA preview/production build'lar uchun.
+
 ## Keyingi qadamlar (dev build tayyor bo'lgach)
 1. **Push (eslatmalar)** — `expo-notifications` bilan suv/mashg'ulot/qo'shimcha
    eslatmalari. Profile'dagi Notification toggle'ni real qilamiz.
