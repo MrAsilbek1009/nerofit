@@ -192,6 +192,14 @@
     }
   },
 
+  "tabs": {
+    "home": "Главная",
+    "workouts": "Тренировки",
+    "nutrition": "Питание",
+    "coach": "Тренер",
+    "profile": "Профиль"
+  },
+
   "profile": {
     "title": "Профиль",
     "focusLabels": {
@@ -212,6 +220,19 @@
     "comingSoonTitle": "Скоро",
     "subscriptionBody": "Подписки появятся в следующем обновлении.",
     "notificationsBody": "Push-уведомления появятся в следующем обновлении."
+  },
+
+  "bodyComp": {
+    "title": "Состав тела",
+    "subtitle": "Запишите последние измерения",
+    "weight": "Вес",
+    "height": "Рост",
+    "bodyFat": "Жир",
+    "kg": "кг",
+    "cm": "см",
+    "pct": "%",
+    "save": "Сохранить",
+    "saved": "Сохранено"
   },
 
   "common": {

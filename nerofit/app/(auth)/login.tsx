@@ -14,6 +14,7 @@ import { Apple } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { noWebOutline } from "@/lib/style";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 type Mode = "signIn" | "signUp";
@@ -226,14 +227,17 @@ function Field({ label, ...input }: FieldProps) {
       <TextInput
         {...input}
         placeholderTextColor={colors.textLo}
-        style={{
-          fontFamily: fonts.body,
-          color: colors.textHi,
-          fontSize: 17,
-          paddingVertical: space[2],
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        }}
+        style={[
+          {
+            fontFamily: fonts.body,
+            color: colors.textHi,
+            fontSize: 17,
+            paddingVertical: space[2],
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          },
+          noWebOutline,
+        ]}
       />
     </View>
   );

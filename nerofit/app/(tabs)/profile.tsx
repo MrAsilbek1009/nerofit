@@ -108,7 +108,7 @@ export default function ProfileScreen() {
           <Row
             icon={<Activity size={18} color={colors.textHi} />}
             label={t("profile.bodyComposition")}
-            onPress={() => router.push("/progress")}
+            onPress={() => router.push("/body-composition")}
             right={<ChevronRight size={18} color={colors.textLo} />}
           />
           <Row

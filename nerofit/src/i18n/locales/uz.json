@@ -192,6 +192,14 @@
     }
   },
 
+  "tabs": {
+    "home": "Asosiy",
+    "workouts": "Mashqlar",
+    "nutrition": "Ovqatlanish",
+    "coach": "Murabbiy",
+    "profile": "Profil"
+  },
+
   "profile": {
     "title": "Profil",
     "focusLabels": {
@@ -212,6 +220,19 @@
     "comingSoonTitle": "Tez orada",
     "subscriptionBody": "Obunalar keyingi yangilanishda qoʻshiladi.",
     "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi."
+  },
+
+  "bodyComp": {
+    "title": "Tana tarkibi",
+    "subtitle": "Oxirgi oʻlchovlaringizni kiriting",
+    "weight": "Vazn",
+    "height": "Boʻy",
+    "bodyFat": "Tana yogʻi",
+    "kg": "kg",
+    "cm": "sm",
+    "pct": "%",
+    "save": "Saqlash",
+    "saved": "Saqlandi"
   },
 
   "common": {

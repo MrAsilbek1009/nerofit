@@ -192,6 +192,14 @@
     }
   },
 
+  "tabs": {
+    "home": "Home",
+    "workouts": "Workouts",
+    "nutrition": "Nutrition",
+    "coach": "Coach",
+    "profile": "Profile"
+  },
+
   "profile": {
     "title": "Profile",
     "focusLabels": {
@@ -212,6 +220,19 @@
     "comingSoonTitle": "Coming soon",
     "subscriptionBody": "Subscriptions ship in a later update.",
     "notificationsBody": "Push notifications ship in a later update."
+  },
+
+  "bodyComp": {
+    "title": "Body Composition",
+    "subtitle": "Log your latest measurements",
+    "weight": "Weight",
+    "height": "Height",
+    "bodyFat": "Body fat",
+    "kg": "kg",
+    "cm": "cm",
+    "pct": "%",
+    "save": "Save",
+    "saved": "Saved"
   },
 
   "common": {
