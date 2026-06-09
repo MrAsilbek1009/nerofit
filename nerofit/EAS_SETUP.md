@@ -52,10 +52,11 @@ build'siz telefonga yuborishga imkon beradi. `app.json` da `updates.url` va
 `runtimeVersion` (fingerprint) allaqachon sozlangan; `eas.json` profillariga
 `channel` qo'shildi.
 
-> ⚠️ **Muhim:** `expo-updates` yangi native modul. OTA ishlashi uchun **dev
-> client'ni bir marta qayta build qiling**:
+> ⚠️ **Muhim:** `expo-updates` **va** `expo-notifications` yangi native
+> modullar. Ikkalasi ishlashi uchun **dev client'ni bir marta qayta build
+> qiling** (bitta rebuild ikkalasini qamraydi):
 > `npx eas-cli build --profile development --platform android`
-> Eski build'da (expo-updates'siz) OTA ishlamaydi.
+> Eski build'da OTA ham, bildirishnomalar ham ishlamaydi.
 
 OTA yangilanish yuborish:
 ```powershell

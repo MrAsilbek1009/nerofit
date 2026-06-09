@@ -219,7 +219,14 @@
     "tierElite": "Elite",
     "comingSoonTitle": "Coming soon",
     "subscriptionBody": "Subscriptions ship in a later update.",
-    "notificationsBody": "Push notifications ship in a later update."
+    "notificationsBody": "Push notifications ship in a later update.",
+    "notificationsDenied": "Enable notifications in Settings to get reminders."
+  },
+
+  "reminders": {
+    "supplements": { "title": "Supplements", "body": "Take your daily supplements." },
+    "water": { "title": "Hydrate", "body": "Time for a glass of water." },
+    "workout": { "title": "Training time", "body": "Your workout is waiting." }
   },
 
   "bodyComp": {

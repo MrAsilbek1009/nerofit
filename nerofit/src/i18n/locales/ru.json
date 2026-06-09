@@ -219,7 +219,14 @@
     "tierElite": "Elite",
     "comingSoonTitle": "Скоро",
     "subscriptionBody": "Подписки появятся в следующем обновлении.",
-    "notificationsBody": "Push-уведомления появятся в следующем обновлении."
+    "notificationsBody": "Push-уведомления появятся в следующем обновлении.",
+    "notificationsDenied": "Включите уведомления в настройках для напоминаний."
+  },
+
+  "reminders": {
+    "supplements": { "title": "Добавки", "body": "Примите дневные добавки." },
+    "water": { "title": "Попейте воды", "body": "Время для стакана воды." },
+    "workout": { "title": "Время тренировки", "body": "Тренировка ждёт вас." }
   },
 
   "bodyComp": {

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -18,8 +19,16 @@ import { useGoals } from "@/lib/queries/goals";
 import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
 import { useWorkoutStats } from "@/lib/queries/progress";
 import { useAuthStore } from "@/store/auth";
+import {
+  cancelReminders,
+  ensureNotificationPermission,
+  scheduleReminders,
+  type ReminderTexts,
+} from "@/lib/notifications";
 import { setLocale, SUPPORTED_LOCALES, type SupportedLocale } from "@/i18n";
 import { colors, fonts, radii, space, typography } from "@/theme";
+
+const NOTIF_PREF_KEY = "notifications-enabled";
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -32,7 +41,45 @@ export default function ProfileScreen() {
   const latestBody = useLatestBodyMetric(userId);
   const stats = useWorkoutStats(userId);
 
-  const [notifications, setNotifications] = useState(true);
+  const [notifications, setNotifications] = useState(false);
+
+  // Reflect the saved preference (local device setting, not server state).
+  useEffect(() => {
+    void AsyncStorage.getItem(NOTIF_PREF_KEY).then((v) =>
+      setNotifications(v === "true"),
+    );
+  }, []);
+
+  function reminderTexts(): ReminderTexts {
+    return {
+      supplements: {
+        title: t("reminders.supplements.title"),
+        body: t("reminders.supplements.body"),
+      },
+      water: { title: t("reminders.water.title"), body: t("reminders.water.body") },
+      workout: {
+        title: t("reminders.workout.title"),
+        body: t("reminders.workout.body"),
+      },
+    };
+  }
+
+  async function toggleNotifications(next: boolean) {
+    setNotifications(next); // optimistic
+    if (next) {
+      const granted = await ensureNotificationPermission();
+      if (!granted) {
+        setNotifications(false);
+        Alert.alert(t("profile.comingSoonTitle"), t("profile.notificationsDenied"));
+        return;
+      }
+      await scheduleReminders(reminderTexts());
+      await AsyncStorage.setItem(NOTIF_PREF_KEY, "true");
+    } else {
+      await cancelReminders();
+      await AsyncStorage.setItem(NOTIF_PREF_KEY, "false");
+    }
+  }
 
   const focus = goals.data?.focus;
   const subtitle = focus ? t(`profile.focusLabels.${focus}`) : "";
@@ -117,11 +164,7 @@ export default function ProfileScreen() {
             right={
               <Switch
                 value={notifications}
-                onValueChange={(v) => {
-                  setNotifications(v);
-                  if (v)
-                    Alert.alert(t("profile.comingSoonTitle"), t("profile.notificationsBody"));
-                }}
+                onValueChange={(v) => void toggleNotifications(v)}
                 trackColor={{ true: colors.accent, false: colors.border }}
                 thumbColor={colors.textHi}
               />

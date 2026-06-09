@@ -219,7 +219,14 @@
     "tierElite": "Elite",
     "comingSoonTitle": "Tez orada",
     "subscriptionBody": "Obunalar keyingi yangilanishda qoʻshiladi.",
-    "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi."
+    "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi.",
+    "notificationsDenied": "Eslatmalar uchun Sozlamalarda bildirishnomalarni yoqing."
+  },
+
+  "reminders": {
+    "supplements": { "title": "Qoʻshimchalar", "body": "Kunlik qoʻshimchalaringizni qabul qiling." },
+    "water": { "title": "Suv iching", "body": "Bir stakan suv vaqti keldi." },
+    "workout": { "title": "Mashgʻulot vaqti", "body": "Mashgʻulotingiz kutmoqda." }
   },
 
   "bodyComp": {
