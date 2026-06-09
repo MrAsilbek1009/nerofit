@@ -192,6 +192,49 @@
     }
   },
 
+  "tabs": {
+    "home": "Asosiy",
+    "workouts": "Mashqlar",
+    "nutrition": "Ovqatlanish",
+    "coach": "Murabbiy",
+    "profile": "Profil"
+  },
+
+  "profile": {
+    "title": "Profil",
+    "focusLabels": {
+      "lose_fat": "Yogʻ kamaytirish",
+      "build_muscle": "Gipertrofiya va natija",
+      "stay_fit": "Forma va salomatlik"
+    },
+    "weight": "Vazn (kg)",
+    "goal": "Maqsad (kg)",
+    "workouts": "Mashgʻulotlar",
+    "bodyComposition": "Tana tarkibi",
+    "notifications": "Bildirishnoma sozlamalari",
+    "subscription": "Obuna",
+    "language": "Til",
+    "logOut": "Chiqish",
+    "tierFree": "Bepul",
+    "tierElite": "Elite",
+    "comingSoonTitle": "Tez orada",
+    "subscriptionBody": "Obunalar keyingi yangilanishda qoʻshiladi.",
+    "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi."
+  },
+
+  "bodyComp": {
+    "title": "Tana tarkibi",
+    "subtitle": "Oxirgi oʻlchovlaringizni kiriting",
+    "weight": "Vazn",
+    "height": "Boʻy",
+    "bodyFat": "Tana yogʻi",
+    "kg": "kg",
+    "cm": "sm",
+    "pct": "%",
+    "save": "Saqlash",
+    "saved": "Saqlandi"
+  },
+
   "common": {
     "loading": "Yuklanmoqda…",
     "error": "Xatolik yuz berdi.",

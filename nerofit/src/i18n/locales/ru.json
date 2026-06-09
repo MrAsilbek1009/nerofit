@@ -192,6 +192,49 @@
     }
   },
 
+  "tabs": {
+    "home": "Главная",
+    "workouts": "Тренировки",
+    "nutrition": "Питание",
+    "coach": "Тренер",
+    "profile": "Профиль"
+  },
+
+  "profile": {
+    "title": "Профиль",
+    "focusLabels": {
+      "lose_fat": "Сжигание жира",
+      "build_muscle": "Гипертрофия и результат",
+      "stay_fit": "Форма и здоровье"
+    },
+    "weight": "Вес (кг)",
+    "goal": "Цель (кг)",
+    "workouts": "Тренировки",
+    "bodyComposition": "Состав тела",
+    "notifications": "Настройки уведомлений",
+    "subscription": "Подписка",
+    "language": "Язык",
+    "logOut": "Выйти",
+    "tierFree": "Бесплатно",
+    "tierElite": "Elite",
+    "comingSoonTitle": "Скоро",
+    "subscriptionBody": "Подписки появятся в следующем обновлении.",
+    "notificationsBody": "Push-уведомления появятся в следующем обновлении."
+  },
+
+  "bodyComp": {
+    "title": "Состав тела",
+    "subtitle": "Запишите последние измерения",
+    "weight": "Вес",
+    "height": "Рост",
+    "bodyFat": "Жир",
+    "kg": "кг",
+    "cm": "см",
+    "pct": "%",
+    "save": "Сохранить",
+    "saved": "Сохранено"
+  },
+
   "common": {
     "loading": "Загрузка…",
     "error": "Что-то пошло не так.",

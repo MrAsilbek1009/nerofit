@@ -1,8 +1,10 @@
 import { Tabs } from "expo-router";
 import { Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { colors, fonts } from "@/theme";
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -24,35 +26,35 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: t("tabs.home"),
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="workouts"
         options={{
-          title: "Workouts",
+          title: t("tabs.workouts"),
           tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="nutrition"
         options={{
-          title: "Nutrition",
+          title: t("tabs.nutrition"),
           tabBarIcon: ({ color, size }) => <Utensils color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="coach"
         options={{
-          title: "Coach",
+          title: t("tabs.coach"),
           tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t("tabs.profile"),
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

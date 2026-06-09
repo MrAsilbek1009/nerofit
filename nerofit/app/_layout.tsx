@@ -108,6 +108,7 @@ function AuthGate() {
       <Stack.Screen name="workout/[id]" />
       <Stack.Screen name="exercise/[id]" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="progress" />
+      <Stack.Screen name="body-composition" />
       <Stack.Screen name="meal-picker" options={{ presentation: "modal" }} />
     </Stack>
   );
