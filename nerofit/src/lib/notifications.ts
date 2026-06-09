@@ -1,17 +1,40 @@
-import * as Notifications from "expo-notifications";
+import type * as NotificationsModule from "expo-notifications";
 import { Platform } from "react-native";
 
-// Foreground display behaviour.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+type Notifications = typeof NotificationsModule;
 
 const CHANNEL_ID = "reminders";
+
+// Lazily resolved. `undefined` = not tried yet, `null` = native module absent.
+let mod: Notifications | null | undefined;
+
+// Load expo-notifications only on demand. In a build WITHOUT the native module
+// (e.g. an older dev client before the rebuild, or Expo Go), the require throws
+// — we catch it and treat notifications as unavailable instead of crashing the
+// whole app at import time.
+function getMod(): Notifications | null {
+  if (mod !== undefined) return mod;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const N = require("expo-notifications") as Notifications;
+    N.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+    mod = N;
+  } catch {
+    mod = null;
+  }
+  return mod;
+}
+
+export function notificationsAvailable(): boolean {
+  return getMod() !== null;
+}
 
 export type ReminderId = "supplements" | "water" | "workout";
 export type ReminderCopy = { title: string; body: string };
@@ -25,30 +48,34 @@ const SCHEDULE: Record<ReminderId, { hour: number; minute: number }> = {
 };
 
 export async function ensureNotificationPermission(): Promise<boolean> {
-  const current = await Notifications.getPermissionsAsync();
+  const N = getMod();
+  if (!N) return false;
+  const current = await N.getPermissionsAsync();
   if (current.granted) return true;
-  const req = await Notifications.requestPermissionsAsync();
+  const req = await N.requestPermissionsAsync();
   return req.granted;
 }
 
-async function ensureAndroidChannel(): Promise<void> {
+async function ensureAndroidChannel(N: Notifications): Promise<void> {
   if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+  await N.setNotificationChannelAsync(CHANNEL_ID, {
     name: "Reminders",
-    importance: Notifications.AndroidImportance.DEFAULT,
+    importance: N.AndroidImportance.DEFAULT,
   });
 }
 
 // Replace any existing schedule with the three daily reminders.
 export async function scheduleReminders(texts: ReminderTexts): Promise<void> {
-  await ensureAndroidChannel();
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  const N = getMod();
+  if (!N) return;
+  await ensureAndroidChannel(N);
+  await N.cancelAllScheduledNotificationsAsync();
   for (const id of Object.keys(SCHEDULE) as ReminderId[]) {
     const { hour, minute } = SCHEDULE[id];
-    await Notifications.scheduleNotificationAsync({
+    await N.scheduleNotificationAsync({
       content: { title: texts[id].title, body: texts[id].body },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        type: N.SchedulableTriggerInputTypes.DAILY,
         hour,
         minute,
         channelId: CHANNEL_ID,
@@ -58,5 +85,7 @@ export async function scheduleReminders(texts: ReminderTexts): Promise<void> {
 }
 
 export async function cancelReminders(): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  const N = getMod();
+  if (!N) return;
+  await N.cancelAllScheduledNotificationsAsync();
 }

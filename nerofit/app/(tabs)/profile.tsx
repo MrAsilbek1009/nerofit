@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/auth";
 import {
   cancelReminders,
   ensureNotificationPermission,
+  notificationsAvailable,
   scheduleReminders,
   type ReminderTexts,
 } from "@/lib/notifications";
@@ -67,6 +68,12 @@ export default function ProfileScreen() {
   async function toggleNotifications(next: boolean) {
     setNotifications(next); // optimistic
     if (next) {
+      if (!notificationsAvailable()) {
+        // Native module not in this build yet (needs a dev-client rebuild).
+        setNotifications(false);
+        Alert.alert(t("profile.comingSoonTitle"), t("profile.notificationsUnavailable"));
+        return;
+      }
       const granted = await ensureNotificationPermission();
       if (!granted) {
         setNotifications(false);

@@ -220,7 +220,8 @@
     "comingSoonTitle": "Tez orada",
     "subscriptionBody": "Obunalar keyingi yangilanishda qoʻshiladi.",
     "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi.",
-    "notificationsDenied": "Eslatmalar uchun Sozlamalarda bildirishnomalarni yoqing."
+    "notificationsDenied": "Eslatmalar uchun Sozlamalarda bildirishnomalarni yoqing.",
+    "notificationsUnavailable": "Eslatmalar uchun yangi build kerak. Dev client'ni qayta build qiling va qaytadan urinib koʻring."
   },
 
   "reminders": {

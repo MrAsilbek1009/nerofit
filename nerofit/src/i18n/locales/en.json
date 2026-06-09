@@ -220,7 +220,8 @@
     "comingSoonTitle": "Coming soon",
     "subscriptionBody": "Subscriptions ship in a later update.",
     "notificationsBody": "Push notifications ship in a later update.",
-    "notificationsDenied": "Enable notifications in Settings to get reminders."
+    "notificationsDenied": "Enable notifications in Settings to get reminders.",
+    "notificationsUnavailable": "Reminders need a fresh app build. Rebuild the dev client, then try again."
   },
 
   "reminders": {
