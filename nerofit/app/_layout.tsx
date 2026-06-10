@@ -3,10 +3,16 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
+import { SplashScreen, Stack, useRouter, useSegments, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useProfile } from "@/lib/queries/profile";
 import { useUserId } from "@/hooks/useUser";
+import {
+  identifyUser,
+  initAnalytics,
+  resetAnalytics,
+  trackScreen,
+} from "@/lib/analytics";
 import {
   HankenGrotesk_600SemiBold,
   HankenGrotesk_700Bold,
@@ -39,7 +45,10 @@ export default function RootLayout() {
 
   const ready = useAuthStore((s) => s.ready);
 
-  useEffect(() => bootstrapAuth(), []);
+  useEffect(() => {
+    initAnalytics();
+    return bootstrapAuth();
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded && ready) {
@@ -68,9 +77,21 @@ export default function RootLayout() {
 function AuthGate() {
   const router = useRouter();
   const segments = useSegments();
+  const pathname = usePathname();
   const session = useAuthStore((s) => s.session);
   const userId = useUserId();
   const profileQuery = useProfile(userId);
+
+  // Tie analytics identity to the signed-in user; reset on sign-out.
+  useEffect(() => {
+    if (userId) identifyUser(userId);
+    else resetAnalytics();
+  }, [userId]);
+
+  // Screen views.
+  useEffect(() => {
+    trackScreen(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     const segs = segments as string[];

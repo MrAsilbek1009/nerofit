@@ -69,10 +69,47 @@ npx eas-cli update --branch preview --message "Nima o'zgardi"
 > Faol development paytida OTA shart emas — `npx expo start --dev-client`
 > (Metro) o'zgarishni darrov ko'rsatadi. OTA preview/production build'lar uchun.
 
-## Keyingi qadamlar (dev build tayyor bo'lgach)
-1. **Push (eslatmalar)** — `expo-notifications` bilan suv/mashg'ulot/qo'shimcha
-   eslatmalari. Profile'dagi Notification toggle'ni real qilamiz.
-2. **Analytics** — provider tanlaymiz (PostHog/Amplitude) + hodisalarni ulaymiz.
+## 8. Analytics (PostHog)
+
+Provider = **PostHog** (`posthog-react-native`). Native kontekst uchun
+`expo-device`, `expo-application`, `expo-file-system` qo'shildi (yangi native
+modullar → rebuild kerak). Config plugin SHART EMAS.
+
+Kod qatlami: `src/lib/analytics.ts` — `notifications.ts` kabi lazy-load + kalit
+yoki native modul bo'lmasa **no-op** (Expo Go / eski build'da yiqilmaydi).
+Hodisalar `_layout.tsx` (init, identify/reset, ekran ko'rinishlari) va
+mutation'larda (`onboarding_completed`, `workout_completed`, `exercise_logged`,
+`meal_logged`, `supplement_toggled`, `water_logged`, `coach_message_sent`,
+`reminders_enabled/disabled`) ulangan.
+
+Kalitni sozlash (bir martalik):
+1. https://posthog.com → bepul akkaunt → loyiha yarating.
+2. Project Settings'dan **Project API Key** (`phc_…`) ni oling. Bu PUBLIC kalit
+   (anon key kabi), ilovaga joylash xavfsiz.
+3. `nerofit/.env` ga qo'shing (`.env.example` da namuna bor):
+   ```
+   EXPO_PUBLIC_POSTHOG_KEY=phc_...
+   EXPO_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+   ```
+   (EU loyiha bo'lsa host = `https://eu.i.posthog.com`.)
+> Kalit bo'lmasa analytics o'chiq turadi — xato bermaydi.
+
+## 9. Notifications + Analytics — birgalikda rebuild
+
+`expo-notifications`, `expo-updates` **va** yangi analytics native modullari
+(`expo-device/application/file-system`) bitta dev build'da qamraladi.
+`runtimeVersion` "fingerprint" bo'lgani uchun bu o'zgarishlar OTA bilan emas,
+faqat yangi build bilan yetadi:
+
+```powershell
+npx eas-cli build --profile development --platform android
+```
+Build tugagach APK'ni o'rnatib, `npx expo start --dev-client` bilan sinang.
+
+## Keyingi qadamlar
+1. ✅ **Push (eslatmalar)** — ulangan (Profile toggle).
+2. ✅ **Analytics** — PostHog ulangan (yuqoridagi 8-bo'lim). Kalitni `.env` ga
+   qo'ying va 9-bo'limdagi rebuild'ni bajaring.
 3. **RevenueCat** (eng oxirida) — boshlashdan oldin alohida so'rayman.
 
 > JS-only o'zgarishlarni hali ham `npx expo start` (Expo Go) bilan tez sinash

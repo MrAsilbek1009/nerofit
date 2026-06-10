@@ -15,6 +15,7 @@ import {
 } from "@/features/onboarding/schema";
 import { useOnboardingStore } from "@/features/onboarding/store";
 import { submitOnboarding } from "@/features/onboarding/submit";
+import { track } from "@/lib/analytics";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function BuildingStep() {
@@ -47,6 +48,7 @@ export default function BuildingStep() {
 
         if (cancelled) return;
 
+        track("onboarding_completed", { focus: focus.focus });
         await qc.invalidateQueries({ queryKey: qk.profile(userId) });
         reset();
         router.replace("/(tabs)");

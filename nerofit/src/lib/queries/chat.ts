@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMessages, getOrCreateThread, sendChatMessage } from "@/lib/api/chat";
+import { track } from "@/lib/analytics";
 import type { ChatEmbed, ChatMessage } from "@/types/db";
 import { qk } from "./keys";
 
@@ -50,6 +51,7 @@ export function useSendMessage() {
       return { prev, threadId };
     },
     onSuccess: (data, { threadId }) => {
+      track("coach_message_sent", { has_embed: !!data.embed });
       const key = qk.chatMessages(threadId);
       const msgs = qc.getQueryData<ChatMessage[]>(key) ?? [];
       const withoutOpt = msgs.filter((m) => !m.id.startsWith("opt-"));

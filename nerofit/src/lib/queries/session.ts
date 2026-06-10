@@ -5,6 +5,7 @@ import {
   type SessionWithLogs,
 } from "@/lib/api/sessions";
 import { logExercise, type LogExerciseInput } from "@/lib/api/exerciseLogs";
+import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 
 // Active session for a workout (auto-created). Holds the exercise_logs so the
@@ -30,7 +31,11 @@ export function useLogExercise(
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: LogExerciseInput) => logExercise(input),
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
+      track("exercise_logged", {
+        exercise_id: input.exerciseId,
+        status: input.status,
+      });
       if (userId && workoutId) {
         void qc.invalidateQueries({
           queryKey: qk.activeSession(userId, workoutId),
@@ -48,6 +53,7 @@ export function useCompleteSession(
   return useMutation({
     mutationFn: (sessionId: string) => completeSession(sessionId),
     onSuccess: () => {
+      if (workoutId) track("workout_completed", { workout_id: workoutId });
       if (userId && workoutId) {
         void qc.invalidateQueries({
           queryKey: qk.activeSession(userId, workoutId),

@@ -26,6 +26,7 @@ import {
   scheduleReminders,
   type ReminderTexts,
 } from "@/lib/notifications";
+import { track } from "@/lib/analytics";
 import { setLocale, SUPPORTED_LOCALES, type SupportedLocale } from "@/i18n";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
@@ -82,9 +83,11 @@ export default function ProfileScreen() {
       }
       await scheduleReminders(reminderTexts());
       await AsyncStorage.setItem(NOTIF_PREF_KEY, "true");
+      track("reminders_enabled");
     } else {
       await cancelReminders();
       await AsyncStorage.setItem(NOTIF_PREF_KEY, "false");
+      track("reminders_disabled");
     }
   }
 

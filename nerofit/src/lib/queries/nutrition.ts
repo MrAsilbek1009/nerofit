@@ -10,6 +10,7 @@ import {
   listTodaySupplementLogs,
   setSupplementTaken,
 } from "@/lib/api/supplements";
+import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 import type { Meal, MealSlot } from "@/types/db";
 
@@ -37,7 +38,8 @@ export function useLogMeal(userId: string | undefined) {
       if (!userId) throw new Error("Not authenticated");
       return logMeal(userId, meal, slot);
     },
-    onSuccess: () => {
+    onSuccess: (_data, { meal, slot }) => {
+      track("meal_logged", { meal_id: meal.id, slot });
       if (userId)
         void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
     },
@@ -87,7 +89,8 @@ export function useToggleSupplement(userId: string | undefined) {
       if (!userId) throw new Error("Not authenticated");
       return setSupplementTaken(userId, supplementId, taken);
     },
-    onSuccess: () => {
+    onSuccess: (_data, { supplementId, taken }) => {
+      track("supplement_toggled", { supplement_id: supplementId, taken });
       if (userId)
         void qc.invalidateQueries({ queryKey: qk.supplementLogsToday(userId) });
     },
