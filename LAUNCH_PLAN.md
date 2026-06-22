@@ -42,6 +42,9 @@ qoidalar bo'yicha bizning arxitekturaga moslayman (CLAUDE.md hard rules):
 6. **Route'lar yupqa** — logika `src/features/*`, `app/*` faqat kompozitsiya.
 7. Har screen'da **loading / empty / error** holatlari.
 8. TypeScript strict, `any` yo'q; RLS har bir user-owned jadvalda.
+9. **Kiritish uslubi** — cheklangan qiymatlar (yosh, bo'y, vazn, sana, tanlovlar)
+   uchun **yozish emas**, wheel/scroll picker (`components/ui/WheelPicker`) yoki
+   tile/chip tanlov. Klaviatura faqat erkin matn (email, parol, izoh) uchun.
 
 > Ya'ni: dizayn = **vizual manba**, lekin kod = bizning pattern. Layout, ranglar,
 > tipografiya dizaynga mos bo'ladi; ulanish/struktura bizning konvensiyada.
@@ -150,3 +153,79 @@ do'kon talablariga mos.
 
 ## Tavsiya etilgan tartib
 P7 → P8 → P9 → P10 → P11 → P12. (P9 kontentni siz parallel tayyorlashingiz mumkin.)
+
+---
+
+# Workout Track — batafsil reja (Phase 9 yadrosi)
+
+> **Manba:** `design/workout/` — onboarding+routing algoritmi, ~70 mashqli kutubxona,
+> beginner Phase 1 dasturi (weight_adapted, 1–8 hafta), Peloton Strength+ uslubidagi
+> ekranlar.
+>
+> **Qaror 1 — bitta rejim:** hozir faqat berilgan beginner Phase 1 kontenti bilan
+> boshlanadi. Schema ko'p-rejimni (standard/high) keyin **migration'siz** qabul qiladi —
+> faqat yangi `programs` + `program_days` qatorlari qo'shiladi.
+>
+> **Qaror 2 — til:** kontent matni hozir faqat o'zbekcha (name_uz, session_title…).
+> To'liq i18n (uz/ru/en) keyingi bosqich; hozir uz matn saqlanadi.
+>
+> **Video bog'liqligi:** barcha mashq/dars videolari `needed` — trener yozadi (W5).
+> UI/seed videolarsiz, placeholder bilan quriladi.
+
+## W1 — Schema redesign (migration 0008 + 0009)
+
+**Kengaytiriladi `exercises`** (mavjud ustunlar saqlanadi):
+`name_uz`, `category` (push|pull|legs|core|cardio|warmup|mobility_stretch),
+`equipment_tier` (bodyweight|dumbbell_band|gym_full), `progression_tier` (1–3),
+`progression_group`, `injury_knee_safe`/`injury_back_safe`/`injury_shoulder_safe` (bool),
+`cues_uz`, `default_sets_reps` (text). `title` = name_en.
+
+**Yangi `program_days`** (kurrikulum birligi = bir kun):
+id, program_id, week_no, day_no(1–7), weekday, session_title, intro_video_script(null),
+is_rest_day, is_test_day, is_milestone_day, format(standard|circuit), rounds(null),
+total_duration_min, order_index, intro_video_url(null).
+
+**Yangi `program_day_exercises`** (warmup/main/cooldown):
+id, program_day_id, section(warmup|main|cooldown), order_index, exercise_id,
+sets(null), reps(text — "8" / "20 sek" / "8 har oyoq"), rest_sec(null),
+rest_after_sec(null, circuit), notes(null).
+
+**Yangi `program_day_tasks`** (education/lifestyle/challenge):
+id, program_day_id, order_index, type, title, duration_min(null), target(null),
+optional(bool), reward_xp(null), linked_to(null), video_url(null).
+
+**Yangi `program_day_tests`** (fitness test kunlari):
+id, program_day_id, order_index, test_key, name, exercise_id(null), instructions, log_type(count|seconds|minutes).
+
+**Kengaytiriladi `programs`:** + phase(int=1), + mode(text='standard', null) — kelajak ko'p-rejim.
+
+**Progress (0009):** hozirgi `workout_sessions`/`exercise_logs` kunlik modelga moslanadi —
+`day_sessions` (user_id, program_day_id, started/completed, status, RLS owner-only),
+`day_exercise_logs` (sets_done, reps_done, weight_used, status), `task_completions`.
+
+**profiles:** + `preferred_unit_system` (metric|imperial).
+**goals:** + `experience_level`, + `entry_point_week` (int=1), + `training_frequency` (text).
+
+➡️ Migration so'ng `src/types/db.ts` qayta generatsiya + `src/lib/api/*` & queries.
+
+## W2 — Kontent seed
+~70 mashq (`exercise_library.json`) + beginner Phase 1 (8 hafta) — `seed.sql` ga
+upsert (fixed UUID/keylar, qayta-ishga-tushiriladigan). Videolar placeholder.
+
+## W3 — Workout UI (design'ga mos, design-system bilan)
+1. **Bugun / Program** — joriy hafta·kun, bugungi sessiya kartasi, hafta ko'rinishi (mashq/dam/test belgilari).
+2. **Sessiya ro'yxati** — Warm Up / Main / Cooldown bo'limlari + tasks (education video, lifestyle, challenge) + mashq qatorlari (thumbnail, set×rep, ✓).
+3. **"Get ready for …"** sanoq + swipe-to-begin.
+4. **Player** — video, Set X/Y, reps + weight stepper + raqamli keypad (log), rest ring, **auto-pilot** (timer tugaganda avto-o'tish), settings sheet (audio/auto-pilot), pause → Resume/End.
+5. **Yakunlash** — natijalar, Save.
+
+## W4 — Onboarding/routing kengayishi (hozirgi onboarding'ni qayta shakllantiradi)
++ name, + unit auto-detect (kg↔lb toggle → preferred_unit_system),
+experience_level → entry_point_week, training_frequency, injury (tizza/bel/yelka —
+hozirgi 5-injury ro'yxati shunga moslanadi). BMI+yosh routing (client/Edge, LLM yo'q)
+→ entry_point_week (1/3/5); "1 rejim"da rejim tanlash sodda. experienced → technique check.
+
+## W5 — Videolar (siz) → Supabase Storage → ulash.
+## W6 — Gamification: XP, badge, milestone, education darslari, fitness-test tarixi.
+
+**Ketma-ketlik:** W1 → W2 → W3 → W4 (W5 parallel siz, W6 keyin).
