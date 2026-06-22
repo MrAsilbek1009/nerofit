@@ -16,3 +16,5 @@ export { Avatar } from "./Avatar";
 export type { AvatarProps } from "./Avatar";
 export { VideoCard } from "./VideoCard";
 export type { VideoCardProps } from "./VideoCard";
+export { WheelPicker } from "./WheelPicker";
+export type { WheelItem, WheelColumnSpec, WheelPickerProps } from "./WheelPicker";

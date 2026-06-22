@@ -35,7 +35,9 @@
       "height": "Height",
       "weight": "Weight",
       "cm": "cm",
-      "kg": "kg"
+      "kg": "kg",
+      "dob": "Date of birth",
+      "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     },
 
     "focus": {

@@ -37,7 +37,7 @@ export default function FocusStep() {
 
   return (
     <StepShell
-      step={2}
+      step={3}
       total={4}
       title={t("onboarding.focus.title")}
       ctaDisabled={!parsed.success}

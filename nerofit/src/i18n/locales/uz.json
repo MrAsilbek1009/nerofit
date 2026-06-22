@@ -35,7 +35,9 @@
       "height": "Boʻy",
       "weight": "Vazn",
       "cm": "sm",
-      "kg": "kg"
+      "kg": "kg",
+      "dob": "Tugʻilgan sana",
+      "months": ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"]
     },
 
     "focus": {

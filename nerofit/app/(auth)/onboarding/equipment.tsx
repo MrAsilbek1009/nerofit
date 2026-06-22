@@ -48,7 +48,7 @@ export default function EquipmentStep() {
 
   return (
     <StepShell
-      step={3}
+      step={4}
       total={4}
       title={t("onboarding.equipment.title")}
       subtitle={t("onboarding.equipment.subtitle")}

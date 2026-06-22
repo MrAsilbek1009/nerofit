@@ -17,12 +17,38 @@ export const INJURY_VALUES = [
   "ankles",
 ] as const;
 
-export const basicsSchema = z.object({
+// Whole-year age from an ISO (YYYY-MM-DD) birth date.
+export function ageFromDob(iso: string): number {
+  const dob = new Date(`${iso}T00:00:00`);
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age -= 1;
+  return age;
+}
+
+// Step 1 — biological sex (its own onboarding screen).
+export const sexSchema = z.object({
   sex: z.enum(SEX_VALUES),
-  age: z.coerce.number().int().min(13).max(99),
+});
+export type SexValues = z.infer<typeof sexSchema>;
+
+// Step 2 — date of birth + body metrics.
+export const bodySchema = z.object({
+  date_of_birth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine((s) => {
+      const age = ageFromDob(s);
+      return age >= 13 && age <= 99;
+    }, { message: "Age must be between 13 and 99." }),
   height_cm: z.coerce.number().min(120).max(230),
   weight_kg: z.coerce.number().min(30).max(250),
 });
+export type BodyValues = z.infer<typeof bodySchema>;
+
+// Combined view (used when persisting the finished draft).
+export const basicsSchema = sexSchema.merge(bodySchema);
 export type BasicsValues = z.infer<typeof basicsSchema>;
 
 export const focusSchema = z.object({

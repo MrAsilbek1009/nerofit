@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import type {
-  BasicsValues,
+  BodyValues,
   EquipmentValues,
   FocusValues,
   OnboardingDraft,
+  SexValues,
 } from "./schema";
 
 type OnboardingState = {
   draft: OnboardingDraft;
-  setBasics: (v: BasicsValues) => void;
+  setSex: (v: SexValues) => void;
+  setBody: (v: BodyValues) => void;
   setFocus: (v: FocusValues) => void;
   setEquipment: (v: EquipmentValues) => void;
   reset: () => void;
@@ -18,7 +20,8 @@ type OnboardingState = {
 // the app mid-flow we send them back to step 1.
 export const useOnboardingStore = create<OnboardingState>((set) => ({
   draft: {},
-  setBasics: (v) => set((s) => ({ draft: { ...s.draft, ...v } })),
+  setSex: (v) => set((s) => ({ draft: { ...s.draft, ...v } })),
+  setBody: (v) => set((s) => ({ draft: { ...s.draft, ...v } })),
   setFocus: (v) => set((s) => ({ draft: { ...s.draft, ...v } })),
   setEquipment: (v) => set((s) => ({ draft: { ...s.draft, ...v } })),
   reset: () => set({ draft: {} }),

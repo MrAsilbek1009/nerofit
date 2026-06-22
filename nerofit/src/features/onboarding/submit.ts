@@ -9,13 +9,6 @@ import type {
 
 export type FullDraft = BasicsValues & FocusValues & EquipmentValues;
 
-// Best-effort age → DOB. We only store year because we don't ask the user's
-// birthdate. Used as Jan 1 of the implied birth year.
-function ageToDob(age: number): string {
-  const year = new Date().getFullYear() - age;
-  return `${year}-01-01`;
-}
-
 export async function submitOnboarding(
   userId: string,
   draft: FullDraft,
@@ -23,7 +16,7 @@ export async function submitOnboarding(
   // 1) Profile — sex / DOB / mark onboarded.
   await updateProfile(userId, {
     sex: draft.sex,
-    date_of_birth: ageToDob(draft.age),
+    date_of_birth: draft.date_of_birth,
     focus: draft.focus,
     onboarded_at: new Date().toISOString(),
   });

@@ -112,7 +112,7 @@ function AuthGate() {
     const needsOnboarding = !profileQuery.data.onboarded_at;
 
     if (needsOnboarding && !inOnboarding) {
-      router.replace("/(auth)/onboarding/basics");
+      router.replace("/(auth)/onboarding/sex");
       return;
     }
 

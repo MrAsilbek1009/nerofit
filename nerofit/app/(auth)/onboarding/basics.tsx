@@ -1,236 +1,130 @@
-import { useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { StepShell } from "@/features/onboarding/components/StepShell";
 import { useOnboardingStore } from "@/features/onboarding/store";
-import { basicsSchema, SEX_VALUES } from "@/features/onboarding/schema";
-import { noWebOutline } from "@/lib/style";
-import { colors, fonts, radii, space, typography } from "@/theme";
+import { bodySchema } from "@/features/onboarding/schema";
+import { WheelPicker, type WheelItem } from "@/components/ui";
+import { space, typography } from "@/theme";
+
+function range(min: number, max: number): WheelItem[] {
+  const out: WheelItem[] = [];
+  for (let n = min; n <= max; n++) out.push({ value: n, label: String(n) });
+  return out;
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const daysInMonth = (year: number, month: number) =>
+  new Date(year, month, 0).getDate();
 
 export default function BasicsStep() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const draft = useOnboardingStore((s) => s.draft);
-  const setBasics = useOnboardingStore((s) => s.setBasics);
+  const setBody = useOnboardingStore((s) => s.setBody);
 
-  const [sex, setSex] = useState<(typeof SEX_VALUES)[number] | undefined>(
-    draft.sex,
-  );
-  const [age, setAge] = useState<string>(draft.age?.toString() ?? "");
-  const [height, setHeight] = useState<string>(
-    draft.height_cm?.toString() ?? "",
-  );
-  const [weight, setWeight] = useState<string>(
-    draft.weight_kg?.toString() ?? "",
-  );
+  // Date of birth — split into wheels. Seed from the draft or a 25-y/o default.
+  const now = new Date();
+  const minYear = now.getFullYear() - 99;
+  const maxYear = now.getFullYear() - 13;
+  const [sy, sm, sd] = draft.date_of_birth
+    ? draft.date_of_birth.split("-").map(Number)
+    : [];
+  const [year, setYear] = useState<number>(sy ?? now.getFullYear() - 25);
+  const [month, setMonth] = useState<number>(sm ?? 1); // 1–12
+  const [day, setDay] = useState<number>(sd ?? 1);
 
-  const heightRef = useRef<TextInput>(null);
-  const weightRef = useRef<TextInput>(null);
+  // Wheel-selected — default to sensible mid values (no free-text entry).
+  const [height, setHeight] = useState<number>(draft.height_cm ?? 175);
+  const [weight, setWeight] = useState<number>(draft.weight_kg ?? 70);
 
-  const parsed = basicsSchema.safeParse({
-    sex,
-    age,
+  const monthItems = useMemo<WheelItem[]>(() => {
+    const names = t("onboarding.basics.months", {
+      returnObjects: true,
+    }) as unknown as string[];
+    return names.map((label, i) => ({ value: i + 1, label }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n.language]);
+  const yearItems = useMemo(() => range(minYear, maxYear), [minYear, maxYear]);
+  const dayCount = daysInMonth(year, month);
+  const dayItems = useMemo(() => range(1, dayCount), [dayCount]);
+  const heightItems = useMemo(() => range(120, 230), []);
+  const weightItems = useMemo(() => range(30, 250), []);
+
+  // Changing month/year can shorten the month — clamp the day.
+  function onMonth(next: number) {
+    setMonth(next);
+    setDay((d) => Math.min(d, daysInMonth(year, next)));
+  }
+  function onYear(next: number) {
+    setYear(next);
+    setDay((d) => Math.min(d, daysInMonth(next, month)));
+  }
+
+  const dob = `${year}-${pad2(month)}-${pad2(day)}`;
+  const parsed = bodySchema.safeParse({
+    date_of_birth: dob,
     height_cm: height,
     weight_kg: weight,
   });
 
   function onContinue() {
     if (!parsed.success) return;
-    setBasics(parsed.data);
+    setBody(parsed.data);
     router.push("/(auth)/onboarding/focus");
   }
 
   return (
     <StepShell
-      step={1}
+      step={2}
       total={4}
       title={t("onboarding.basics.title")}
+      scrollable={false}
       ctaDisabled={!parsed.success}
       onContinue={onContinue}
     >
-      {/* Sex */}
-      <View style={{ gap: space[3] }}>
-        <Text style={typography.labelCaps}>
-          {t("onboarding.basics.sexLabel")}
-        </Text>
-        <View style={{ flexDirection: "row", gap: space[3] }}>
-          {SEX_VALUES.map((value) => {
-            const selected = sex === value;
-            return (
-              <SexTile
-                key={value}
-                label={t(`onboarding.basics.sex.${value}`)}
-                symbol={SEX_SYMBOL[value]}
-                selected={selected}
-                onPress={() => setSex(value)}
-              />
-            );
-          })}
+      <View style={{ flex: 1 }}>
+        {/* Top half — date of birth. */}
+        <View style={{ flex: 1, justifyContent: "center", gap: space[3] }}>
+          <Text style={typography.labelCaps}>{t("onboarding.basics.dob")}</Text>
+          <WheelPicker
+            columns={[
+              { key: "month", items: monthItems, value: month, onChange: onMonth },
+              {
+                // Remount when the month length changes so the wheel re-snaps.
+                key: `day-${year}-${month}`,
+                items: dayItems,
+                value: day,
+                onChange: setDay,
+              },
+              { key: "year", items: yearItems, value: year, onChange: onYear },
+            ]}
+          />
+        </View>
+
+        {/* Bottom half — height / weight. */}
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <WheelPicker
+            columns={[
+              {
+                key: "height",
+                header: `${t("onboarding.basics.height")} (${t("onboarding.basics.cm")})`,
+                items: heightItems,
+                value: height,
+                onChange: setHeight,
+              },
+              {
+                key: "weight",
+                header: `${t("onboarding.basics.weight")} (${t("onboarding.basics.kg")})`,
+                items: weightItems,
+                value: weight,
+                onChange: setWeight,
+              },
+            ]}
+          />
         </View>
       </View>
-
-      {/* Number rows */}
-      <View style={{ gap: space[3] }}>
-        <NumberRow
-          label={t("onboarding.basics.age")}
-          value={age}
-          onChangeText={setAge}
-          placeholder="28"
-          returnKeyType="next"
-          submitBehavior="submit"
-          onSubmitEditing={() => heightRef.current?.focus()}
-        />
-        <NumberRow
-          label={t("onboarding.basics.height")}
-          value={height}
-          onChangeText={setHeight}
-          suffix={t("onboarding.basics.cm")}
-          placeholder="180"
-          inputRef={heightRef}
-          returnKeyType="next"
-          submitBehavior="submit"
-          onSubmitEditing={() => weightRef.current?.focus()}
-        />
-        <NumberRow
-          label={t("onboarding.basics.weight")}
-          value={weight}
-          onChangeText={setWeight}
-          suffix={t("onboarding.basics.kg")}
-          placeholder="75"
-          inputRef={weightRef}
-          returnKeyType="done"
-        />
-      </View>
     </StepShell>
-  );
-}
-
-const SEX_SYMBOL: Record<(typeof SEX_VALUES)[number], string> = {
-  male: "♂",
-  female: "♀",
-  non_binary: "⚧",
-};
-
-function SexTile({
-  label,
-  symbol,
-  selected,
-  onPress,
-}: {
-  label: string;
-  symbol: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
-      style={{
-        flex: 1,
-        backgroundColor: colors.elevated,
-        borderRadius: radii.md,
-        borderWidth: selected ? 1 : 0,
-        borderColor: selected ? colors.accent : "transparent",
-        paddingVertical: space[4],
-        alignItems: "center",
-        gap: space[2],
-        opacity: pressed ? 0.85 : 1,
-      }}
-    >
-      <Text style={{ color: colors.textHi, fontSize: 22 }}>{symbol}</Text>
-      <Text
-        style={{
-          fontFamily: fonts.bodyMed,
-          color: colors.textHi,
-          fontSize: 14,
-        }}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-function NumberRow({
-  label,
-  value,
-  onChangeText,
-  suffix,
-  placeholder,
-  inputRef,
-  returnKeyType,
-  onSubmitEditing,
-  submitBehavior,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  suffix?: string;
-  placeholder?: string;
-  inputRef?: React.RefObject<TextInput | null>;
-  returnKeyType?: "next" | "done";
-  onSubmitEditing?: () => void;
-  submitBehavior?: "submit" | "blurAndSubmit";
-}) {
-  const internalRef = useRef<TextInput>(null);
-  const ref = inputRef ?? internalRef;
-  return (
-    <Pressable
-      onPress={() => ref.current?.focus()}
-      accessibilityRole="button"
-      style={{
-        backgroundColor: colors.elevated,
-        borderRadius: radii.md,
-        paddingHorizontal: space[4],
-        paddingVertical: space[4],
-        minHeight: 64,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <Text
-        style={{
-          fontFamily: fonts.bodyMed,
-          color: colors.textHi,
-          fontSize: 16,
-        }}
-      >
-        {label}
-      </Text>
-      <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[1] }}>
-        <TextInput
-          ref={ref}
-          value={value}
-          onChangeText={onChangeText}
-          keyboardType="numeric"
-          placeholder={placeholder ?? "—"}
-          placeholderTextColor={colors.textLo}
-          returnKeyType={returnKeyType}
-          onSubmitEditing={onSubmitEditing}
-          submitBehavior={submitBehavior}
-          style={[
-            {
-              fontFamily: fonts.display,
-              color: colors.textHi,
-              fontSize: 28,
-              minWidth: 56,
-              textAlign: "right",
-              paddingVertical: 0,
-            },
-            noWebOutline,
-          ]}
-        />
-        {suffix ? (
-          <Text style={[typography.bodyMuted, { fontSize: 13 }]}>{suffix}</Text>
-        ) : null}
-      </View>
-    </Pressable>
   );
 }

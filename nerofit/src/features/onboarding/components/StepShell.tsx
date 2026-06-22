@@ -16,10 +16,14 @@ export type StepShellProps = {
   ctaLoading?: boolean;
   onContinue?: () => void;
   children: React.ReactNode;
+  /** When false the body is a fixed flex area (no page scroll) — e.g. for
+   *  screens whose only scrollable parts are inner wheels. Defaults to true. */
+  scrollable?: boolean;
 };
 
 export function StepShell({
   step, total, title, subtitle, ctaLabel, ctaDisabled, ctaLoading, onContinue, children,
+  scrollable = true,
 }: StepShellProps) {
   const router = useRouter();
   const { t } = useTranslation();
@@ -41,19 +45,29 @@ export function StepShell({
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: space[5], paddingBottom: space[5], gap: space[5] }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={{ gap: space[2] }}>
-            <Text style={typography.h1}>{title}</Text>
-            {subtitle ? <Text style={typography.bodyMuted}>{subtitle}</Text> : null}
+        {scrollable ? (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: space[5], paddingBottom: space[5], gap: space[5] }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={{ gap: space[2] }}>
+              <Text style={typography.h1}>{title}</Text>
+              {subtitle ? <Text style={typography.bodyMuted}>{subtitle}</Text> : null}
+            </View>
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1, paddingHorizontal: space[5], paddingBottom: space[5], gap: space[5] }}>
+            <View style={{ gap: space[2] }}>
+              <Text style={typography.h1}>{title}</Text>
+              {subtitle ? <Text style={typography.bodyMuted}>{subtitle}</Text> : null}
+            </View>
+            {children}
           </View>
-          {children}
-        </ScrollView>
+        )}
         {/* Footer — rises above the keyboard */}
         <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: space[5] }}>
           <Button label={ctaLabel ?? t("onboarding.continue")} onPress={onContinue} disabled={ctaDisabled} loading={ctaLoading} />
