@@ -9,13 +9,27 @@
     "passwordPlaceholder": "••••••••",
     "logIn": "Kirish",
     "createAccount": "Roʻyxatdan oʻtish",
-    "apple": "Apple bilan davom etish",
-    "appleStubTitle": "Tez orada",
-    "appleStubBody": "Apple Sign In keyingi bosqichda qoʻshiladi.",
     "rateLimited": "Juda koʻp urinish. Bir daqiqa kutib, qayta urinib koʻring.",
     "invalidCredentials": "Email yoki parol notoʻgʻri.",
     "alreadyRegistered": "Bu email allaqachon roʻyxatdan oʻtgan. Iltimos, kiring.",
-    "checkEmail": "Hisobni tasdiqlash uchun emailingizni tekshiring, soʻng kiring."
+    "checkEmail": "Hisobni tasdiqlash uchun emailingizni tekshiring, soʻng kiring.",
+    "forgotLink": "Parolni unutdingizmi?",
+    "forgotTitle": "Parolni tiklash",
+    "forgotSubtitle": "Emailingizni kiriting — parolni tiklash havolasini yuboramiz.",
+    "forgotSubmit": "Havola yuborish",
+    "forgotSent": "Agar bu email roʻyxatdan oʻtgan boʻlsa, tiklash havolasi yuborildi. Pochtangizni tekshiring.",
+    "backToLogin": "Kirishga qaytish",
+    "resetTitle": "Yangi parol",
+    "resetSubtitle": "Hisobingiz uchun yangi parol tanlang.",
+    "newPasswordLabel": "Yangi parol",
+    "confirmPasswordLabel": "Parolni tasdiqlang",
+    "resetSubmit": "Parolni yangilash",
+    "passwordTooShort": "Parol kamida {{min}} ta belgidan iborat boʻlishi kerak.",
+    "passwordMismatch": "Parollar mos kelmadi.",
+    "resetInvalidTitle": "Havola eskirgan",
+    "resetInvalidBody": "Bu tiklash havolasi notoʻgʻri yoki eskirgan. Kirish ekranidan yangisini soʻrang.",
+    "resetDoneTitle": "Parol yangilandi",
+    "resetDoneBody": "Parolingiz oʻzgartirildi. Yangi parol bilan kiring."
   },
 
   "onboarding": {
@@ -217,6 +231,7 @@
     "subscription": "Obuna",
     "language": "Til",
     "logOut": "Chiqish",
+    "deleteAccount": "Hisobni oʻchirish",
     "tierFree": "Bepul",
     "tierElite": "Elite",
     "comingSoonTitle": "Tez orada",
@@ -224,6 +239,23 @@
     "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi.",
     "notificationsDenied": "Eslatmalar uchun Sozlamalarda bildirishnomalarni yoqing.",
     "notificationsUnavailable": "Eslatmalar uchun yangi build kerak. Dev client'ni qayta build qiling va qaytadan urinib koʻring."
+  },
+
+  "deleteAccount": {
+    "title": "Hisobni oʻchirish",
+    "heading": "Hisobingizni oʻchirasizmi?",
+    "subtitle": "Bu hisobingizni va unga bogʻliq hamma narsani butunlay oʻchiradi:",
+    "items": {
+      "profile": "Profilingiz, maqsadlaringiz va tana oʻlchovlari",
+      "workouts": "Mashgʻulot tarixi va yozilgan setlar",
+      "nutrition": "Taomlar, qoʻshimchalar, suv va sogʻliq yozuvlari",
+      "chat": "AI Murabbiy suhbatlari"
+    },
+    "irreversible": "Bu amalni ortga qaytarib boʻlmaydi.",
+    "deleting": "Oʻchirilmoqda…",
+    "confirmTitle": "Hisobni oʻchirish",
+    "confirmBody": "Bu hisobingiz va barcha maʼlumotlaringizni butunlay oʻchiradi. Ortga qaytarib boʻlmaydi.",
+    "confirmDelete": "Hisobni oʻchirish"
   },
 
   "reminders": {

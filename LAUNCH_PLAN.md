@@ -17,7 +17,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 
 | Phase | Mavzu | Holat | Kim ishlayapti |
 |---|---|---|---|
-| 7 | Auth & Account | ⬜ | — |
+| 7 | Auth & Account | 🟡 | Mirolim (kod) · 🧑 dashboard/deploy qoldi → `PHASE7_HANDOFF.md` |
 | 8 | Build & Backend hardening | ⬜ | — |
 | 9 | Real kontent | ⬜ | — |
 | 10 | RevenueCat | ⬜ | — |

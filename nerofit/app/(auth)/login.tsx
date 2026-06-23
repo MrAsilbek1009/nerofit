@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -10,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Apple } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
@@ -21,13 +20,13 @@ type Mode = "signIn" | "signUp";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<Mode>("signIn");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [applePressed, setApplePressed] = useState(false);
 
   function mapAuthError(msg: string): string {
     if (/rate limit/i.test(msg)) return t("auth.rateLimited");
@@ -69,10 +68,6 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function onApple() {
-    Alert.alert(t("auth.appleStubTitle"), t("auth.appleStubBody"));
   }
 
   return (
@@ -162,6 +157,18 @@ export default function LoginScreen() {
               disabled={!email || !password}
             />
 
+            {mode === "signIn" ? (
+              <Pressable
+                onPress={() => router.push("/(auth)/forgot-password")}
+                accessibilityRole="button"
+                style={{ alignSelf: "center", paddingVertical: space[1] }}
+              >
+                <Text style={{ fontFamily: fonts.bodyMed, color: colors.textLo, fontSize: 13 }}>
+                  {t("auth.forgotLink")}
+                </Text>
+              </Pressable>
+            ) : null}
+
             <Pressable
               onPress={() => setMode(mode === "signIn" ? "signUp" : "signIn")}
               accessibilityRole="button"
@@ -182,36 +189,6 @@ export default function LoginScreen() {
           </View>
 
           <View style={{ flex: 1 }} />
-
-          {/* Apple stub */}
-          <Pressable
-            onPress={onApple}
-            accessibilityRole="button"
-            onPressIn={() => setApplePressed(true)}
-            onPressOut={() => setApplePressed(false)}
-            style={{
-              height: 56,
-              borderRadius: radii.pill,
-              borderWidth: 1,
-              borderColor: colors.border,
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "row",
-              gap: space[2],
-              opacity: applePressed ? 0.85 : 1,
-            }}
-          >
-            <Apple size={18} color={colors.textHi} />
-            <Text
-              style={{
-                fontFamily: fonts.label,
-                fontSize: 15,
-                color: colors.textHi,
-              }}
-            >
-              {t("auth.apple")}
-            </Text>
-          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -26,7 +26,9 @@ export type AnalyticsEvent =
   | "water_logged"
   | "coach_message_sent"
   | "reminders_enabled"
-  | "reminders_disabled";
+  | "reminders_disabled"
+  | "password_reset_requested"
+  | "account_deleted";
 
 // Initialise once (from the root layout). Loads the native module on demand and
 // degrades to a no-op if it throws (older dev client / Expo Go) or no key is set.

@@ -28,6 +28,7 @@ import "../global.css";
 import "@/i18n";
 import { queryClient } from "@/lib/queryClient";
 import { bootstrapAuth, useAuthStore } from "@/store/auth";
+import { initRecoveryLinking } from "@/features/auth/recovery";
 import { colors } from "@/theme";
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -47,7 +48,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     initAnalytics();
-    return bootstrapAuth();
+    const stopRecoveryLinking = initRecoveryLinking();
+    const stopAuth = bootstrapAuth();
+    return () => {
+      stopRecoveryLinking();
+      stopAuth();
+    };
   }, []);
 
   useEffect(() => {
@@ -79,6 +85,7 @@ function AuthGate() {
   const segments = useSegments();
   const pathname = usePathname();
   const session = useAuthStore((s) => s.session);
+  const passwordRecovery = useAuthStore((s) => s.passwordRecovery);
   const userId = useUserId();
   const profileQuery = useProfile(userId);
 
@@ -100,6 +107,15 @@ function AuthGate() {
     const inAuthGroup = top === "(auth)";
     const inOnboarding = inAuthGroup && second === "onboarding";
 
+    // Password recovery in progress → pin to the reset-password screen,
+    // regardless of the (recovery) session that is now active.
+    if (passwordRecovery) {
+      if (!(inAuthGroup && second === "reset-password")) {
+        router.replace("/(auth)/reset-password");
+      }
+      return;
+    }
+
     // Signed out → push to login.
     if (!session) {
       if (!inAuthGroup) router.replace("/(auth)/login");
@@ -120,7 +136,7 @@ function AuthGate() {
     if (!needsOnboarding && inAuthGroup) {
       router.replace("/(tabs)");
     }
-  }, [session, segments, router, profileQuery.data]);
+  }, [session, segments, router, profileQuery.data, passwordRecovery]);
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.canvas } }}>
@@ -130,6 +146,7 @@ function AuthGate() {
       <Stack.Screen name="exercise/[id]" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="progress" />
       <Stack.Screen name="body-composition" />
+      <Stack.Screen name="delete-account" />
       <Stack.Screen name="meal-picker" options={{ presentation: "modal" }} />
     </Stack>
   );

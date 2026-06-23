@@ -9,13 +9,27 @@
     "passwordPlaceholder": "••••••••",
     "logIn": "Log in",
     "createAccount": "Create account",
-    "apple": "Continue with Apple",
-    "appleStubTitle": "Coming soon",
-    "appleStubBody": "Apple Sign In ships in a later phase.",
     "rateLimited": "Too many attempts. Please wait a minute and try again.",
     "invalidCredentials": "Wrong email or password.",
     "alreadyRegistered": "This email is already registered. Please log in.",
-    "checkEmail": "Check your email to confirm your account, then log in."
+    "checkEmail": "Check your email to confirm your account, then log in.",
+    "forgotLink": "Forgot password?",
+    "forgotTitle": "Reset password",
+    "forgotSubtitle": "Enter your email and we'll send you a link to reset your password.",
+    "forgotSubmit": "Send reset link",
+    "forgotSent": "If that email is registered, a reset link is on its way. Check your inbox.",
+    "backToLogin": "Back to log in",
+    "resetTitle": "New password",
+    "resetSubtitle": "Choose a new password for your account.",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm password",
+    "resetSubmit": "Update password",
+    "passwordTooShort": "Password must be at least {{min}} characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "resetInvalidTitle": "Link expired",
+    "resetInvalidBody": "This reset link is invalid or has expired. Request a new one from the login screen.",
+    "resetDoneTitle": "Password updated",
+    "resetDoneBody": "Your password has been changed. Log in with your new password."
   },
 
   "onboarding": {
@@ -217,6 +231,7 @@
     "subscription": "Subscription",
     "language": "Language",
     "logOut": "Log Out",
+    "deleteAccount": "Delete Account",
     "tierFree": "Free",
     "tierElite": "Elite",
     "comingSoonTitle": "Coming soon",
@@ -224,6 +239,23 @@
     "notificationsBody": "Push notifications ship in a later update.",
     "notificationsDenied": "Enable notifications in Settings to get reminders.",
     "notificationsUnavailable": "Reminders need a fresh app build. Rebuild the dev client, then try again."
+  },
+
+  "deleteAccount": {
+    "title": "Delete Account",
+    "heading": "Delete your account?",
+    "subtitle": "This permanently deletes your account and everything tied to it:",
+    "items": {
+      "profile": "Your profile, goals, and body measurements",
+      "workouts": "Workout history and logged sets",
+      "nutrition": "Meals, supplements, water, and health logs",
+      "chat": "AI Coach conversations"
+    },
+    "irreversible": "This action cannot be undone.",
+    "deleting": "Deleting…",
+    "confirmTitle": "Delete account",
+    "confirmBody": "This permanently deletes your account and all your data. This cannot be undone.",
+    "confirmDelete": "Delete account"
   },
 
   "reminders": {
