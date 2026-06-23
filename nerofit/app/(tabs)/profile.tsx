@@ -11,6 +11,7 @@ import {
   Globe,
   LogOut,
   Star,
+  Trash2,
 } from "lucide-react-native";
 import { Avatar, Chip } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
@@ -237,9 +238,27 @@ export default function ProfileScreen() {
             marginTop: space[5],
           }}
         >
-          <LogOut size={18} color="#FF6B6B" />
-          <Text style={{ fontFamily: fonts.bodyMed, color: "#FF6B6B", fontSize: 16 }}>
+          <LogOut size={18} color={colors.danger} />
+          <Text style={{ fontFamily: fonts.bodyMed, color: colors.danger, fontSize: 16 }}>
             {t("profile.logOut")}
+          </Text>
+        </Pressable>
+
+        {/* Delete account (store requirement) */}
+        <Pressable
+          onPress={() => router.push("/delete-account")}
+          accessibilityRole="button"
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: space[3],
+            paddingHorizontal: space[5],
+            paddingVertical: space[3],
+          }}
+        >
+          <Trash2 size={16} color={colors.textLo} />
+          <Text style={{ fontFamily: fonts.bodyMed, color: colors.textLo, fontSize: 14 }}>
+            {t("profile.deleteAccount")}
           </Text>
         </Pressable>
       </ScrollView>

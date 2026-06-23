@@ -9,6 +9,7 @@ export const colors = {
   textHi: "#FFFFFF",
   textLo: "#8A8A8A", // muted gray
   border: "#1F1F1F",
+  danger: "#FF6B6B", // destructive actions only (log out, delete account)
 } as const;
 
 export const radii = {
