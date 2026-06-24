@@ -172,7 +172,10 @@
     "tasksTitle": "Tasks",
     "sectionWarmup": "Warm Up",
     "sectionMain": "Main",
-    "sectionCooldown": "Cool Down"
+    "sectionCooldown": "Cool Down",
+    "startHere": "Start here",
+    "showEarlier": "Show earlier weeks",
+    "hideEarlier": "Hide earlier weeks"
   },
 
   "progress": {

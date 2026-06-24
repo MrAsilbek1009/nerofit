@@ -172,7 +172,10 @@
     "tasksTitle": "Vazifalar",
     "sectionWarmup": "Isinish",
     "sectionMain": "Asosiy",
-    "sectionCooldown": "Yakuniy cho'zish"
+    "sectionCooldown": "Yakuniy cho'zish",
+    "startHere": "Shu yerdan boshlang",
+    "showEarlier": "Oldingi haftalarni ko'rsatish",
+    "hideEarlier": "Oldingi haftalarni yashirish"
   },
 
   "progress": {

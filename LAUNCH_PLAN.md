@@ -19,7 +19,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — kod `main`'ga merge (PR #1) · 🧑 dashboard/deploy qoldi → `PHASE7_HANDOFF.md` |
 | 8 | Build & Backend hardening | 🟡 | Mirolim (lokalda, hali push qilinmagan) |
-| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1✅ W2✅ W3✅ · W4 routing part-1 ✅ (experience qadami, entry_point/frequency, unit auto-detect) · qoldi: entry_point'ni UI'da ko'rsatish, injury filtr, W5 video |
+| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1✅ W2✅ W3✅ W4✅ (routing + entry_point UI'da) · qoldi: injury filtr/technique-check, W5 video, W6 gamification |
 | 10 | RevenueCat | ⬜ | — |
 | 11 | Legal & Store | ⬜ | — |
 | 12 | iOS + Release | ⬜ | — |

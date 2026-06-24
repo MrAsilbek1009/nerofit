@@ -172,7 +172,10 @@
     "tasksTitle": "Задачи",
     "sectionWarmup": "Разминка",
     "sectionMain": "Основное",
-    "sectionCooldown": "Заминка"
+    "sectionCooldown": "Заминка",
+    "startHere": "Старт здесь",
+    "showEarlier": "Показать прошлые недели",
+    "hideEarlier": "Скрыть прошлые недели"
   },
 
   "progress": {
