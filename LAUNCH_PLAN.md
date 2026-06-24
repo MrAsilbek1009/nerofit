@@ -19,7 +19,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — kod `main`'ga merge (PR #1) · 🧑 dashboard/deploy qoldi → `PHASE7_HANDOFF.md` |
 | 8 | Build & Backend hardening | 🟡 | Mirolim (lokalda, hali push qilinmagan) |
-| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1✅ W2✅ W3✅ W4✅ · W5 infra (branch) · W6 part-1 ✅ (task completion + XP) · qoldi: fitness-test logging/badge, injury filtr |
+| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1✅ W2✅ W3✅ W4✅ · W5 infra (branch) · W6 ✅ (task+XP, fitness-test logging, milestone) · qoldi: injury filtr |
 | 10 | RevenueCat | ⬜ | — |
 | 11 | Legal & Store | ⬜ | — |
 | 12 | iOS + Release | ⬜ | — |

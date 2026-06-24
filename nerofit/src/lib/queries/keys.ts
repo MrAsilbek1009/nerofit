@@ -20,6 +20,7 @@ export const qk = {
   sessionTaskCompletions: (sessionId: string) =>
     ["task-completions", sessionId] as const,
   xpTotal: (userId: string) => ["xp-total", userId] as const,
+  dayTestResults: (dayId: string) => ["test-results", dayId] as const,
   workoutDetail: (workoutId: string) => ["workout-detail", workoutId] as const,
   activeSession: (userId: string, workoutId: string) =>
     ["active-session", userId, workoutId] as const,

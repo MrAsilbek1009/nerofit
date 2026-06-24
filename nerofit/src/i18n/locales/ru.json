@@ -175,7 +175,9 @@
     "sectionCooldown": "Заминка",
     "startHere": "Старт здесь",
     "showEarlier": "Показать прошлые недели",
-    "hideEarlier": "Скрыть прошлые недели"
+    "hideEarlier": "Скрыть прошлые недели",
+    "saveResult": "Сохранить",
+    "testUnit": { "count": "раз", "seconds": "сек", "minutes": "мин" }
   },
 
   "progress": {

@@ -33,6 +33,38 @@ export async function setTaskCompletion(
   }
 }
 
+// Latest fitness-test results for a set of tests, keyed by test id.
+export async function listDayTestResults(
+  testIds: string[],
+): Promise<Record<string, number>> {
+  if (testIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from("test_results")
+    .select("program_day_test_id, value")
+    .in("program_day_test_id", testIds);
+  if (error) throw error;
+  const map: Record<string, number> = {};
+  for (const r of data ?? []) map[r.program_day_test_id] = r.value;
+  return map;
+}
+
+export async function upsertTestResult(
+  userId: string,
+  programDayTestId: string,
+  value: number,
+): Promise<void> {
+  const { error } = await supabase.from("test_results").upsert(
+    {
+      user_id: userId,
+      program_day_test_id: programDayTestId,
+      value,
+      recorded_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,program_day_test_id" },
+  );
+  if (error) throw error;
+}
+
 // Total XP = sum of reward_xp across every task the user has completed.
 // RLS scopes task_completions to the current user.
 export async function getXpTotal(): Promise<number> {

@@ -521,6 +521,24 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["task_completions"]["Insert"]>;
         Relationships: [];
       };
+      test_results: {
+        Row: {
+          id: string;
+          user_id: string;
+          program_day_test_id: string;
+          value: number;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          program_day_test_id: string;
+          value: number;
+          recorded_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["test_results"]["Insert"]>;
+        Relationships: [];
+      };
       meals: {
         Row: {
           id: string;
@@ -690,6 +708,7 @@ export type DayExerciseLog =
   Database["public"]["Tables"]["day_exercise_logs"]["Row"];
 export type TaskCompletion =
   Database["public"]["Tables"]["task_completions"]["Row"];
+export type TestResult = Database["public"]["Tables"]["test_results"]["Row"];
 
 export type ChatRole = "user" | "assistant";
 
