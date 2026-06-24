@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type {
   Exercise,
+  ExerciseVideo,
   Program,
   ProgramDay,
   ProgramDayExercise,
@@ -37,7 +38,9 @@ export async function listProgramDays(programId: string): Promise<ProgramDay[]> 
   return data ?? [];
 }
 
-export type DayExerciseWithExercise = ProgramDayExercise & { exercise: Exercise };
+export type DayExerciseWithExercise = ProgramDayExercise & {
+  exercise: Exercise & { exercise_videos: ExerciseVideo[] };
+};
 
 export type ProgramDayDetail = {
   day: ProgramDay;
@@ -53,7 +56,7 @@ export async function getProgramDayDetail(
     supabase.from("program_days").select("*").eq("id", dayId).single(),
     supabase
       .from("program_day_exercises")
-      .select("*, exercise:exercises(*)")
+      .select("*, exercise:exercises(*, exercise_videos(*))")
       .eq("program_day_id", dayId)
       .order("order_index"),
     supabase
