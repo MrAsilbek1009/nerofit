@@ -12,6 +12,9 @@ export const qk = {
   todayWaterTotal: (userId: string) =>
     ["water-logs", "today-total", userId] as const,
   programs: () => ["programs"] as const,
+  curriculumPrograms: () => ["curriculum-programs"] as const,
+  programDays: (programId: string) => ["program-days", programId] as const,
+  programDayDetail: (dayId: string) => ["program-day-detail", dayId] as const,
   workoutDetail: (workoutId: string) => ["workout-detail", workoutId] as const,
   activeSession: (userId: string, workoutId: string) =>
     ["active-session", userId, workoutId] as const,

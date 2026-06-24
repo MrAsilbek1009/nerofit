@@ -153,7 +153,16 @@
     "workoutComplete": "Mashgʻulot tugadi",
     "completeBody": "Zoʻr ish — barcha mashqlar yozildi.",
     "done": "Tayyor",
-    "startWorkout": "Boshlash"
+    "startWorkout": "Boshlash",
+    "program": "Dastur",
+    "week": "{{n}}-hafta",
+    "restDay": "Dam kuni",
+    "testDay": "Fitnes test",
+    "milestone": "Bosqich",
+    "tasksTitle": "Vazifalar",
+    "sectionWarmup": "Isinish",
+    "sectionMain": "Asosiy",
+    "sectionCooldown": "Yakuniy cho'zish"
   },
 
   "progress": {

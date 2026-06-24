@@ -153,7 +153,16 @@
     "workoutComplete": "Тренировка завершена",
     "completeBody": "Отличная работа — всё записано.",
     "done": "Готово",
-    "startWorkout": "Начать"
+    "startWorkout": "Начать",
+    "program": "Программа",
+    "week": "Неделя {{n}}",
+    "restDay": "День отдыха",
+    "testDay": "Фитнес-тест",
+    "milestone": "Этап",
+    "tasksTitle": "Задачи",
+    "sectionWarmup": "Разминка",
+    "sectionMain": "Основное",
+    "sectionCooldown": "Заминка"
   },
 
   "progress": {

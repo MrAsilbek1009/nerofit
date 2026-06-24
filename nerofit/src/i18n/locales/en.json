@@ -153,7 +153,16 @@
     "workoutComplete": "Workout complete",
     "completeBody": "Nice work — every exercise is logged.",
     "done": "Done",
-    "startWorkout": "Start workout"
+    "startWorkout": "Start workout",
+    "program": "Program",
+    "week": "Week {{n}}",
+    "restDay": "Rest day",
+    "testDay": "Fitness test",
+    "milestone": "Milestone",
+    "tasksTitle": "Tasks",
+    "sectionWarmup": "Warm Up",
+    "sectionMain": "Main",
+    "sectionCooldown": "Cool Down"
   },
 
   "progress": {
