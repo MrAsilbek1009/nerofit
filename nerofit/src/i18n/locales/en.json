@@ -70,6 +70,16 @@
       }
     },
 
+    "experience": {
+      "title": "Your experience",
+      "subtitle": "We'll start you at the right point.",
+      "options": {
+        "complete_beginner": "Complete beginner — I've never trained regularly",
+        "some_experience": "I have some experience",
+        "experienced": "Experienced — I train regularly"
+      }
+    },
+
     "equipment": {
       "title": "Your training ground",
       "subtitle": "Where are you working out, and what do we need to work around?",

@@ -70,6 +70,16 @@
       }
     },
 
+    "experience": {
+      "title": "Tajribangiz",
+      "subtitle": "Sizni to'g'ri nuqtadan boshlaymiz.",
+      "options": {
+        "complete_beginner": "Mutlaqo yangi — hech qachon muntazam mashq qilmaganman",
+        "some_experience": "Biroz tajribam bor",
+        "experienced": "Tajribaliman, muntazam mashq qilaman"
+      }
+    },
+
     "equipment": {
       "title": "Mashgʻulot joyingiz",
       "subtitle": "Qayerda mashgʻulot qilasiz va nimaga eʼtibor berishimiz kerak?",

@@ -11,6 +11,7 @@ import { qk } from "@/lib/queries/keys";
 import {
   basicsSchema,
   equipmentSchema,
+  experienceSchema,
   focusSchema,
 } from "@/features/onboarding/schema";
 import { useOnboardingStore } from "@/features/onboarding/store";
@@ -37,12 +38,14 @@ export default function BuildingStep() {
       try {
         const basics = basicsSchema.parse(draft);
         const focus = focusSchema.parse(draft);
+        const experience = experienceSchema.parse(draft);
         const equipment = equipmentSchema.parse(draft);
         if (!userId) throw new Error("Not authenticated");
 
         await submitOnboarding(userId, {
           ...basics,
           ...focus,
+          ...experience,
           ...equipment,
         });
 

@@ -48,8 +48,8 @@ export default function EquipmentStep() {
 
   return (
     <StepShell
-      step={4}
-      total={4}
+      step={5}
+      total={5}
       title={t("onboarding.equipment.title")}
       subtitle={t("onboarding.equipment.subtitle")}
       ctaDisabled={!parsed.success}
