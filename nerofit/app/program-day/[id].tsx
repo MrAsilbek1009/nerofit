@@ -5,14 +5,21 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
+  Check,
   Dumbbell,
   GraduationCap,
   HeartPulse,
   Trophy,
 } from "lucide-react-native";
 import { Button } from "@/components/ui";
+import { useUserId } from "@/hooks/useUser";
 import type { DayExerciseWithExercise } from "@/lib/api/curriculum";
 import { useProgramDayDetail } from "@/lib/queries/curriculum";
+import { useDaySession } from "@/lib/queries/curriculumSession";
+import {
+  useSessionTaskCompletions,
+  useToggleTaskCompletion,
+} from "@/lib/queries/gamification";
 import type { ProgramDayTask, ProgramSection } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
@@ -23,6 +30,11 @@ export default function ProgramDayScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const detail = useProgramDayDetail(id);
+  const userId = useUserId();
+  const session = useDaySession(userId, id);
+  const completions = useSessionTaskCompletions(session.data?.id);
+  const toggleTask = useToggleTaskCompletion(userId, session.data?.id);
+  const doneIds = new Set(completions.data ?? []);
 
   const sectionLabels: Record<ProgramSection, string> = {
     warmup: t("workouts.sectionWarmup"),
@@ -89,7 +101,17 @@ export default function ProgramDayScreen() {
               <Text style={typography.labelCaps}>{t("workouts.tasksTitle")}</Text>
               <View style={{ gap: space[2] }}>
                 {detail.data!.tasks.map((task) => (
-                  <TaskRow key={task.id} task={task} />
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    done={doneIds.has(task.id)}
+                    onToggle={() =>
+                      toggleTask.mutate({
+                        taskId: task.id,
+                        done: !doneIds.has(task.id),
+                      })
+                    }
+                  />
                 ))}
               </View>
             </View>
@@ -160,7 +182,15 @@ export default function ProgramDayScreen() {
   );
 }
 
-function TaskRow({ task }: { task: ProgramDayTask }) {
+function TaskRow({
+  task,
+  done,
+  onToggle,
+}: {
+  task: ProgramDayTask;
+  done: boolean;
+  onToggle: () => void;
+}) {
   const Icon =
     task.type === "education"
       ? GraduationCap
@@ -177,7 +207,10 @@ function TaskRow({ task }: { task: ProgramDayTask }) {
     .filter(Boolean)
     .join(" · ");
   return (
-    <View
+    <Pressable
+      onPress={onToggle}
+      accessibilityRole="button"
+      accessibilityState={{ checked: done }}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -186,15 +219,37 @@ function TaskRow({ task }: { task: ProgramDayTask }) {
         borderRadius: radii.md,
         paddingHorizontal: space[4],
         paddingVertical: space[3],
+        opacity: done ? 0.65 : 1,
       }}
     >
       <Icon size={18} color={task.optional ? colors.textLo : colors.accent} />
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 14 }}>
+        <Text
+          style={{
+            fontFamily: fonts.bodyMed,
+            color: colors.textHi,
+            fontSize: 14,
+            textDecorationLine: done ? "line-through" : "none",
+          }}
+        >
           {task.title}
         </Text>
         {meta ? <Text style={[typography.labelCaps, { fontSize: 9 }]}>{meta}</Text> : null}
       </View>
-    </View>
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 11,
+          borderWidth: done ? 0 : 1,
+          borderColor: colors.border,
+          backgroundColor: done ? colors.accent : "transparent",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {done ? <Check size={13} color={colors.canvas} /> : null}
+      </View>
+    </Pressable>
   );
 }
