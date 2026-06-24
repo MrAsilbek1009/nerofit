@@ -29,11 +29,12 @@ export function useProgramDayDetail(dayId: string | undefined) {
   const userId = useUserId();
   const goals = useGoals(userId);
   const injuries = goals.data?.injuries ?? [];
+  const equipment = goals.data?.equipment;
   return useQuery({
     queryKey: dayId
-      ? [...qk.programDayDetail(dayId), injuries.join(",")]
+      ? [...qk.programDayDetail(dayId), injuries.join(","), equipment ?? ""]
       : ["program-day-detail", "none"],
-    queryFn: () => getProgramDayDetail(dayId!, injuries),
+    queryFn: () => getProgramDayDetail(dayId!, injuries, equipment),
     enabled: !!dayId && (!userId || !goals.isLoading),
   });
 }

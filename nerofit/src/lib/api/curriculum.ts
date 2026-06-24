@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import {
+  allowedEquipmentTiers,
   hasAnyInjury,
   isSafe,
   pickReplacement,
@@ -44,7 +45,11 @@ export async function listProgramDays(programId: string): Promise<ProgramDay[]> 
   return data ?? [];
 }
 
-export type DayExerciseWithExercise = ProgramDayExercise & { exercise: Exercise };
+export type DayExerciseWithExercise = ProgramDayExercise & {
+  exercise: Exercise;
+  // True when this exercise was swapped in to avoid an injured area.
+  adapted?: boolean;
+};
 
 export type ProgramDayDetail = {
   day: ProgramDay;
@@ -56,6 +61,7 @@ export type ProgramDayDetail = {
 export async function getProgramDayDetail(
   dayId: string,
   injuries: string[] = [],
+  equipment?: string,
 ): Promise<ProgramDayDetail> {
   const [dayRes, exRes, taskRes, testRes] = await Promise.all([
     supabase.from("program_days").select("*").eq("id", dayId).single(),
@@ -83,7 +89,11 @@ export async function getProgramDayDetail(
   let exercises = (exRes.data ?? []) as unknown as DayExerciseWithExercise[];
   const req = requiredSafety(injuries);
   if (hasAnyInjury(req)) {
-    exercises = await substituteUnsafe(exercises, req);
+    exercises = await substituteUnsafe(
+      exercises,
+      req,
+      allowedEquipmentTiers(equipment),
+    );
   }
 
   return {
@@ -99,6 +109,7 @@ export async function getProgramDayDetail(
 async function substituteUnsafe(
   exercises: DayExerciseWithExercise[],
   req: SafetyFlags,
+  allowedTiers: string[],
 ): Promise<DayExerciseWithExercise[]> {
   const unsafe = exercises.filter((e) => e.exercise && !isSafe(e.exercise, req));
   if (unsafe.length === 0) return exercises;
@@ -127,8 +138,9 @@ async function substituteUnsafe(
           e.exercise,
           candidates.filter((c) => c.progression_group === group),
           req,
+          allowedTiers,
         )
       : null;
-    return replacement ? [{ ...e, exercise: replacement }] : [];
+    return replacement ? [{ ...e, exercise: replacement, adapted: true }] : [];
   });
 }

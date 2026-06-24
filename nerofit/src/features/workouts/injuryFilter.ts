@@ -26,6 +26,19 @@ export function hasAnyInjury(req: SafetyFlags): boolean {
   return req.knee || req.back || req.shoulder;
 }
 
+// Equipment tiers the user can actually use, from their goals.equipment.
+export function allowedEquipmentTiers(equipment: string | undefined): string[] {
+  switch (equipment) {
+    case "no_equipment":
+      return ["bodyweight"];
+    case "home_gym":
+      return ["bodyweight", "dumbbell_band"];
+    case "full_gym":
+    default:
+      return ["bodyweight", "dumbbell_band", "gym_full"];
+  }
+}
+
 export function isSafe(ex: SafetyFields, req: SafetyFlags): boolean {
   if (req.knee && !ex.injury_knee_safe) return false;
   if (req.back && !ex.injury_back_safe) return false;
@@ -46,8 +59,14 @@ export function pickReplacement<T extends Candidate>(
   original: Candidate,
   candidates: T[],
   req: SafetyFlags,
+  allowedTiers: string[],
 ): T | null {
-  const safe = candidates.filter((c) => c.id !== original.id && isSafe(c, req));
+  const safe = candidates.filter(
+    (c) =>
+      c.id !== original.id &&
+      isSafe(c, req) &&
+      (c.equipment_tier == null || allowedTiers.includes(c.equipment_tier)),
+  );
   if (safe.length === 0) return null;
   const score = (c: Candidate) =>
     Math.abs((c.progression_tier ?? 0) - (original.progression_tier ?? 0)) * 10 +
