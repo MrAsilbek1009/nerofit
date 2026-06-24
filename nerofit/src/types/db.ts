@@ -28,6 +28,19 @@ export type LogStatus = "done" | "skipped";
 export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
 export type MealSource = "catalog" | "scan" | "manual";
 export type DayPart = "morning" | "midday" | "evening";
+export type ExerciseCategory =
+  | "push"
+  | "pull"
+  | "legs"
+  | "core"
+  | "cardio"
+  | "warmup"
+  | "mobility_stretch";
+export type EquipmentTier = "bodyweight" | "dumbbell_band" | "gym_full";
+export type ProgramSection = "warmup" | "main" | "cooldown";
+export type TaskType = "education" | "workout" | "lifestyle" | "challenge";
+export type TestLogType = "count" | "seconds" | "minutes";
+export type UnitSystem = "metric" | "imperial";
 
 export type Database = {
   public: {
@@ -45,6 +58,7 @@ export type Database = {
           protein_goal_g: number;
           carbs_goal_g: number;
           fats_goal_g: number;
+          preferred_unit_system: UnitSystem;
           onboarded_at: string | null;
           created_at: string;
         };
@@ -60,6 +74,7 @@ export type Database = {
           protein_goal_g?: number;
           carbs_goal_g?: number;
           fats_goal_g?: number;
+          preferred_unit_system?: UnitSystem;
           onboarded_at?: string | null;
           created_at?: string;
         };
@@ -75,6 +90,9 @@ export type Database = {
           injuries: string[];
           notes: string | null;
           target_weight: number | null;
+          experience_level: string | null;
+          entry_point_week: number;
+          training_frequency: string;
           created_at: string;
           updated_at: string;
         };
@@ -86,6 +104,9 @@ export type Database = {
           injuries?: string[];
           notes?: string | null;
           target_weight?: number | null;
+          experience_level?: string | null;
+          entry_point_week?: number;
+          training_frequency?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -151,6 +172,8 @@ export type Database = {
           id: string;
           title: string;
           level: ProgramLevel;
+          phase: number;
+          mode: string;
           image_url: string | null;
           description: string | null;
           created_at: string;
@@ -159,6 +182,8 @@ export type Database = {
           id?: string;
           title: string;
           level?: ProgramLevel;
+          phase?: number;
+          mode?: string;
           image_url?: string | null;
           description?: string | null;
           created_at?: string;
@@ -196,6 +221,17 @@ export type Database = {
           default_sets: number;
           default_reps: number;
           image_url: string | null;
+          code: string | null;
+          name_uz: string | null;
+          category: ExerciseCategory | null;
+          equipment_tier: EquipmentTier | null;
+          progression_tier: number | null;
+          progression_group: string | null;
+          injury_knee_safe: boolean;
+          injury_back_safe: boolean;
+          injury_shoulder_safe: boolean;
+          cues_uz: string | null;
+          default_sets_reps: string | null;
         };
         Insert: {
           id?: string;
@@ -204,6 +240,17 @@ export type Database = {
           default_sets?: number;
           default_reps?: number;
           image_url?: string | null;
+          code?: string | null;
+          name_uz?: string | null;
+          category?: ExerciseCategory | null;
+          equipment_tier?: EquipmentTier | null;
+          progression_tier?: number | null;
+          progression_group?: string | null;
+          injury_knee_safe?: boolean;
+          injury_back_safe?: boolean;
+          injury_shoulder_safe?: boolean;
+          cues_uz?: string | null;
+          default_sets_reps?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["exercises"]["Insert"]>;
         Relationships: [];
@@ -292,6 +339,186 @@ export type Database = {
           logged_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["exercise_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      program_days: {
+        Row: {
+          id: string;
+          program_id: string;
+          week_no: number;
+          day_no: number;
+          weekday: string | null;
+          session_title: string;
+          intro_video_script: string | null;
+          intro_video_url: string | null;
+          is_rest_day: boolean;
+          is_test_day: boolean;
+          is_milestone_day: boolean;
+          format: string;
+          rounds: number | null;
+          total_duration_min: number | null;
+          order_index: number;
+        };
+        Insert: {
+          id?: string;
+          program_id: string;
+          week_no: number;
+          day_no: number;
+          weekday?: string | null;
+          session_title: string;
+          intro_video_script?: string | null;
+          intro_video_url?: string | null;
+          is_rest_day?: boolean;
+          is_test_day?: boolean;
+          is_milestone_day?: boolean;
+          format?: string;
+          rounds?: number | null;
+          total_duration_min?: number | null;
+          order_index?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["program_days"]["Insert"]>;
+        Relationships: [];
+      };
+      program_day_exercises: {
+        Row: {
+          id: string;
+          program_day_id: string;
+          section: ProgramSection;
+          order_index: number;
+          exercise_id: string;
+          sets: number | null;
+          reps: string | null;
+          rest_sec: number | null;
+          rest_after_sec: number | null;
+          notes: string | null;
+        };
+        Insert: {
+          id?: string;
+          program_day_id: string;
+          section?: ProgramSection;
+          order_index?: number;
+          exercise_id: string;
+          sets?: number | null;
+          reps?: string | null;
+          rest_sec?: number | null;
+          rest_after_sec?: number | null;
+          notes?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["program_day_exercises"]["Insert"]>;
+        Relationships: [];
+      };
+      program_day_tasks: {
+        Row: {
+          id: string;
+          program_day_id: string;
+          order_index: number;
+          type: TaskType;
+          title: string;
+          duration_min: number | null;
+          target: string | null;
+          optional: boolean;
+          reward_xp: number | null;
+          linked_to: string | null;
+          video_url: string | null;
+        };
+        Insert: {
+          id?: string;
+          program_day_id: string;
+          order_index?: number;
+          type: TaskType;
+          title: string;
+          duration_min?: number | null;
+          target?: string | null;
+          optional?: boolean;
+          reward_xp?: number | null;
+          linked_to?: string | null;
+          video_url?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["program_day_tasks"]["Insert"]>;
+        Relationships: [];
+      };
+      program_day_tests: {
+        Row: {
+          id: string;
+          program_day_id: string;
+          order_index: number;
+          test_key: string;
+          name: string;
+          exercise_id: string | null;
+          instructions: string | null;
+          log_type: TestLogType;
+        };
+        Insert: {
+          id?: string;
+          program_day_id: string;
+          order_index?: number;
+          test_key: string;
+          name: string;
+          exercise_id?: string | null;
+          instructions?: string | null;
+          log_type: TestLogType;
+        };
+        Update: Partial<Database["public"]["Tables"]["program_day_tests"]["Insert"]>;
+        Relationships: [];
+      };
+      day_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          program_day_id: string;
+          status: SessionStatus;
+          started_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          program_day_id: string;
+          status?: SessionStatus;
+          started_at?: string;
+          completed_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["day_sessions"]["Insert"]>;
+        Relationships: [];
+      };
+      day_exercise_logs: {
+        Row: {
+          id: string;
+          day_session_id: string;
+          program_day_exercise_id: string;
+          status: LogStatus;
+          sets_done: number | null;
+          reps_done: number | null;
+          weight_used: number | null;
+          logged_at: string;
+        };
+        Insert: {
+          id?: string;
+          day_session_id: string;
+          program_day_exercise_id: string;
+          status: LogStatus;
+          sets_done?: number | null;
+          reps_done?: number | null;
+          weight_used?: number | null;
+          logged_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["day_exercise_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      task_completions: {
+        Row: {
+          id: string;
+          day_session_id: string;
+          program_day_task_id: string;
+          completed_at: string;
+        };
+        Insert: {
+          id?: string;
+          day_session_id: string;
+          program_day_task_id: string;
+          completed_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["task_completions"]["Insert"]>;
         Relationships: [];
       };
       meals: {
@@ -451,6 +678,18 @@ export type MealLog = Database["public"]["Tables"]["meal_logs"]["Row"];
 export type Supplement = Database["public"]["Tables"]["supplements"]["Row"];
 export type SupplementLog =
   Database["public"]["Tables"]["supplement_logs"]["Row"];
+export type ProgramDay = Database["public"]["Tables"]["program_days"]["Row"];
+export type ProgramDayExercise =
+  Database["public"]["Tables"]["program_day_exercises"]["Row"];
+export type ProgramDayTask =
+  Database["public"]["Tables"]["program_day_tasks"]["Row"];
+export type ProgramDayTest =
+  Database["public"]["Tables"]["program_day_tests"]["Row"];
+export type DaySession = Database["public"]["Tables"]["day_sessions"]["Row"];
+export type DayExerciseLog =
+  Database["public"]["Tables"]["day_exercise_logs"]["Row"];
+export type TaskCompletion =
+  Database["public"]["Tables"]["task_completions"]["Row"];
 
 export type ChatRole = "user" | "assistant";
 
