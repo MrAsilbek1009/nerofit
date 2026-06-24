@@ -19,7 +19,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — kod `main`'ga merge (PR #1) · 🧑 dashboard/deploy qoldi → `PHASE7_HANDOFF.md` |
 | 8 | Build & Backend hardening | 🟡 | Mirolim (lokalda, hali push qilinmagan) |
-| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1 schema ✅ (0008+0009 + db types); W2 seed davom etmoqda |
+| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1 schema ✅ · W2 seed ✅ (generator: 87 mashq, 8 hafta) · W3 UI keyingi |
 | 10 | RevenueCat | ⬜ | — |
 | 11 | Legal & Store | ⬜ | — |
 | 12 | iOS + Release | ⬜ | — |

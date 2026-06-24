@@ -1,0 +1,388 @@
+{
+  "_meta": {
+    "description": "NEROFIT — weight_adapted_3day rejimi (Hafta 1-4). standard_3day bilan PARALLEL uchinchi variant.",
+    "level": "beginner",
+    "phase": 1,
+    "mode": "weight_adapted_3day",
+    "weeks_covered": "1-4",
+    "applies_to_uz": "BMI 25-29.9 + yosh 40+ (tavsiya), BMI 30+ (kuchli tavsiya), BMI 30+ + yosh 50+ (majburiy tavsiya)",
+    "adaptation_rules_uz": {
+      "squat": "Chair Squat (sq001) hafta 1-4 davomida, oddiy Squat'ga (sq002) hafta 5+ da o'tiladi",
+      "pushup": "Devor(pu001) → Tizza(pu002, 2 hafta ko'proq, ya'ni hafta 2-3 davom etadi) → Stol(pu003)",
+      "lunge": "Lunge o'rniga Step-up (lg004) — tizza yukini kamaytiradi",
+      "plank": "Yerda emas — Tizzada Plank (co011) yoki Skameykaga suyanib Plank (co012)",
+      "mountain_climbers": "Sekin tempoda (tempo: slow eslatmasi bilan)",
+      "sets_reps": "2-3 set x 8-12 rep (standart 3x10-15'dan kamroq)",
+      "rest_sec": "75-90 soniya (standart 60'dan ko'proq — nafas va bo'g'im uchun)",
+      "cardio": "Faqat tasks ichida yurish — jogging YO'Q",
+      "no_jump_no_plyo": "Sakrash va portlovchi (plyometric) mashqlar umuman yo'q",
+      "min_2_grounded": "Har sessiyada kamida 2 ta yerda/o'tirib bajariladigan mashq (muvozanat uchun)",
+      "duration_adjustment": "total_duration_estimate_min standartdan 5-8 daqiqa ko'proq (tempo sekinroq)"
+    },
+    "tone_note_uz": "Ogohlantirish matnlari do'stona — 'Tizzangizga og'irlik tushsa, miqdorni kamaytiring' uslubida, hech qachon kamsituvchi emas"
+  },
+
+  "week_1": {
+    "weight_adapted_3day": {
+      "day_1": {
+        "weekday": "Dushanba",
+        "session_title_uz": "Postura va Birinchi Qadam (Moslashtirilgan)",
+        "intro_video_script_uz": "Salom! Bu dastur sizning tanangiz uchun maxsus moslashtirilgan — tempolar sekinroq, dam olish vaqti ko'proq. Shoshilmang, har bir harakatni diqqat bilan bajaring.",
+        "tasks": [
+          {"task_id": "w1d1wa_t1", "type": "education", "title_uz": "Postura nima va nima uchun muhim?", "duration_min": 6, "video_status": "needed"},
+          {"task_id": "w1d1wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w1d1wa_t3", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"},
+          {"task_id": "w1d1wa_t4", "type": "challenge", "title_uz": "Bonus: 5 daqiqa quyoshda yuring", "optional": true, "reward_xp": 10}
+        ],
+        "warmup": [
+          {"exercise_id": "wu001", "name_uz": "Qo'l aylantirish", "sets": 1, "reps_or_time": "25 sek har tomon", "notes_uz": "Standartdan biroz uzunroq isinish"},
+          {"exercise_id": "wu003", "name_uz": "Mushuk-sigir harakati", "sets": 1, "reps_or_time": "10 takror"},
+          {"exercise_id": "wu002", "name_uz": "Oyoq silkitish", "sets": 1, "reps_or_time": "10 har oyoq"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 2, "reps": 8, "rest_sec": 90, "notes_uz": "Tizzangizga og'irlik tushsa, miqdorni kamaytiring. Sekin tushing, deyarli o'tirmasdan turing"},
+          {"order": 2, "exercise_id": "pu001", "name_uz": "Devorga suyanib Push-up", "sets": 2, "reps": 10, "rest_sec": 90, "notes_uz": "Devordan masofani kerak bo'lsa kamaytiring"},
+          {"order": 3, "exercise_id": "lg001", "name_uz": "Dumba ko'tarish (Glute Bridge)", "sets": 2, "reps": 12, "rest_sec": 75, "notes_uz": "Yuqorida 2 soniya ushlab turing, bel pasaytirilmasin"}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms001", "name_uz": "Bola pozasi", "sets": 1, "reps_or_time": "40 sek"},
+          {"exercise_id": "ms004", "name_uz": "Ko'krak cho'zish (eshik oldida)", "sets": 1, "reps_or_time": "30 sek har tomon"}
+        ],
+        "total_duration_estimate_min": 32
+      },
+
+      "day_2": {
+        "weekday": "Seshanba",
+        "session_title_uz": "DAM OLISH KUNI (Active Rest)",
+        "is_rest_day": true,
+        "tasks": [
+          {"task_id": "w1d2wa_t1", "type": "lifestyle", "title_uz": "10-15 daqiqa sayr qiling", "target": "10-15 min walk", "notes_uz": "Shoshilmasdan, o'zingizga qulay tempda"},
+          {"task_id": "w1d2wa_t2", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"}
+        ]
+      },
+
+      "day_3": {
+        "weekday": "Chorshanba",
+        "session_title_uz": "Nafas va Qo'zg'aluvchanlik (Moslashtirilgan)",
+        "intro_video_script_uz": "Bugun nafas olish texnikasini o'rganamiz — bu mashqlarni yengilroq his qilishga yordam beradi.",
+        "tasks": [
+          {"task_id": "w1d3wa_t1", "type": "education", "title_uz": "To'g'ri nafas olish texnikasi", "duration_min": 5, "video_status": "needed"},
+          {"task_id": "w1d3wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w1d3wa_t3", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu005", "name_uz": "Tizzani ko'tarib yurish", "sets": 1, "reps_or_time": "15 sek", "notes_uz": "Sekin tempoda"},
+          {"exercise_id": "wu007", "name_uz": "Yelka aylantirish", "sets": 1, "reps_or_time": "10 takror"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "co001", "name_uz": "O'lik qurt (Dead Bug)", "sets": 2, "reps": 8, "rest_sec": 75, "notes_uz": "Bel yerdan ko'tarilib ketmasin, sekin va nazorat bilan"},
+          {"order": 2, "exercise_id": "co002", "name_uz": "Qush-it (Bird Dog)", "sets": 2, "reps": 8, "rest_sec": 75, "notes_uz": "Muvozanatga e'tibor bering, shoshilmang"},
+          {"order": 3, "exercise_id": "co011", "name_uz": "Tizzada Plank", "sets": 2, "reps_or_time": "20 sek", "rest_sec": 75, "notes_uz": "Yerda Plank'ga qaraganda yukı kamroq — tizzada tayanib bajariladi"}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms002", "name_uz": "Son orqasini tarang qilish (o'tirib)", "sets": 1, "reps_or_time": "30 sek har oyoq"},
+          {"exercise_id": "ms005", "name_uz": "Kobra pozasi", "sets": 1, "reps_or_time": "30 sek", "notes_uz": "Agar bel og'rig'i bo'lsa, bu mashqni o'tkazib yuborishingiz mumkin"}
+        ],
+        "total_duration_estimate_min": 28
+      },
+
+      "day_4": {
+        "weekday": "Payshanba",
+        "session_title_uz": "DAM OLISH KUNI",
+        "is_rest_day": true,
+        "tasks": [
+          {"task_id": "w1d4wa_t1", "type": "lifestyle", "title_uz": "10-15 daqiqa sayr qiling", "target": "10-15 min walk"},
+          {"task_id": "w1d4wa_t2", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"}
+        ]
+      },
+
+      "day_5": {
+        "weekday": "Juma",
+        "session_title_uz": "Yuqori va Quyi Tana (Moslashtirilgan)",
+        "intro_video_script_uz": "Hafta oxiri! Bugun yengil tempda yuqori va quyi tana mashqlarini birlashtiramiz.",
+        "tasks": [
+          {"task_id": "w1d5wa_t1", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w1d5wa_t2", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"},
+          {"task_id": "w1d5wa_t3", "type": "challenge", "title_uz": "Bonus: O'zingizni qanday his qilganingizni yozing (journal)", "optional": true, "reward_xp": 15}
+        ],
+        "warmup": [
+          {"exercise_id": "wu002", "name_uz": "Oyoq silkitish", "sets": 1, "reps_or_time": "10 har oyoq"},
+          {"exercise_id": "wu007", "name_uz": "Yelka aylantirish", "sets": 1, "reps_or_time": "10 takror"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 2, "reps": 10, "rest_sec": 90},
+          {"order": 2, "exercise_id": "pu002", "name_uz": "Tizzada Push-up", "sets": 2, "reps": 6, "rest_sec": 90, "notes_uz": "Yangi bosqich, lekin yengilroq — 6 takrordan boshlaymiz"},
+          {"order": 3, "exercise_id": "lg004", "name_uz": "Skameykaga chiqish (Step-up)", "sets": 2, "reps": 8, "rest_sec": 75, "notes_uz": "Lunge o'rniga — tizza yukini kamaytiradi. Har oyoqqa 8 takror, past zinapoyadan boshlang"},
+          {"order": 4, "exercise_id": "co011", "name_uz": "Tizzada Plank", "sets": 2, "reps_or_time": "18 sek", "rest_sec": 75}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms003", "name_uz": "Son oldini tarang qilish (tik turib)", "sets": 1, "reps_or_time": "30 sek har oyoq"},
+          {"exercise_id": "ms001", "name_uz": "Bola pozasi", "sets": 1, "reps_or_time": "30 sek"}
+        ],
+        "total_duration_estimate_min": 34
+      },
+
+      "day_6": {"weekday": "Shanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w1d6wa_t1", "type": "lifestyle", "title_uz": "Erkin kun — istasangiz sayr qiling", "target": "optional walk"}]},
+
+      "day_7": {"weekday": "Yakshanba", "session_title_uz": "DAM OLISH KUNI + Haftalik Sharh", "is_rest_day": true,
+        "tasks": [
+          {"task_id": "w1d7wa_t1", "type": "lifestyle", "title_uz": "To'liq dam oling", "target": "rest"},
+          {"task_id": "w1d7wa_t2", "type": "education", "title_uz": "Haftalik sharh: Birinchi haftani yakunladingiz! Har bir qadam muhim", "duration_min": 3, "video_status": "needed"}
+        ]}
+    }
+  },
+
+  "week_2": {
+    "weight_adapted_3day": {
+      "day_1": {
+        "weekday": "Dushanba",
+        "session_title_uz": "Squat Texnikasini Chuqurlashtirish (Moslashtirilgan)",
+        "intro_video_script_uz": "Ikkinchi hafta — squat texnikasini chuqur o'rganamiz, tizza pozitsiyasiga alohida e'tibor bilan.",
+        "tasks": [
+          {"task_id": "w2d1wa_t1", "type": "education", "title_uz": "Squat'da tizza nima uchun og'riydi (xato texnika)", "duration_min": 7, "video_status": "needed"},
+          {"task_id": "w2d1wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w2d1wa_t3", "type": "lifestyle", "title_uz": "Bugun 6 stakan suv ichish", "target": "6 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu001", "name_uz": "Qo'l aylantirish", "sets": 1, "reps_or_time": "20 sek"},
+          {"exercise_id": "wu006", "name_uz": "Son aylantirish", "sets": 1, "reps_or_time": "10 har tomon"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 3, "reps": 8, "rest_sec": 90, "notes_uz": "Set 2'dan 3'ga oshdi"},
+          {"order": 2, "exercise_id": "pu001", "name_uz": "Devorga suyanib Push-up", "sets": 2, "reps": 12, "rest_sec": 75}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms003", "name_uz": "Son oldini tarang qilish", "sets": 1, "reps_or_time": "30 sek har oyoq"}
+        ],
+        "total_duration_estimate_min": 30
+      },
+
+      "day_2": {"weekday": "Seshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w2d2wa_t1", "type": "lifestyle", "title_uz": "Yengil sayr (10 daqiqa)", "target": "optional"},
+                  {"task_id": "w2d2wa_t2", "type": "lifestyle", "title_uz": "6 stakan suv", "target": "6 glasses"}]},
+
+      "day_3": {
+        "weekday": "Chorshanba",
+        "session_title_uz": "Push & Pull Asoslari (Moslashtirilgan)",
+        "intro_video_script_uz": "Bugun yuqori tananing ikki tomonini — itarish va tortishni yengil tempda ishlatamiz.",
+        "tasks": [
+          {"task_id": "w2d3wa_t1", "type": "education", "title_uz": "Nega faqat Push-up emas — Pull mashqlari nima uchun kerak", "duration_min": 5, "video_status": "needed"},
+          {"task_id": "w2d3wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w2d3wa_t3", "type": "lifestyle", "title_uz": "6 stakan suv", "target": "6 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu007", "name_uz": "Yelka aylantirish", "sets": 1, "reps_or_time": "10 takror"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "pu002", "name_uz": "Tizzada Push-up", "sets": 2, "reps": 8, "rest_sec": 90, "notes_uz": "Davom etamiz — bu bosqichda biroz ko'proq vaqt sarflaymiz"},
+          {"order": 2, "exercise_id": "pl003", "name_uz": "Lentali tortish (o'tirib)", "sets": 2, "reps": 10, "rest_sec": 90, "notes_uz": "Lenta bo'lmasa: qo'lni cho'zib tortish imitatsiyasi"},
+          {"order": 3, "exercise_id": "pl002", "name_uz": "Superman pozasi", "sets": 2, "reps_or_time": "15 sek", "rest_sec": 75, "notes_uz": "Agar bel og'rig'i bo'lsa, harakat amplitudasini kamaytiring"}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms004", "name_uz": "Ko'krak cho'zish", "sets": 1, "reps_or_time": "30 sek har tomon"}
+        ],
+        "total_duration_estimate_min": 30
+      },
+
+      "day_4": {"weekday": "Payshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w2d4wa_t1", "type": "lifestyle", "title_uz": "Yengil 10-15 daqiqa sayr", "target": "optional"},
+                  {"task_id": "w2d4wa_t2", "type": "lifestyle", "title_uz": "6 stakan suv", "target": "6 glasses"}]},
+
+      "day_5": {
+        "weekday": "Juma",
+        "session_title_uz": "Core Stability va Muvozanat (Moslashtirilgan)",
+        "intro_video_script_uz": "Bugun qorin mushaklarini mustahkamlaymiz — sekin va nazorat bilan.",
+        "tasks": [
+          {"task_id": "w2d5wa_t1", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w2d5wa_t2", "type": "lifestyle", "title_uz": "6 stakan suv", "target": "6 glasses"},
+          {"task_id": "w2d5wa_t3", "type": "challenge", "title_uz": "Bonus: Tizzada Plank'ni 5 soniya uzoqroq ushlang", "optional": true, "reward_xp": 10}
+        ],
+        "warmup": [
+          {"exercise_id": "wu003", "name_uz": "Mushuk-sigir harakati", "sets": 1, "reps_or_time": "10 takror"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "co001", "name_uz": "O'lik qurt (Dead Bug)", "sets": 2, "reps": 10, "rest_sec": 75},
+          {"order": 2, "exercise_id": "co002", "name_uz": "Qush-it (Bird Dog)", "sets": 2, "reps": 10, "rest_sec": 75},
+          {"order": 3, "exercise_id": "co011", "name_uz": "Tizzada Plank", "sets": 2, "reps_or_time": "22 sek", "rest_sec": 75},
+          {"order": 4, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 2, "reps": 10, "rest_sec": 90}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms005", "name_uz": "Kobra pozasi", "sets": 1, "reps_or_time": "30 sek"}
+        ],
+        "total_duration_estimate_min": 32
+      },
+      "day_6": {"weekday": "Shanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w2d6wa_t1", "type": "lifestyle", "title_uz": "Erkin kun", "target": "optional"}]},
+      "day_7": {"weekday": "Yakshanba", "session_title_uz": "DAM OLISH + Sharh", "is_rest_day": true,
+        "tasks": [{"task_id": "w2d7wa_t1", "type": "education", "title_uz": "2-hafta yakunlandi! Yaxshi sur'atda davom etayapsiz", "duration_min": 3, "video_status": "needed"}]}
+    }
+  },
+
+  "week_3": {
+    "weight_adapted_3day": {
+      "day_1": {
+        "weekday": "Dushanba",
+        "session_title_uz": "Quyi Tana Kuchaytirish (Moslashtirilgan)",
+        "intro_video_script_uz": "Uchinchi hafta — tananingiz tayyorlanib bo'ldi, bugun biroz ko'proq takror bilan davom etamiz.",
+        "tasks": [
+          {"task_id": "w3d1wa_t1", "type": "education", "title_uz": "Progressive Overload nima — yukni qanday oshiramiz", "duration_min": 6, "video_status": "needed"},
+          {"task_id": "w3d1wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w3d1wa_t3", "type": "lifestyle", "title_uz": "7 stakan suv ichish", "target": "7 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu002", "name_uz": "Oyoq silkitish", "sets": 1, "reps_or_time": "10 har oyoq"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 3, "reps": 10, "rest_sec": 90, "notes_uz": "Rep 8'dan 10'ga oshdi"},
+          {"order": 2, "exercise_id": "lg004", "name_uz": "Skameykaga chiqish (Step-up)", "sets": 3, "reps": 8, "rest_sec": 75, "notes_uz": "Har oyoqqa 8"},
+          {"order": 3, "exercise_id": "lg005", "name_uz": "Romaniya egilishi (jihozsiz)", "sets": 2, "reps": 8, "rest_sec": 90, "notes_uz": "Tizzani yengil bukib, sekin egiling — bel og'rig'i bo'lsa amplitudani kamaytiring"}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms002", "name_uz": "Son orqasini tarang qilish", "sets": 1, "reps_or_time": "30 sek har oyoq"}
+        ],
+        "total_duration_estimate_min": 33
+      },
+      "day_2": {"weekday": "Seshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w3d2wa_t1", "type": "lifestyle", "title_uz": "15 daqiqa yurish", "target": "15 min walk"},
+                  {"task_id": "w3d2wa_t2", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}]},
+
+      "day_3": {
+        "weekday": "Chorshanba",
+        "session_title_uz": "Yuqori Tana — Davom (Moslashtirilgan)",
+        "intro_video_script_uz": "Bugun Tizzada Push-up'da davom etamiz — bu bosqichda yana bir hafta sabr qilamiz, keyin keyingi bosqichga o'tamiz.",
+        "tasks": [
+          {"task_id": "w3d3wa_t1", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w3d3wa_t2", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu007", "name_uz": "Yelka aylantirish", "sets": 1, "reps_or_time": "10 takror"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "pu002", "name_uz": "Tizzada Push-up", "sets": 3, "reps": 8, "rest_sec": 90, "notes_uz": "Hujjat qoidasiga ko'ra Tizzada bosqichi standartdan 2 hafta ko'proq davom etadi"},
+          {"order": 2, "exercise_id": "pl004", "name_uz": "Teskari tortish (stol/turnik past)", "sets": 2, "reps": 8, "rest_sec": 90, "notes_uz": "Stol ostida bajarish mumkin"}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms004", "name_uz": "Ko'krak cho'zish", "sets": 1, "reps_or_time": "30 sek har tomon"}
+        ],
+        "total_duration_estimate_min": 28
+      },
+      "day_4": {"weekday": "Payshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w3d4wa_t1", "type": "lifestyle", "title_uz": "Yengil cho'zish (10 daqiqa)", "target": "optional"},
+                  {"task_id": "w3d4wa_t2", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}]},
+
+      "day_5": {
+        "weekday": "Juma",
+        "session_title_uz": "Full Body — Aylanma Format (Moslashtirilgan)",
+        "intro_video_script_uz": "Bugun barcha mashqlarni birlashtiramiz, lekin sekin tempoda va ko'proq dam olish bilan.",
+        "tasks": [
+          {"task_id": "w3d5wa_t1", "type": "education", "title_uz": "Bugungi mashq formati qanday ishlaydi", "duration_min": 4, "video_status": "needed"},
+          {"task_id": "w3d5wa_t2", "type": "workout", "title_uz": "Bugungi mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w3d5wa_t3", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu002", "name_uz": "Oyoq silkitish", "sets": 1, "reps_or_time": "10 har oyoq"},
+          {"exercise_id": "wu005", "name_uz": "Tizzani ko'tarib yurish", "sets": 1, "reps_or_time": "15 sek", "notes_uz": "Sekin tempoda"}
+        ],
+        "main_workout_format": "circuit",
+        "main_workout_format_explained_uz": "Pastdagi mashqlarni RAQAMLANGAN TARTIBDA, orada 30 sek dam bilan bajaring (standartdagi 15 sek'dan ko'proq). 2 ROUND, round orasida 2 daqiqa dam.",
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "reps": 10, "rest_after_sec": 30},
+          {"order": 2, "exercise_id": "pu002", "name_uz": "Tizzada Push-up", "reps": 6, "rest_after_sec": 30},
+          {"order": 3, "exercise_id": "lg004", "name_uz": "Skameykaga chiqish (Step-up)", "reps": "8 har oyoq", "rest_after_sec": 30},
+          {"order": 4, "exercise_id": "co011", "name_uz": "Tizzada Plank", "reps_or_time": "18 sek", "rest_after_sec": 120, "notes_uz": "Bu round oxiri — 2 daqiqa dam, keyin 2-round"}
+        ],
+        "rounds": 2,
+        "cooldown": [
+          {"exercise_id": "ms001", "name_uz": "Bola pozasi", "sets": 1, "reps_or_time": "30 sek"},
+          {"exercise_id": "ms003", "name_uz": "Son oldini tarang qilish", "sets": 1, "reps_or_time": "30 sek har oyoq"}
+        ],
+        "total_duration_estimate_min": 35
+      },
+      "day_6": {"weekday": "Shanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w3d6wa_t1", "type": "lifestyle", "title_uz": "Erkin kun", "target": "optional"}]},
+      "day_7": {"weekday": "Yakshanba", "session_title_uz": "DAM OLISH + Sharh", "is_rest_day": true,
+        "tasks": [{"task_id": "w3d7wa_t1", "type": "education", "title_uz": "3-hafta yakunlandi! Keyingi hafta — Deload", "duration_min": 3, "video_status": "needed"}]}
+    }
+  },
+
+  "week_4": {
+    "weight_adapted_3day": {
+      "_note_uz": "Deload haftasi — barcha rejimlarda yengillashtiriladi, weight_adapted rejimida bu allaqachon eng yengil bo'lgani uchun yuk juda minimal bo'ladi",
+      "day_1": {
+        "weekday": "Dushanba",
+        "session_title_uz": "Light Full Body (Deload, Moslashtirilgan)",
+        "intro_video_script_uz": "Bu hafta — Deload haftasi. Mashqlar yana yengilroq bo'ladi. Bu normal va kerakli tiklanish.",
+        "tasks": [
+          {"task_id": "w4d1wa_t1", "type": "education", "title_uz": "Deload nima va nima uchun kerak?", "duration_min": 4, "video_status": "needed"},
+          {"task_id": "w4d1wa_t2", "type": "workout", "title_uz": "Bugungi yengil mashqlarni bajaring", "linked_to": "main_workout"},
+          {"task_id": "w4d1wa_t3", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}
+        ],
+        "warmup": [
+          {"exercise_id": "wu001", "name_uz": "Qo'l aylantirish", "sets": 1, "reps_or_time": "20 sek"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "sq001", "name_uz": "Stulga o'tirib turish (Squat)", "sets": 2, "reps": 8, "rest_sec": 90},
+          {"order": 2, "exercise_id": "pu001", "name_uz": "Devorga suyanib Push-up", "sets": 2, "reps": 10, "rest_sec": 90},
+          {"order": 3, "exercise_id": "co011", "name_uz": "Tizzada Plank", "sets": 2, "reps_or_time": "15 sek", "rest_sec": 75}
+        ],
+        "cooldown": [
+          {"exercise_id": "ms001", "name_uz": "Bola pozasi", "sets": 1, "reps_or_time": "50 sek", "notes_uz": "Deload haftasida cho'zish vaqti yana ham uzaytiriladi"}
+        ],
+        "total_duration_estimate_min": 24
+      },
+      "day_2": {"weekday": "Seshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w4d2wa_t1", "type": "lifestyle", "title_uz": "Yengil sayr (10 daqiqa)", "target": "optional"},
+                  {"task_id": "w4d2wa_t2", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}]},
+
+      "day_3": {
+        "weekday": "Chorshanba",
+        "session_title_uz": "Mobility & Flexibility",
+        "intro_video_script_uz": "Bugun faqat cho'zish va harakatchanlik kuni.",
+        "tasks": [
+          {"task_id": "w4d3wa_t1", "type": "workout", "title_uz": "Mobility mashqlarini bajaring", "linked_to": "main_workout"},
+          {"task_id": "w4d3wa_t2", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}
+        ],
+        "main_workout": [
+          {"order": 1, "exercise_id": "ms008", "name_uz": "Mushuk-sigir oqimi (chuqur)", "sets": 1, "reps_or_time": "60 sek"},
+          {"order": 2, "exercise_id": "ms002", "name_uz": "Son orqasini tarang qilish", "sets": 1, "reps_or_time": "30 sek har oyoq"},
+          {"order": 3, "exercise_id": "ms004", "name_uz": "Ko'krak cho'zish", "sets": 1, "reps_or_time": "30 sek har tomon"}
+        ],
+        "total_duration_estimate_min": 18
+      },
+      "day_4": {"weekday": "Payshanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w4d4wa_t1", "type": "lifestyle", "title_uz": "Erkin kun, ertangi testga tayyorlaning", "target": "optional"}]},
+
+      "day_5": {
+        "weekday": "Juma",
+        "session_title_uz": "🏆 FITNESS TEST — 1-Oy Natijalari (Moslashtirilgan)",
+        "is_test_day": true,
+        "intro_video_script_uz": "Tabriklaymiz — 1 oy o'tdi! Bugun qancha rivojlanganingizni o'lchaymiz, o'z tempingizda.",
+        "tasks": [
+          {"task_id": "w4d5wa_t1", "type": "workout", "title_uz": "Fitness testni bajaring", "linked_to": "fitness_test"},
+          {"task_id": "w4d5wa_t2", "type": "lifestyle", "title_uz": "Progress foto oling", "target": "photo"},
+          {"task_id": "w4d5wa_t3", "type": "lifestyle", "title_uz": "7 stakan suv", "target": "7 glasses"}
+        ],
+        "fitness_test": [
+          {"test_id": "max_pushup_wall", "name_uz": "Maksimal Devor Push-up (1 daqiqada)", "exercise_id": "pu001", "instructions_uz": "1 daqiqa ichida qancha Devorga suyanib Push-up bajara olasiz", "log_type": "count"},
+          {"test_id": "knee_plank_hold", "name_uz": "Tizzada Plank vaqti", "exercise_id": "co011", "instructions_uz": "Tizzada Plank holatida qancha vaqt tura olasiz", "log_type": "seconds"},
+          {"test_id": "chair_squat_count", "name_uz": "Chair Squat soni (1 daqiqada)", "exercise_id": "sq001", "instructions_uz": "1 daqiqada qancha Stulga o'tirib turish bajara olasiz", "log_type": "count"},
+          {"test_id": "walk_1km", "name_uz": "1 km yurish vaqti", "instructions_uz": "1 km masofani o'z tempingizda qancha vaqtda bosib o'tasiz", "log_type": "minutes"}
+        ],
+        "total_duration_estimate_min": 22
+      },
+      "day_6": {"weekday": "Shanba", "session_title_uz": "DAM OLISH KUNI", "is_rest_day": true,
+        "tasks": [{"task_id": "w4d6wa_t1", "type": "lifestyle", "title_uz": "Erkin kun", "target": "optional"}]},
+      "day_7": {
+        "weekday": "Yakshanba",
+        "session_title_uz": "🎓 1-Oy Yakuni + Keyingi Qadam",
+        "is_rest_day": true,
+        "is_milestone_day": true,
+        "tasks": [
+          {"task_id": "w4d7wa_t1", "type": "education", "title_uz": "Tabriklaymiz! Birinchi oyni o'z tempingizda yakunladingiz", "duration_min": 3, "video_status": "needed"},
+          {"task_id": "w4d7wa_t2", "type": "lifestyle", "title_uz": "Badge oling: '1-Oy Bosqichi' 🏆", "target": "badge_unlock"}
+        ]
+      }
+    }
+  }
+}
