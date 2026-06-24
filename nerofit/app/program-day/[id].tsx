@@ -71,8 +71,10 @@ export default function ProgramDayScreen() {
           <Button label={t("common.retry")} fullWidth={false} onPress={() => detail.refetch()} />
         </View>
       ) : (
+        <>
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: space[5], paddingBottom: space[7], gap: space[5] }}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: space[5], paddingBottom: space[5], gap: space[5] }}
           showsVerticalScrollIndicator={false}
         >
           {detail.data?.day.intro_video_script ? (
@@ -144,6 +146,15 @@ export default function ProgramDayScreen() {
             );
           })}
         </ScrollView>
+        {(detail.data?.exercises.length ?? 0) > 0 ? (
+          <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: space[5] }}>
+            <Button
+              label={t("workouts.startWorkout")}
+              onPress={() => router.push(`/program-day-player/${id}`)}
+            />
+          </View>
+        ) : null}
+        </>
       )}
     </SafeAreaView>
   );
