@@ -17,8 +17,8 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 
 | Phase | Mavzu | Holat | Kim ishlayapti |
 |---|---|---|---|
-| 7 | Auth & Account | 🟡 | Mirolim (kod) · 🧑 dashboard/deploy qoldi → `PHASE7_HANDOFF.md` |
-| 8 | Build & Backend hardening | ⬜ | — |
+| 7 | Auth & Account | ✅ | Mirolim · merged (PR #1) + `delete-account` deployed |
+| 8 | Build & Backend hardening | 🟡 | Mirolim (kod) |
 | 9 | Real kontent | ⬜ | — |
 | 10 | RevenueCat | ⬜ | — |
 | 11 | Legal & Store | ⬜ | — |

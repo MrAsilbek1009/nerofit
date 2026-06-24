@@ -30,6 +30,10 @@ export default function CoachScreen() {
   const messages = messagesQuery.data ?? [];
   const isEmpty = messages.length === 0;
 
+  // The Edge Function returns 429 when the user hits their daily / burst limit.
+  const sendErrorMessage = sendMutation.error?.message ?? "";
+  const isRateLimited = /\b429\b/.test(sendErrorMessage);
+
   const scrollToBottom = useCallback(() => {
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 80);
   }, []);
@@ -119,8 +123,8 @@ export default function CoachScreen() {
         {/* Error */}
         {sendMutation.isError ? (
           <View style={{ paddingHorizontal: space[5], paddingBottom: space[2] }}>
-            <Text style={[typography.bodyMuted, { color: "#FF6B6B", fontSize: 12 }]}>
-              {t("coach.sendError")}
+            <Text style={[typography.bodyMuted, { color: colors.danger, fontSize: 12 }]}>
+              {isRateLimited ? t("coach.rateLimited") : t("coach.sendError")}
             </Text>
           </View>
         ) : null}
