@@ -9,6 +9,11 @@ export const ACTIVITY_VALUES = [
   "very_active",
 ] as const;
 export const EQUIPMENT_VALUES = ["no_equipment", "home_gym", "full_gym"] as const;
+export const EXPERIENCE_VALUES = [
+  "complete_beginner",
+  "some_experience",
+  "experienced",
+] as const;
 export const INJURY_VALUES = [
   "lower_back",
   "knees",
@@ -64,6 +69,12 @@ export const equipmentSchema = z.object({
 });
 export type EquipmentValues = z.infer<typeof equipmentSchema>;
 
+export const experienceSchema = z.object({
+  experience_level: z.enum(EXPERIENCE_VALUES),
+});
+export type ExperienceValues = z.infer<typeof experienceSchema>;
+
 export type OnboardingDraft = Partial<BasicsValues> &
   Partial<FocusValues> &
-  Partial<EquipmentValues>;
+  Partial<EquipmentValues> &
+  Partial<ExperienceValues>;

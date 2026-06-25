@@ -1,21 +1,34 @@
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui";
-import { ProgramCard } from "@/features/workouts/components/ProgramCard";
-import { usePrograms } from "@/lib/queries/programs";
+import { Button, VideoCard } from "@/components/ui";
+import { useCurriculumPrograms } from "@/lib/queries/curriculum";
 import { colors, space, typography } from "@/theme";
 
 export default function WorkoutsScreen() {
   const { t } = useTranslation();
-  const programs = usePrograms();
+  const router = useRouter();
+  const programs = useCurriculumPrograms();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
       <FlatList
         data={programs.data ?? []}
         keyExtractor={(p) => p.id}
-        renderItem={({ item }) => <ProgramCard program={item} />}
+        renderItem={({ item }) => (
+          <VideoCard
+            title={item.title}
+            subtitle={item.level.toUpperCase()}
+            imageUri={item.image_url ?? undefined}
+            aspectRatio={16 / 11}
+            onPress={() =>
+              router.push(
+                `/program/${item.id}?title=${encodeURIComponent(item.title)}`,
+              )
+            }
+          />
+        )}
         contentContainerStyle={{
           padding: space[5],
           gap: space[4],

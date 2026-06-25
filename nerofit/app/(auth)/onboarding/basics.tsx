@@ -78,7 +78,7 @@ export default function BasicsStep() {
   return (
     <StepShell
       step={2}
-      total={4}
+      total={5}
       title={t("onboarding.basics.title")}
       scrollable={false}
       ctaDisabled={!parsed.success}

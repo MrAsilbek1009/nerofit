@@ -70,6 +70,16 @@
       }
     },
 
+    "experience": {
+      "title": "Ваш опыт",
+      "subtitle": "Начнём с подходящего уровня.",
+      "options": {
+        "complete_beginner": "Совсем новичок — никогда регулярно не тренировался",
+        "some_experience": "Есть небольшой опыт",
+        "experienced": "Опытный — тренируюсь регулярно"
+      }
+    },
+
     "equipment": {
       "title": "Ваша площадка",
       "subtitle": "Где вы тренируетесь и какие ограничения учитывать?",
@@ -153,7 +163,19 @@
     "workoutComplete": "Тренировка завершена",
     "completeBody": "Отличная работа — всё записано.",
     "done": "Готово",
-    "startWorkout": "Начать"
+    "startWorkout": "Начать",
+    "program": "Программа",
+    "week": "Неделя {{n}}",
+    "restDay": "День отдыха",
+    "testDay": "Фитнес-тест",
+    "milestone": "Этап",
+    "tasksTitle": "Задачи",
+    "sectionWarmup": "Разминка",
+    "sectionMain": "Основное",
+    "sectionCooldown": "Заминка",
+    "startHere": "Старт здесь",
+    "showEarlier": "Показать прошлые недели",
+    "hideEarlier": "Скрыть прошлые недели"
   },
 
   "progress": {

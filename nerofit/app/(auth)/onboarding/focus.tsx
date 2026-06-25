@@ -32,13 +32,13 @@ export default function FocusStep() {
   function onContinue() {
     if (!parsed.success) return;
     setFocus(parsed.data);
-    router.push("/(auth)/onboarding/equipment");
+    router.push("/(auth)/onboarding/experience");
   }
 
   return (
     <StepShell
       step={3}
-      total={4}
+      total={5}
       title={t("onboarding.focus.title")}
       ctaDisabled={!parsed.success}
       onContinue={onContinue}

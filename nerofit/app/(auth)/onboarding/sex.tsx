@@ -28,7 +28,7 @@ export default function SexStep() {
   return (
     <StepShell
       step={1}
-      total={4}
+      total={5}
       title={t("onboarding.basics.sexLabel")}
       ctaDisabled={!parsed.success}
       onContinue={onContinue}

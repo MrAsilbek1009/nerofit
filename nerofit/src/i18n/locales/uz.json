@@ -70,6 +70,16 @@
       }
     },
 
+    "experience": {
+      "title": "Tajribangiz",
+      "subtitle": "Sizni to'g'ri nuqtadan boshlaymiz.",
+      "options": {
+        "complete_beginner": "Mutlaqo yangi — hech qachon muntazam mashq qilmaganman",
+        "some_experience": "Biroz tajribam bor",
+        "experienced": "Tajribaliman, muntazam mashq qilaman"
+      }
+    },
+
     "equipment": {
       "title": "Mashgʻulot joyingiz",
       "subtitle": "Qayerda mashgʻulot qilasiz va nimaga eʼtibor berishimiz kerak?",
@@ -153,7 +163,19 @@
     "workoutComplete": "Mashgʻulot tugadi",
     "completeBody": "Zoʻr ish — barcha mashqlar yozildi.",
     "done": "Tayyor",
-    "startWorkout": "Boshlash"
+    "startWorkout": "Boshlash",
+    "program": "Dastur",
+    "week": "{{n}}-hafta",
+    "restDay": "Dam kuni",
+    "testDay": "Fitnes test",
+    "milestone": "Bosqich",
+    "tasksTitle": "Vazifalar",
+    "sectionWarmup": "Isinish",
+    "sectionMain": "Asosiy",
+    "sectionCooldown": "Yakuniy cho'zish",
+    "startHere": "Shu yerdan boshlang",
+    "showEarlier": "Oldingi haftalarni ko'rsatish",
+    "hideEarlier": "Oldingi haftalarni yashirish"
   },
 
   "progress": {
