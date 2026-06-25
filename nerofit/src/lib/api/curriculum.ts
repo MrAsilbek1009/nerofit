@@ -9,6 +9,7 @@ import {
 } from "@/features/workouts/injuryFilter";
 import type {
   Exercise,
+  ExerciseVideo,
   Program,
   ProgramDay,
   ProgramDayExercise,
@@ -46,7 +47,7 @@ export async function listProgramDays(programId: string): Promise<ProgramDay[]> 
 }
 
 export type DayExerciseWithExercise = ProgramDayExercise & {
-  exercise: Exercise;
+  exercise: Exercise & { exercise_videos: ExerciseVideo[] };
   // True when this exercise was swapped in to avoid an injured area.
   adapted?: boolean;
 };
@@ -67,7 +68,7 @@ export async function getProgramDayDetail(
     supabase.from("program_days").select("*").eq("id", dayId).single(),
     supabase
       .from("program_day_exercises")
-      .select("*, exercise:exercises(*)")
+      .select("*, exercise:exercises(*, exercise_videos(*))")
       .eq("program_day_id", dayId)
       .order("order_index"),
     supabase
@@ -120,14 +121,15 @@ async function substituteUnsafe(
     ),
   ] as string[];
 
-  let candidates: Exercise[] = [];
+  type CandidateExercise = Exercise & { exercise_videos: ExerciseVideo[] };
+  let candidates: CandidateExercise[] = [];
   if (groups.length > 0) {
     const { data, error } = await supabase
       .from("exercises")
-      .select("*")
+      .select("*, exercise_videos(*)")
       .in("progression_group", groups);
     if (error) throw error;
-    candidates = (data ?? []) as Exercise[];
+    candidates = (data ?? []) as unknown as CandidateExercise[];
   }
 
   return exercises.flatMap((e) => {

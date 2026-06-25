@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { useVideoPlayer, VideoView } from "expo-video";
 import { Check, Dumbbell, X } from "lucide-react-native";
 import { Button, ProgressLine, ProgressRing } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
@@ -68,6 +69,17 @@ export default function ProgramDayPlayerScreen() {
     }, 1000);
     return () => clearInterval(iv);
   }, [resting]);
+
+  // Exercise demo clip (looped, muted). Empty until videos are uploaded (W5).
+  const videoUri = current?.exercise?.exercise_videos?.[0]?.url ?? null;
+  const player = useVideoPlayer(videoUri, (p) => {
+    p.loop = true;
+    p.muted = true;
+  });
+  useEffect(() => {
+    player.replace(videoUri);
+    if (videoUri) player.play();
+  }, [videoUri, player]);
 
   function advance() {
     if (index + 1 >= steps.length) {
@@ -165,7 +177,14 @@ export default function ProgramDayPlayerScreen() {
 
       {/* Media / placeholder */}
       <View style={{ height: 220, backgroundColor: colors.elevated, alignItems: "center", justifyContent: "center" }}>
-        {current?.exercise?.image_url ? (
+        {videoUri ? (
+          <VideoView
+            player={player}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+            nativeControls={false}
+          />
+        ) : current?.exercise?.image_url ? (
           <Image source={{ uri: current.exercise.image_url }} style={{ width: "100%", height: "100%" }} />
         ) : (
           <Dumbbell size={48} color={colors.textLo} />
