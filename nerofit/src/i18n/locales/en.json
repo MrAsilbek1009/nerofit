@@ -177,7 +177,8 @@
     "showEarlier": "Show earlier weeks",
     "hideEarlier": "Hide earlier weeks",
     "saveResult": "Save",
-    "testUnit": { "count": "reps", "seconds": "sec", "minutes": "min" }
+    "testUnit": { "count": "reps", "seconds": "sec", "minutes": "min" },
+    "adapted": "Adapted"
   },
 
   "progress": {

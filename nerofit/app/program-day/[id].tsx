@@ -191,6 +191,29 @@ export default function ProgramDayScreen() {
                         >
                           {ex.exercise?.name_uz ?? ex.exercise?.title ?? ""}
                         </Text>
+                        {ex.adapted ? (
+                          <View
+                            style={{
+                              alignSelf: "flex-start",
+                              borderWidth: 1,
+                              borderColor: colors.accent,
+                              borderRadius: radii.pill,
+                              paddingHorizontal: space[2],
+                              paddingVertical: 1,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontFamily: fonts.label,
+                                fontSize: 8.5,
+                                color: colors.accent,
+                                letterSpacing: 0.5,
+                              }}
+                            >
+                              {t("workouts.adapted")}
+                            </Text>
+                          </View>
+                        ) : null}
                         {detailLine ? (
                           <Text style={[typography.labelCaps, { fontSize: 9, color: colors.accent }]}>
                             {detailLine}

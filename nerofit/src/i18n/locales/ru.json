@@ -177,7 +177,8 @@
     "showEarlier": "Показать прошлые недели",
     "hideEarlier": "Скрыть прошлые недели",
     "saveResult": "Сохранить",
-    "testUnit": { "count": "раз", "seconds": "сек", "minutes": "мин" }
+    "testUnit": { "count": "раз", "seconds": "сек", "minutes": "мин" },
+    "adapted": "Адаптировано"
   },
 
   "progress": {
