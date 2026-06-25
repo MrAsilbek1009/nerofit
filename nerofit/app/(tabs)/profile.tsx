@@ -15,6 +15,7 @@ import {
 } from "lucide-react-native";
 import { Avatar, Chip } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
+import { useIsElite } from "@/hooks/useEntitlement";
 import { useProfile } from "@/lib/queries/profile";
 import { useGoals } from "@/lib/queries/goals";
 import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
@@ -96,8 +97,7 @@ export default function ProfileScreen() {
   const subtitle = focus ? t(`profile.focusLabels.${focus}`) : "";
   const weight = latestBody.data?.weight_kg;
   const goalWeight = goals.data?.target_weight;
-  const tier = profile.data?.subscription_tier ?? "free";
-  const isElite = tier === "elite";
+  const isElite = useIsElite();
   const currentLocale = i18n.language as string;
 
   return (
@@ -184,9 +184,7 @@ export default function ProfileScreen() {
           <Row
             icon={<Star size={18} color={colors.textHi} />}
             label={t("profile.subscription")}
-            onPress={() =>
-              Alert.alert(t("profile.comingSoonTitle"), t("profile.subscriptionBody"))
-            }
+            onPress={() => router.push("/paywall")}
             right={
               <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
                 <View
