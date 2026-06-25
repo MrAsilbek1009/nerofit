@@ -222,6 +222,7 @@
     "emptySubtitle": "AI murabbiyingiz maqsadlaringizni, mashgʻulotlaringizni va ovqatlanishingizni biladi. Istalgan narsani so'rang.",
     "inputPlaceholder": "AI Murabbiydan so'rang…",
     "sendError": "Yuborib bo'lmadi. Internetni tekshirib qayta urinib ko'ring.",
+    "rateLimited": "Hozircha xabarlar chegarasiga yetdingiz. Birozdan so'ng qayta urinib ko'ring.",
     "suggestions": {
       "adjustPlan": "Bugungi rejani moslashtir",
       "howAmIDoing": "Qanday ketmoqda?",

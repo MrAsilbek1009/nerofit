@@ -29,13 +29,17 @@ import "@/i18n";
 import { queryClient } from "@/lib/queryClient";
 import { bootstrapAuth, useAuthStore } from "@/store/auth";
 import { initRecoveryLinking } from "@/features/auth/recovery";
+import { initSentry, setSentryUser, wrapApp } from "@/lib/sentry";
 import { colors } from "@/theme";
+
+// Initialise crash reporting as early as possible (no-op without a DSN).
+initSentry();
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* splash already hidden; non-fatal */
 });
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useHankenFonts({
     HankenGrotesk_700Bold,
     HankenGrotesk_600SemiBold,
@@ -89,10 +93,11 @@ function AuthGate() {
   const userId = useUserId();
   const profileQuery = useProfile(userId);
 
-  // Tie analytics identity to the signed-in user; reset on sign-out.
+  // Tie analytics + crash-report identity to the signed-in user; clear on sign-out.
   useEffect(() => {
     if (userId) identifyUser(userId);
     else resetAnalytics();
+    setSentryUser(userId ?? null);
   }, [userId]);
 
   // Screen views.
@@ -154,3 +159,7 @@ function AuthGate() {
     </Stack>
   );
 }
+
+// Wrapped so Sentry can attach its error boundary / navigation hooks (no-op
+// without a DSN).
+export default wrapApp(RootLayout);

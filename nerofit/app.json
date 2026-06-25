@@ -36,7 +36,8 @@
       "expo-router",
       "expo-splash-screen",
       "expo-font",
-      "expo-video"
+      "expo-video",
+      "@sentry/react-native"
     ],
     "experiments": {
       "typedRoutes": false

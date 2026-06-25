@@ -222,6 +222,7 @@
     "emptySubtitle": "Your AI coach knows your goals, workouts, and nutrition. Ask anything.",
     "inputPlaceholder": "Ask Forge AI Coach…",
     "sendError": "Failed to send. Check your connection and try again.",
+    "rateLimited": "You've reached your message limit for now. Please try again later.",
     "suggestions": {
       "adjustPlan": "Adjust today's plan",
       "howAmIDoing": "How am I doing?",

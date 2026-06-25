@@ -4,6 +4,12 @@ const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 const MAX_HISTORY = 20;
 
+// Per-user rate limits (protect the Anthropic bill from abuse). Counted from
+// the user's own chat_messages via RLS — no extra table needed. Overridable
+// with the AI_DAILY_LIMIT / AI_BURST_LIMIT function secrets.
+const DAILY_LIMIT = Number(Deno.env.get("AI_DAILY_LIMIT") ?? "50");
+const BURST_LIMIT = Number(Deno.env.get("AI_BURST_LIMIT") ?? "6"); // per 60s
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -44,6 +50,24 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) {
       return json({ error: "ANTHROPIC_API_KEY secret is not set on the function" }, 500);
+    }
+
+    // Rate limit before spending any tokens. RLS scopes these counts to the
+    // caller's own messages, so a user can't see or affect anyone else's.
+    const nowMs = Date.now();
+    const since24h = new Date(nowMs - 24 * 60 * 60 * 1000).toISOString();
+    const since60s = new Date(nowMs - 60 * 1000).toISOString();
+    const [{ count: dayCount }, { count: burstCount }] = await Promise.all([
+      supabase.from("chat_messages").select("id", { count: "exact", head: true })
+        .eq("role", "user").gte("created_at", since24h),
+      supabase.from("chat_messages").select("id", { count: "exact", head: true })
+        .eq("role", "user").gte("created_at", since60s),
+    ]);
+    if ((burstCount ?? 0) >= BURST_LIMIT) {
+      return json({ error: "rate_limited", scope: "burst" }, 429);
+    }
+    if ((dayCount ?? 0) >= DAILY_LIMIT) {
+      return json({ error: "rate_limited", scope: "daily" }, 429);
     }
 
     const [{ data: profile }, { data: goals }, { data: history }] = await Promise.all([
