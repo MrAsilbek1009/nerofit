@@ -175,7 +175,9 @@
     "sectionCooldown": "Yakuniy cho'zish",
     "startHere": "Shu yerdan boshlang",
     "showEarlier": "Oldingi haftalarni ko'rsatish",
-    "hideEarlier": "Oldingi haftalarni yashirish"
+    "hideEarlier": "Oldingi haftalarni yashirish",
+    "saveResult": "Saqlash",
+    "testUnit": { "count": "marta", "seconds": "sek", "minutes": "daq" }
   },
 
   "progress": {

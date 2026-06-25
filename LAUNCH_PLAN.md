@@ -18,8 +18,8 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | Phase | Mavzu | Holat | Kim ishlayapti |
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — merged (PR #1) + `delete-account` deployed |
-| 8 | Build & Backend hardening | 🟡 | Mirolim — PR #2 (AI rate-limit, Sentry, EAS env); `ai-coach` deployed |
-| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1✅ W2✅ W3✅ W4✅ (routing + entry_point UI'da) · qoldi: injury filtr/technique-check, W5 video, W6 gamification |
+| 8 | Build & Backend hardening | ✅ | Mirolim — merged (PR #2): AI rate-limit, Sentry, EAS env; `ai-coach` deployed |
+| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1–W4 ✅ · W5 video infra · W6 ✅ (task+XP, test, milestone) · injury filtr ✅ · branchlar main'ga merge qilinmoqda |
 | 10 | RevenueCat | ⬜ | — |
 | 11 | Legal & Store | ⬜ | — |
 | 12 | iOS + Release | ⬜ | — |

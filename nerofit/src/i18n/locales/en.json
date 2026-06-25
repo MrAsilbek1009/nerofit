@@ -175,7 +175,9 @@
     "sectionCooldown": "Cool Down",
     "startHere": "Start here",
     "showEarlier": "Show earlier weeks",
-    "hideEarlier": "Hide earlier weeks"
+    "hideEarlier": "Hide earlier weeks",
+    "saveResult": "Save",
+    "testUnit": { "count": "reps", "seconds": "sec", "minutes": "min" }
   },
 
   "progress": {

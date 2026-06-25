@@ -3,10 +3,11 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-nati
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react-native";
+import { ArrowLeft, ChevronDown, ChevronRight, Zap } from "lucide-react-native";
 import { Button } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
 import { useGoals } from "@/lib/queries/goals";
+import { useXpTotal } from "@/lib/queries/gamification";
 import { useProgramDays } from "@/lib/queries/curriculum";
 import type { ProgramDay } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
@@ -17,6 +18,7 @@ export default function ProgramOverviewScreen() {
   const { t } = useTranslation();
   const userId = useUserId();
   const goals = useGoals(userId);
+  const xp = useXpTotal(userId);
   const daysQuery = useProgramDays(id);
   const [showEarlier, setShowEarlier] = useState(false);
 
@@ -55,6 +57,24 @@ export default function ProgramOverviewScreen() {
         <Text style={[typography.h2, { flex: 1 }]} numberOfLines={1}>
           {title ?? t("workouts.program")}
         </Text>
+        {(xp.data ?? 0) > 0 ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              backgroundColor: colors.elevated,
+              borderRadius: radii.pill,
+              paddingHorizontal: space[3],
+              paddingVertical: space[1],
+            }}
+          >
+            <Zap size={13} color={colors.accent} />
+            <Text style={{ fontFamily: fonts.label, color: colors.textHi, fontSize: 12 }}>
+              {xp.data} XP
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       {daysQuery.isLoading ? (
