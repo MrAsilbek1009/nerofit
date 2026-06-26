@@ -180,7 +180,23 @@
     "testUnit": { "count": "reps", "seconds": "sec", "minutes": "min" },
     "adapted": "Adapted",
     "markRestComplete": "Mark rest day complete",
-    "restCompleted": "Completed"
+    "restCompleted": "Completed",
+    "weight": "Weight",
+    "repsPerSet": "Reps per set",
+    "next": "Next",
+    "settings": "Workout Settings",
+    "audio": "Audio",
+    "coaches": "Coaches",
+    "exerciseIntro": "Exercise intro",
+    "timerSounds": "Timer sounds",
+    "autoPilot": "Auto-Pilot",
+    "timedMovements": "Timed Movements",
+    "timedMovementsDesc": "Automatically move on to the next exercise once the timer ends.",
+    "getReadyFor": "Get ready for",
+    "swipeToBegin": "Swipe up to begin",
+    "resume": "Resume",
+    "end": "End",
+    "paused": "Paused"
   },
 
   "progress": {

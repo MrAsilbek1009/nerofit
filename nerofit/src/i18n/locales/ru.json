@@ -180,7 +180,23 @@
     "testUnit": { "count": "раз", "seconds": "сек", "minutes": "мин" },
     "adapted": "Адаптировано",
     "markRestComplete": "Отметить день отдыха завершённым",
-    "restCompleted": "Завершено"
+    "restCompleted": "Завершено",
+    "weight": "Вес",
+    "repsPerSet": "Повторений в подходе",
+    "next": "Далее",
+    "settings": "Настройки тренировки",
+    "audio": "Звук",
+    "coaches": "Голос тренера",
+    "exerciseIntro": "Интро упражнения",
+    "timerSounds": "Звуки таймера",
+    "autoPilot": "Автопилот",
+    "timedMovements": "Упражнения на время",
+    "timedMovementsDesc": "Автоматически переходить к следующему упражнению по окончании таймера.",
+    "getReadyFor": "Приготовьтесь",
+    "swipeToBegin": "Проведите вверх, чтобы начать",
+    "resume": "Продолжить",
+    "end": "Завершить",
+    "paused": "Пауза"
   },
 
   "progress": {
