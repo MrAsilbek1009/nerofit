@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, Switch, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -8,8 +8,10 @@ import {
   Activity,
   Bell,
   ChevronRight,
+  FileText,
   Globe,
   LogOut,
+  Shield,
   Star,
   Trash2,
 } from "lucide-react-native";
@@ -29,6 +31,7 @@ import {
   type ReminderTexts,
 } from "@/lib/notifications";
 import { track } from "@/lib/analytics";
+import { PRIVACY_POLICY_URL, TERMS_URL } from "@/lib/legal";
 import { setLocale, SUPPORTED_LOCALES, type SupportedLocale } from "@/i18n";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
@@ -219,6 +222,18 @@ export default function ProfileScreen() {
                 ))}
               </View>
             }
+          />
+          <Row
+            icon={<Shield size={18} color={colors.textHi} />}
+            label={t("profile.privacyPolicy")}
+            onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}
+            right={<ChevronRight size={18} color={colors.textLo} />}
+          />
+          <Row
+            icon={<FileText size={18} color={colors.textHi} />}
+            label={t("profile.terms")}
+            onPress={() => void Linking.openURL(TERMS_URL)}
+            right={<ChevronRight size={18} color={colors.textLo} />}
             showDivider={false}
           />
         </View>
