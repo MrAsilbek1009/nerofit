@@ -30,6 +30,13 @@ import { queryClient } from "@/lib/queryClient";
 import { bootstrapAuth, useAuthStore } from "@/store/auth";
 import { initRecoveryLinking } from "@/features/auth/recovery";
 import { initSentry, setSentryUser, wrapApp } from "@/lib/sentry";
+import {
+  addEntitlementListener,
+  getCustomerInfo,
+  initPurchases,
+  isEliteCustomer,
+} from "@/lib/purchases";
+import { useEntitlementStore } from "@/store/entitlement";
 import { colors } from "@/theme";
 
 // Initialise crash reporting as early as possible (no-op without a DSN).
@@ -100,6 +107,27 @@ function AuthGate() {
     setSentryUser(userId ?? null);
   }, [userId]);
 
+  // Bind RevenueCat to the user and keep the elite entitlement in sync.
+  // No-op until RevenueCat is configured (see src/lib/purchases.ts).
+  useEffect(() => {
+    const setRcElite = useEntitlementStore.getState().setRcElite;
+    if (!userId) {
+      setRcElite(false);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      await initPurchases(userId);
+      const info = await getCustomerInfo();
+      if (!cancelled) setRcElite(isEliteCustomer(info));
+    })();
+    const unsubscribe = addEntitlementListener(setRcElite);
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [userId]);
+
   // Screen views.
   useEffect(() => {
     trackScreen(pathname);
@@ -155,6 +183,7 @@ function AuthGate() {
       <Stack.Screen name="progress" />
       <Stack.Screen name="body-composition" />
       <Stack.Screen name="delete-account" />
+      <Stack.Screen name="paywall" options={{ presentation: "modal" }} />
       <Stack.Screen name="meal-picker" options={{ presentation: "modal" }} />
     </Stack>
   );

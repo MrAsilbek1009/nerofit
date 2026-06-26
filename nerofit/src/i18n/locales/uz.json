@@ -234,6 +234,28 @@
     }
   },
 
+  "paywall": {
+    "eyebrow": "Aʼzolik",
+    "title": "Elite",
+    "subtitle": "Nerofit'ning barcha imkoniyatlari bilan aqlliroq mashq qiling.",
+    "benefits": [
+      "Forge bilan cheksiz AI murabbiylik",
+      "Barcha dasturlarga toʻliq kirish",
+      "Kengaytirilgan natija tahlili"
+    ],
+    "subscribe": "Obuna boʻlish",
+    "restore": "Xaridlarni tiklash",
+    "legal": "Avtomatik yangilanuvchi obuna. Istalgan vaqtda hisob sozlamalaridan bekor qiling.",
+    "activeTitle": "Siz Elite'dasiz",
+    "activeBody": "Obunangiz faol. Qoʻllab-quvvatlaganingiz uchun rahmat.",
+    "comingSoonTitle": "Tez orada",
+    "comingSoonBody": "Obunalar hali mavjud emas. Tez orada qaytib keling.",
+    "purchaseErrorTitle": "Xarid amalga oshmadi",
+    "purchaseError": "Xatolik yuz berdi. Qayta urinib koʻring.",
+    "restoreNoneTitle": "Tiklash uchun hech narsa yoʻq",
+    "restoreNone": "Bu hisob uchun faol obuna topilmadi."
+  },
+
   "tabs": {
     "home": "Asosiy",
     "workouts": "Mashqlar",

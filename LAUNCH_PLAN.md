@@ -20,7 +20,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 7 | Auth & Account | ✅ | Mirolim — merged (PR #1) + `delete-account` deployed |
 | 8 | Build & Backend hardening | ✅ | Mirolim — merged (PR #2): AI rate-limit, Sentry, EAS env; `ai-coach` deployed |
 | 9 | Real kontent (Workout Track) | 🟡 | Claude — W1–W4 ✅ · W5 video infra ✅ · W6 ✅ (task+XP, test, milestone) · injury filtr ✅ · barchasi main'ga merged · qoldi: real video (trener), technique-check |
-| 10 | RevenueCat | ⬜ | — |
+| 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
 | 11 | Legal & Store | ⬜ | — |
 | 12 | iOS + Release | ⬜ | — |
 

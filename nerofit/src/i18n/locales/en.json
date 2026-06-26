@@ -234,6 +234,28 @@
     }
   },
 
+  "paywall": {
+    "eyebrow": "Membership",
+    "title": "Elite",
+    "subtitle": "Train smarter with everything Nerofit offers.",
+    "benefits": [
+      "Unlimited AI coaching with Forge",
+      "Full access to every program",
+      "Advanced progress insights"
+    ],
+    "subscribe": "Subscribe",
+    "restore": "Restore purchases",
+    "legal": "Auto-renewing subscription. Cancel anytime in your account settings.",
+    "activeTitle": "You're Elite",
+    "activeBody": "Your subscription is active. Thanks for the support.",
+    "comingSoonTitle": "Coming soon",
+    "comingSoonBody": "Subscriptions aren't available yet. Check back soon.",
+    "purchaseErrorTitle": "Purchase failed",
+    "purchaseError": "Something went wrong. Please try again.",
+    "restoreNoneTitle": "Nothing to restore",
+    "restoreNone": "No active subscription found for this account."
+  },
+
   "tabs": {
     "home": "Home",
     "workouts": "Workouts",
