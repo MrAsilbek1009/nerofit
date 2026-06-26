@@ -16,9 +16,13 @@ create index if not exists test_results_user_idx
 
 alter table public.test_results enable row level security;
 
+-- Re-runnable: CREATE POLICY has no IF NOT EXISTS, so drop first.
+drop policy if exists "test_results_select_own" on public.test_results;
 create policy "test_results_select_own" on public.test_results
   for select using (auth.uid() = user_id);
+drop policy if exists "test_results_insert_own" on public.test_results;
 create policy "test_results_insert_own" on public.test_results
   for insert with check (auth.uid() = user_id);
+drop policy if exists "test_results_update_own" on public.test_results;
 create policy "test_results_update_own" on public.test_results
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);

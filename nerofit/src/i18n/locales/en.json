@@ -178,7 +178,9 @@
     "hideEarlier": "Hide earlier weeks",
     "saveResult": "Save",
     "testUnit": { "count": "reps", "seconds": "sec", "minutes": "min" },
-    "adapted": "Adapted"
+    "adapted": "Adapted",
+    "markRestComplete": "Mark rest day complete",
+    "restCompleted": "Completed"
   },
 
   "progress": {

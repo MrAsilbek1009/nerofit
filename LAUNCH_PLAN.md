@@ -22,7 +22,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 9 | Real kontent (Workout Track) | 🟡 | Claude — W1–W4 ✅ · W5 video infra ✅ · W6 ✅ (task+XP, test, milestone) · injury filtr ✅ · barchasi main'ga merged · qoldi: real video (trener), technique-check |
 | 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
-| 12 | iOS + Release | ⬜ | — |
+| 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
 
 ---
 

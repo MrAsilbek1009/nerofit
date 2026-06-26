@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserId } from "@/hooks/useUser";
 import {
   getProgramDayDetail,
+  listCompletedDayIds,
   listCurriculumPrograms,
   listProgramDays,
 } from "@/lib/api/curriculum";
@@ -22,6 +23,15 @@ export function useProgramDays(programId: string | undefined) {
     queryFn: () => listProgramDays(programId!),
     enabled: !!programId,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCompletedDayIds(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? qk.completedDays(userId) : ["completed-days", "none"],
+    queryFn: () => listCompletedDayIds(userId!),
+    enabled: !!userId,
+    staleTime: 0,
   });
 }
 
