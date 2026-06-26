@@ -21,8 +21,11 @@ import {
 import { Button } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
 import type { DayExerciseWithExercise } from "@/lib/api/curriculum";
-import { useProgramDayDetail } from "@/lib/queries/curriculum";
-import { useDaySession } from "@/lib/queries/curriculumSession";
+import { useCompletedDayIds, useProgramDayDetail } from "@/lib/queries/curriculum";
+import {
+  useCompleteDaySession,
+  useDaySession,
+} from "@/lib/queries/curriculumSession";
 import {
   useDayTestResults,
   useLogTestResult,
@@ -56,6 +59,23 @@ export default function ProgramDayScreen() {
   );
   const testResults = useDayTestResults(id, testIds);
   const logTest = useLogTestResult(userId, id);
+
+  const completedIds = useCompletedDayIds(userId);
+  const completeDay = useCompleteDaySession();
+  const isRestDay = detail.data?.day.is_rest_day ?? false;
+  const hasExercises = (detail.data?.exercises.length ?? 0) > 0;
+  const dayCompleted = (completedIds.data ?? []).includes(id);
+
+  function markRestComplete() {
+    const sid = session.data?.id;
+    if (!sid) return;
+    completeDay.mutate(sid, {
+      onSuccess: () => {
+        void completedIds.refetch();
+        router.back();
+      },
+    });
+  }
 
   const sectionLabels: Record<ProgramSection, string> = {
     warmup: t("workouts.sectionWarmup"),
@@ -248,12 +268,38 @@ export default function ProgramDayScreen() {
             </View>
           ) : null}
         </ScrollView>
-        {(detail.data?.exercises.length ?? 0) > 0 ? (
+        {hasExercises ? (
           <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: space[5] }}>
             <Button
               label={t("workouts.startWorkout")}
               onPress={() => router.push(`/program-day-player/${id}`)}
             />
+          </View>
+        ) : isRestDay ? (
+          <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: space[5] }}>
+            {dayCompleted ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: space[2],
+                  paddingVertical: space[3],
+                }}
+              >
+                <Check size={18} color={colors.accent} />
+                <Text style={[typography.labelCaps, { color: colors.accent }]}>
+                  {t("workouts.restCompleted")}
+                </Text>
+              </View>
+            ) : (
+              <Button
+                label={t("workouts.markRestComplete")}
+                onPress={markRestComplete}
+                loading={completeDay.isPending}
+                disabled={!session.data}
+              />
+            )}
           </View>
         ) : null}
         </>
@@ -321,8 +367,8 @@ function TaskRow({
           width: 22,
           height: 22,
           borderRadius: 11,
-          borderWidth: done ? 0 : 1,
-          borderColor: colors.border,
+          borderWidth: done ? 0 : 2,
+          borderColor: done ? "transparent" : colors.textLo,
           backgroundColor: done ? colors.accent : "transparent",
           alignItems: "center",
           justifyContent: "center",
