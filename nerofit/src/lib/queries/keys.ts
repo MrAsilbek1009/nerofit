@@ -17,6 +17,7 @@ export const qk = {
   programDayDetail: (dayId: string) => ["program-day-detail", dayId] as const,
   daySession: (userId: string, programDayId: string) =>
     ["day-session", userId, programDayId] as const,
+  completedDays: (userId: string) => ["completed-days", userId] as const,
   sessionTaskCompletions: (sessionId: string) =>
     ["task-completions", sessionId] as const,
   xpTotal: (userId: string) => ["xp-total", userId] as const,
