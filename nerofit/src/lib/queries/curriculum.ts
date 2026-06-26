@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { useUserId } from "@/hooks/useUser";
 import {
   getProgramDayDetail,
   listCurriculumPrograms,
   listProgramDays,
 } from "@/lib/api/curriculum";
+import { useGoals } from "./goals";
 import { qk } from "./keys";
 
 export function useCurriculumPrograms() {
@@ -24,9 +26,15 @@ export function useProgramDays(programId: string | undefined) {
 }
 
 export function useProgramDayDetail(dayId: string | undefined) {
+  const userId = useUserId();
+  const goals = useGoals(userId);
+  const injuries = goals.data?.injuries ?? [];
+  const equipment = goals.data?.equipment;
   return useQuery({
-    queryKey: dayId ? qk.programDayDetail(dayId) : ["program-day-detail", "none"],
-    queryFn: () => getProgramDayDetail(dayId!),
-    enabled: !!dayId,
+    queryKey: dayId
+      ? [...qk.programDayDetail(dayId), injuries.join(","), equipment ?? ""]
+      : ["program-day-detail", "none"],
+    queryFn: () => getProgramDayDetail(dayId!, injuries, equipment),
+    enabled: !!dayId && (!userId || !goals.isLoading),
   });
 }
