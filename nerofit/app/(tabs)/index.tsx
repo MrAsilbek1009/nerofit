@@ -4,14 +4,28 @@ import { useRouter } from "expo-router";
 import { Activity, HeartPulse } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { SectionHeader } from "@/components/ui";
-import { DailyGoalCard } from "@/features/home/components/DailyGoalCard";
+import { HomeHeader } from "@/features/home/components/HomeHeader";
+import { WeekStrip } from "@/features/home/components/WeekStrip";
+import { DailySummaryCarousel } from "@/features/home/components/DailySummaryCarousel";
+import { CaloriesCard } from "@/features/home/components/CaloriesCard";
+import { MacroGauges } from "@/features/home/components/MacroGauges";
+import { WaterCard } from "@/features/home/components/WaterCard";
+import { RecentMeal } from "@/features/home/components/RecentMeal";
 import { HealthMetricCard } from "@/features/home/components/HealthMetricCard";
 import { MiniBars, MiniSparkline } from "@/features/home/components/MiniCharts";
 import { ProgramsSection } from "@/features/home/components/ProgramsSection";
-import { WelcomeHeader } from "@/features/home/components/WelcomeHeader";
+import {
+  consumedFraction,
+  deriveCalorieGoal,
+  remaining,
+  sumMealLogs,
+} from "@/features/home/summary";
+import { computeDayStreak } from "@/features/progress/streak";
 import { useUserId } from "@/hooks/useUser";
 import { useProfile } from "@/lib/queries/profile";
 import { useRecentHealthMetrics } from "@/lib/queries/healthMetrics";
+import { useTodayMealLogs } from "@/lib/queries/nutrition";
+import { useStreakSessions, useWeekSessions } from "@/lib/queries/progress";
 import { useAddWaterLog, useTodayWaterTotal } from "@/lib/queries/waterLogs";
 import { colors, space, typography } from "@/theme";
 
@@ -28,7 +42,10 @@ export default function HomeScreen() {
   const userId = useUserId();
 
   const profileQuery = useProfile(userId);
+  const mealLogs = useTodayMealLogs(userId);
   const waterTotal = useTodayWaterTotal(userId);
+  const weekSessions = useWeekSessions(userId);
+  const streakSessions = useStreakSessions(userId);
   const heartRate = useRecentHealthMetrics(userId, "heart_rate");
   const bloodPressure = useRecentHealthMetrics(userId, "blood_pressure_systolic");
 
@@ -36,15 +53,18 @@ export default function HomeScreen() {
 
   const loading =
     profileQuery.isLoading ||
+    mealLogs.isLoading ||
     waterTotal.isLoading ||
-    heartRate.isLoading ||
-    bloodPressure.isLoading;
-  const error =
-    profileQuery.error ?? waterTotal.error ?? heartRate.error ?? bloodPressure.error;
+    weekSessions.isLoading ||
+    streakSessions.isLoading;
+  const error = profileQuery.error ?? mealLogs.error ?? waterTotal.error;
 
   function onRefresh() {
     void profileQuery.refetch();
+    void mealLogs.refetch();
     void waterTotal.refetch();
+    void weekSessions.refetch();
+    void streakSessions.refetch();
     void heartRate.refetch();
     void bloodPressure.refetch();
   }
@@ -78,6 +98,25 @@ export default function HomeScreen() {
   }
 
   const profile = profileQuery.data;
+  const logs = mealLogs.data ?? [];
+
+  // Nutrition dashboard figures.
+  const totals = sumMealLogs(logs);
+  const calorieGoal = deriveCalorieGoal(profile);
+  const macro = (goal: number, consumed: number) => ({
+    left: remaining(goal, consumed),
+    fraction: consumedFraction(goal, consumed),
+  });
+
+  const streak = computeDayStreak(streakSessions.data ?? []);
+  // A day counts as "active" when a workout was completed; today also counts
+  // once a meal is logged.
+  const activeDays = [
+    ...(weekSessions.data ?? []),
+    ...(logs.length > 0 ? [new Date().toISOString()] : []),
+  ];
+
+  const recent = logs.length > 0 ? logs[logs.length - 1] : null;
 
   const bpValues = (bloodPressure.data ?? []).map((m) => m.value);
   const hrValues = (heartRate.data ?? []).map((m) => m.value);
@@ -93,21 +132,52 @@ export default function HomeScreen() {
           paddingBottom: space[7],
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={false}
-            onRefresh={onRefresh}
-            tintColor={colors.accent}
-          />
+          <RefreshControl refreshing={false} onRefresh={onRefresh} tintColor={colors.accent} />
         }
       >
-        <WelcomeHeader name={profile.name} avatarUrl={profile.avatar_url} />
+        <HomeHeader streak={streak} />
 
-        <DailyGoalCard
-          current={waterTotal.data ?? 0}
-          goal={profile.daily_water_goal_ml}
-          onAddWater={() => addWater.mutate(WATER_INCREMENT_ML)}
+        <WeekStrip activeDays={activeDays} />
+
+        <DailySummaryCarousel
+          pages={[
+            <View key="macros" style={{ gap: space[3] }}>
+              <CaloriesCard
+                left={remaining(calorieGoal, totals.kcal)}
+                fraction={consumedFraction(calorieGoal, totals.kcal)}
+              />
+              <MacroGauges
+                protein={macro(profile.protein_goal_g, totals.protein)}
+                carbs={macro(profile.carbs_goal_g, totals.carbs)}
+                fats={macro(profile.fats_goal_g, totals.fats)}
+              />
+            </View>,
+            <WaterCard
+              key="water"
+              current={waterTotal.data ?? 0}
+              goal={profile.daily_water_goal_ml}
+              onAdd={() => addWater.mutate(WATER_INCREMENT_ML)}
+            />,
+          ]}
         />
 
+        {/* Recently logged */}
+        <View style={{ gap: space[3] }}>
+          <SectionHeader
+            title={t("home.recentlyLogged")}
+            seeAllLabel={t("home.seeAll")}
+            onSeeAll={() => router.push("/nutrition")}
+          />
+          {recent ? (
+            <RecentMeal log={recent} onPress={() => router.push("/nutrition")} />
+          ) : (
+            <Text style={typography.bodyMuted}>{t("home.noMealsYet")}</Text>
+          )}
+        </View>
+
+        <ProgramsSection />
+
+        {/* Health metrics (kept below the nutrition dashboard) */}
         <View style={{ gap: space[3] }}>
           <SectionHeader
             title={t("home.healthMetrics")}
@@ -133,8 +203,6 @@ export default function HomeScreen() {
             />
           </View>
         </View>
-
-        <ProgramsSection />
       </ScrollView>
     </SafeAreaView>
   );

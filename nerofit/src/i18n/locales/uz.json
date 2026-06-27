@@ -118,6 +118,10 @@
 
   "home": {
     "welcome": "Xush kelibsiz!",
+    "caloriesLeft": "Qolgan kaloriya",
+    "left": "qoldi",
+    "recentlyLogged": "Oxirgi yozuvlar",
+    "noMealsYet": "Bugun hali taom yozilmagan.",
     "dailyGoal": "Kunlik maqsadingizning {{percent}}% iga yetdingiz",
     "waterFormat": "{{value}} / {{goal}}",
     "healthMetrics": "Sogʻliq koʻrsatkichlari",

@@ -118,6 +118,10 @@
 
   "home": {
     "welcome": "Welcome back!",
+    "caloriesLeft": "Calories left",
+    "left": "left",
+    "recentlyLogged": "Recently logged",
+    "noMealsYet": "No meals logged yet today.",
     "dailyGoal": "You're {{percent}}% to your daily goal",
     "waterFormat": "{{value}} / {{goal}}",
     "healthMetrics": "Health Metrics",

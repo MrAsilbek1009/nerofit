@@ -23,6 +23,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | ⬜ | — |
+| 13 | Home redesign (Cal AI uslubi, gibrid) | 🟡 | Mirolim — Bosqich A ✅ (week strip, calories ring, makro gauges, water carousel, recently logged) · qoldi: B micros/health-score, C steps, D food-scan |
 
 ---
 
