@@ -37,7 +37,14 @@
       "expo-splash-screen",
       "expo-font",
       "expo-video",
-      "@sentry/react-native"
+      "@sentry/react-native",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#D4E924"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

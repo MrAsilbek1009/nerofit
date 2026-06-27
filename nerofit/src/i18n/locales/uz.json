@@ -182,7 +182,9 @@
     "hideEarlier": "Oldingi haftalarni yashirish",
     "saveResult": "Saqlash",
     "testUnit": { "count": "marta", "seconds": "sek", "minutes": "daq" },
-    "adapted": "Moslashtirildi"
+    "adapted": "Moslashtirildi",
+    "markRestComplete": "Dam kunini bajarildi deb belgilash",
+    "restCompleted": "Bajarildi"
   },
 
   "progress": {

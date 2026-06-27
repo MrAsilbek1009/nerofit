@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ChevronDown, ChevronRight, Zap } from "lucide-react-native";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Zap } from "lucide-react-native";
 import { Button } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
 import { useGoals } from "@/lib/queries/goals";
 import { useXpTotal } from "@/lib/queries/gamification";
-import { useProgramDays } from "@/lib/queries/curriculum";
+import { useCompletedDayIds, useProgramDays } from "@/lib/queries/curriculum";
 import type { ProgramDay } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
@@ -20,7 +20,21 @@ export default function ProgramOverviewScreen() {
   const goals = useGoals(userId);
   const xp = useXpTotal(userId);
   const daysQuery = useProgramDays(id);
+  const completedQuery = useCompletedDayIds(userId);
   const [showEarlier, setShowEarlier] = useState(false);
+
+  // Refresh completion state whenever the screen regains focus (e.g. after
+  // finishing a workout or marking a rest day done and navigating back).
+  useFocusEffect(
+    useCallback(() => {
+      void completedQuery.refetch();
+    }, [completedQuery]),
+  );
+
+  const completedDays = useMemo(
+    () => new Set(completedQuery.data ?? []),
+    [completedQuery.data],
+  );
 
   const entryWeek = goals.data?.entry_point_week ?? 1;
 
@@ -147,6 +161,7 @@ export default function ProgramOverviewScreen() {
                   <DayRow
                     key={d.id}
                     day={d}
+                    completed={completedDays.has(d.id)}
                     minLabel={t("workouts.minShort")}
                     restLabel={t("workouts.restDay")}
                     testLabel={t("workouts.testDay")}
@@ -164,12 +179,14 @@ export default function ProgramOverviewScreen() {
 
 function DayRow({
   day,
+  completed,
   minLabel,
   restLabel,
   testLabel,
   onPress,
 }: {
   day: ProgramDay;
+  completed: boolean;
   minLabel: string;
   restLabel: string;
   testLabel: string;
@@ -186,12 +203,16 @@ function DayRow({
     .filter(Boolean)
     .join(" · ");
 
-  const accent = day.is_test_day || day.is_milestone_day;
+  // Completed days (workout or rest) get the chartreuse "done" box with a
+  // check. Test / milestone days stay accented to flag their importance.
+  // Everything else — including rest days — reads as a plain white-numbered day.
+  const accentBox = completed || day.is_test_day || day.is_milestone_day;
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
+      accessibilityState={{ checked: completed }}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -200,7 +221,6 @@ function DayRow({
         borderRadius: radii.md,
         paddingHorizontal: space[4],
         paddingVertical: space[3],
-        opacity: day.is_rest_day ? 0.7 : 1,
       }}
     >
       <View
@@ -210,18 +230,28 @@ function DayRow({
           borderRadius: radii.sm,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: accent ? colors.accent : colors.surface,
+          backgroundColor: completed
+            ? "transparent"
+            : accentBox
+              ? colors.accent
+              : colors.surface,
+          borderWidth: completed ? 2 : 0,
+          borderColor: completed ? colors.accent : "transparent",
         }}
       >
-        <Text
-          style={{
-            fontFamily: fonts.display,
-            fontSize: 15,
-            color: accent ? colors.canvas : colors.textHi,
-          }}
-        >
-          {day.day_no}
-        </Text>
+        {completed ? (
+          <Check size={18} color={colors.accent} strokeWidth={2.5} />
+        ) : (
+          <Text
+            style={{
+              fontFamily: fonts.display,
+              fontSize: 15,
+              color: accentBox ? colors.canvas : colors.textHi,
+            }}
+          >
+            {day.day_no}
+          </Text>
+        )}
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 15 }} numberOfLines={1}>

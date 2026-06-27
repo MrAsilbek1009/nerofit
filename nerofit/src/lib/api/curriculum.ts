@@ -46,6 +46,18 @@ export async function listProgramDays(programId: string): Promise<ProgramDay[]> 
   return data ?? [];
 }
 
+// program_day_ids of this user's completed day-sessions. The Program overview
+// only renders one program's days, so cross-program ids are harmless extras.
+export async function listCompletedDayIds(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("day_sessions")
+    .select("program_day_id")
+    .eq("user_id", userId)
+    .eq("status", "completed");
+  if (error) throw error;
+  return [...new Set((data ?? []).map((r) => r.program_day_id))];
+}
+
 export type DayExerciseWithExercise = ProgramDayExercise & {
   exercise: Exercise & { exercise_videos: ExerciseVideo[] };
   // True when this exercise was swapped in to avoid an injured area.

@@ -182,7 +182,9 @@
     "hideEarlier": "Скрыть прошлые недели",
     "saveResult": "Сохранить",
     "testUnit": { "count": "раз", "seconds": "сек", "minutes": "мин" },
-    "adapted": "Адаптировано"
+    "adapted": "Адаптировано",
+    "markRestComplete": "Отметить день отдыха завершённым",
+    "restCompleted": "Завершено"
   },
 
   "progress": {
