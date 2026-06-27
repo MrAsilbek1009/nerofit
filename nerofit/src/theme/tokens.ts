@@ -10,6 +10,12 @@ export const colors = {
   textLo: "#8A8A8A", // muted gray
   border: "#1F1F1F",
   danger: "#FF6B6B", // destructive actions only (log out, delete account)
+  // Macro accents — used ONLY on macro rings/dots (the "hybrid" exception to
+  // accent discipline). Muted so they sit calmly on true black.
+  protein: "#F87171",
+  carbs: "#F5A623",
+  fats: "#5B9BD5",
+  streak: "#FF8A3D", // streak flame only
 } as const;
 
 export const radii = {
