@@ -118,6 +118,10 @@
 
   "home": {
     "welcome": "С возвращением!",
+    "caloriesLeft": "Калорий осталось",
+    "left": "осталось",
+    "recentlyLogged": "Недавно добавлено",
+    "noMealsYet": "Сегодня ещё нет записей о еде.",
     "dailyGoal": "Вы выполнили {{percent}}% дневной цели",
     "waterFormat": "{{value}} / {{goal}}",
     "healthMetrics": "Показатели здоровья",
