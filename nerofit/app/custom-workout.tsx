@@ -8,6 +8,7 @@ import { useUserId } from "@/hooks/useUser";
 import { useGoals } from "@/lib/queries/goals";
 import { useCreateCustomSession, useLibraryExercises } from "@/lib/queries/customWorkouts";
 import { useGeneratorDraft } from "@/store/generatorDraft";
+import { goBack } from "@/lib/nav";
 import { generateWorkout, type GeneratedExercise } from "@/features/workouts/generator";
 import { exerciseImage } from "@/features/workouts/exerciseImages";
 import type { ProgramSection } from "@/types/db";
@@ -86,7 +87,7 @@ export default function CustomWorkoutScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => goBack(router)} hitSlop={10} accessibilityRole="button">
           <ArrowLeft size={22} color={colors.textHi} />
         </Pressable>
         <Text style={[typography.h2, { flex: 1 }]} numberOfLines={1}>

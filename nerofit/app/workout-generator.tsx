@@ -40,24 +40,8 @@ export default function WorkoutGeneratorScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }} edges={["top", "bottom"]}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          paddingHorizontal: space[5],
-          paddingVertical: space[3],
-        }}
-      >
+      <View style={{ alignItems: "center", paddingHorizontal: space[5], paddingVertical: space[3] }}>
         <Text style={typography.h2}>{t("generator.title")}</Text>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          accessibilityRole="button"
-          style={{ position: "absolute", left: space[5] }}
-        >
-          <Text style={[typography.labelCaps, { color: colors.textLo }]}>{t("generator.cancel")}</Text>
-        </Pressable>
       </View>
 
       <ScrollView

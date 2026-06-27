@@ -5,12 +5,18 @@ import { useTranslation } from "react-i18next";
 import { ChevronRight, Sparkles } from "lucide-react-native";
 import { Button, VideoCard } from "@/components/ui";
 import { useCurriculumPrograms } from "@/lib/queries/curriculum";
+import { useCompletedCustomSessions } from "@/lib/queries/customWorkouts";
+import { customStats } from "@/features/workouts/customStats";
+import { useUserId } from "@/hooks/useUser";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function WorkoutsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const userId = useUserId();
   const programs = useCurriculumPrograms();
+  const customSessions = useCompletedCustomSessions(userId);
+  const stats = customStats(customSessions.data ?? []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -73,6 +79,18 @@ export default function WorkoutsScreen() {
               </View>
               <ChevronRight size={20} color={colors.textLo} />
             </Pressable>
+            {stats.count > 0 ? (
+              <View style={{ flexDirection: "row", gap: space[5], paddingHorizontal: space[1] }}>
+                <Text style={[typography.labelCaps, { color: colors.accent }]}>
+                  {t("generator.workoutsN", { count: stats.count })}
+                </Text>
+                {stats.streak > 0 ? (
+                  <Text style={[typography.labelCaps, { color: colors.accent }]}>
+                    {t("generator.streakN", { count: stats.streak })}
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
           </View>
         }
         ListEmptyComponent={

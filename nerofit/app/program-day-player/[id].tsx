@@ -28,6 +28,7 @@ import {
   useLogDayExercise,
 } from "@/lib/queries/curriculumSession";
 import { useWorkoutSettings } from "@/store/workoutSettings";
+import { goBack } from "@/lib/nav";
 import type { DayExerciseWithExercise } from "@/lib/api/curriculum";
 import type { ProgramSection } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
@@ -245,7 +246,7 @@ export default function ProgramDayPlayerScreen() {
             <Stat label={t("workouts.exercisesLabel")} value={`${steps.length}/${steps.length}`} />
           </View>
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             accessibilityRole="button"
             style={{
               alignSelf: "stretch",
@@ -436,7 +437,7 @@ export default function ProgramDayPlayerScreen() {
             </View>
             <View style={{ alignItems: "center", gap: space[2] }}>
               <Pressable
-                onPress={() => router.back()}
+                onPress={() => goBack(router)}
                 accessibilityRole="button"
                 style={{ width: 64, height: 64, borderRadius: radii.pill, borderWidth: 1.5, borderColor: colors.border, alignItems: "center", justifyContent: "center" }}
               >

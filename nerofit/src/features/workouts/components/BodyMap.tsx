@@ -1,90 +1,68 @@
-import { View } from "react-native";
-import Svg, { Ellipse, Rect } from "react-native-svg";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import Body, { type ExtendedBodyPart, type Slug } from "react-native-body-highlighter";
 import type { GeneratorTarget } from "@/types/db";
-import { colors } from "@/theme";
+import { colors, fonts, radii, space } from "@/theme";
 
-// Stylized front/back body figures whose muscle groups light up (chartreuse)
-// for the selected target. Not anatomically exact — a readable, on-brand map.
-type Zone =
-  | "shoulders"
-  | "chest"
-  | "arms"
-  | "abs"
-  | "quads"
-  | "back"
-  | "glutes"
-  | "hamstrings"
-  | "calves";
-
-const TARGET_ZONES: Record<GeneratorTarget, Zone[]> = {
-  upper: ["shoulders", "chest", "arms", "back"],
-  lower: ["quads", "glutes", "hamstrings", "calves"],
-  core: ["abs"],
-  push: ["chest", "shoulders", "arms"],
-  pull: ["back", "arms"],
-  full: ["shoulders", "chest", "arms", "abs", "quads", "back", "glutes", "hamstrings", "calves"],
+// Realistic anatomical front/back muscle map (react-native-body-highlighter)
+// with the selected target's muscles highlighted in chartreuse.
+const TARGET_SLUGS: Record<GeneratorTarget, Slug[]> = {
+  upper: ["deltoids", "chest", "biceps", "triceps", "trapezius", "forearm", "upper-back"],
+  lower: ["quadriceps", "hamstring", "gluteal", "calves", "adductors"],
+  core: ["abs", "obliques", "lower-back"],
+  push: ["chest", "deltoids", "triceps"],
+  pull: ["upper-back", "trapezius", "biceps"],
+  full: [
+    "deltoids", "chest", "biceps", "triceps", "trapezius", "forearm", "upper-back",
+    "abs", "obliques", "lower-back", "quadriceps", "hamstring", "gluteal", "calves", "adductors",
+  ],
 };
 
-type Shape =
-  | { kind: "rect"; x: number; y: number; w: number; h: number; rx?: number; zone?: Zone }
-  | { kind: "ellipse"; cx: number; cy: number; rx: number; ry: number; zone?: Zone };
+export function BodyMap({ target }: { target: GeneratorTarget }) {
+  const { t } = useTranslation();
+  const [side, setSide] = useState<"front" | "back">("front");
 
-const FRONT: Shape[] = [
-  { kind: "ellipse", cx: 50, cy: 16, rx: 11, ry: 13 }, // head
-  { kind: "rect", x: 46, y: 27, w: 8, h: 7 }, // neck
-  { kind: "ellipse", cx: 30, cy: 42, rx: 11, ry: 7, zone: "shoulders" },
-  { kind: "ellipse", cx: 70, cy: 42, rx: 11, ry: 7, zone: "shoulders" },
-  { kind: "rect", x: 33, y: 44, w: 15, h: 15, rx: 4, zone: "chest" },
-  { kind: "rect", x: 52, y: 44, w: 15, h: 15, rx: 4, zone: "chest" },
-  { kind: "rect", x: 16, y: 46, w: 10, h: 58, rx: 5, zone: "arms" },
-  { kind: "rect", x: 74, y: 46, w: 10, h: 58, rx: 5, zone: "arms" },
-  { kind: "rect", x: 40, y: 60, w: 20, h: 28, rx: 5, zone: "abs" },
-  { kind: "rect", x: 37, y: 88, w: 26, h: 12, rx: 4 }, // hips
-  { kind: "rect", x: 38, y: 100, w: 11, h: 46, rx: 5, zone: "quads" },
-  { kind: "rect", x: 51, y: 100, w: 11, h: 46, rx: 5, zone: "quads" },
-  { kind: "rect", x: 39, y: 148, w: 9, h: 44, rx: 4 }, // shins
-  { kind: "rect", x: 52, y: 148, w: 9, h: 44, rx: 4 },
-];
+  const data: ExtendedBodyPart[] = TARGET_SLUGS[target].map((slug) => ({ slug, intensity: 1 }));
 
-const BACK: Shape[] = [
-  { kind: "ellipse", cx: 50, cy: 16, rx: 11, ry: 13 },
-  { kind: "rect", x: 46, y: 27, w: 8, h: 7 },
-  { kind: "ellipse", cx: 30, cy: 42, rx: 11, ry: 7, zone: "shoulders" },
-  { kind: "ellipse", cx: 70, cy: 42, rx: 11, ry: 7, zone: "shoulders" },
-  { kind: "rect", x: 34, y: 44, w: 32, h: 34, rx: 5, zone: "back" },
-  { kind: "rect", x: 16, y: 46, w: 10, h: 58, rx: 5, zone: "arms" },
-  { kind: "rect", x: 74, y: 46, w: 10, h: 58, rx: 5, zone: "arms" },
-  { kind: "ellipse", cx: 43, cy: 96, rx: 10, ry: 9, zone: "glutes" },
-  { kind: "ellipse", cx: 57, cy: 96, rx: 10, ry: 9, zone: "glutes" },
-  { kind: "rect", x: 38, y: 106, w: 11, h: 44, rx: 5, zone: "hamstrings" },
-  { kind: "rect", x: 51, y: 106, w: 11, h: 44, rx: 5, zone: "hamstrings" },
-  { kind: "rect", x: 39, y: 152, w: 9, h: 40, rx: 5, zone: "calves" },
-  { kind: "rect", x: 52, y: 152, w: 9, h: 40, rx: 5, zone: "calves" },
-];
-
-function Figure({ shapes, active }: { shapes: Shape[]; active: Set<Zone> }) {
   return (
-    <Svg width={92} height={193} viewBox="0 0 100 210">
-      {shapes.map((s, i) => {
-        const on = s.zone ? active.has(s.zone) : false;
-        const fill = on ? colors.accent : colors.textLo;
-        const fillOpacity = on ? 1 : 0.22;
-        return s.kind === "rect" ? (
-          <Rect key={i} x={s.x} y={s.y} width={s.w} height={s.h} rx={s.rx ?? 3} fill={fill} fillOpacity={fillOpacity} />
-        ) : (
-          <Ellipse key={i} cx={s.cx} cy={s.cy} rx={s.rx} ry={s.ry} fill={fill} fillOpacity={fillOpacity} />
-        );
-      })}
-    </Svg>
+    <View style={{ alignItems: "center", gap: space[3] }}>
+      <View style={{ flexDirection: "row", backgroundColor: colors.surface, borderRadius: radii.pill, padding: 3 }}>
+        <SideTab label={t("generator.front")} active={side === "front"} onPress={() => setSide("front")} />
+        <SideTab label={t("generator.back")} active={side === "back"} onPress={() => setSide("back")} />
+      </View>
+
+      <Body
+        data={data}
+        side={side}
+        gender="male"
+        scale={0.9}
+        colors={[colors.accent, colors.accent]}
+        defaultFill={colors.elevated}
+        defaultStroke={colors.border}
+        defaultStrokeWidth={1}
+        border="none"
+      />
+    </View>
   );
 }
 
-export function BodyMap({ target }: { target: GeneratorTarget }) {
-  const active = new Set(TARGET_ZONES[target]);
+function SideTab({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
-    <View style={{ flexDirection: "row", justifyContent: "center", gap: 24 }}>
-      <Figure shapes={FRONT} active={active} />
-      <Figure shapes={BACK} active={active} />
-    </View>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={{
+        paddingHorizontal: space[4],
+        paddingVertical: space[2],
+        borderRadius: radii.pill,
+        backgroundColor: active ? colors.elevated : "transparent",
+      }}
+    >
+      <Text style={{ fontFamily: fonts.label, fontSize: 12, color: active ? colors.accent : colors.textLo }}>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
