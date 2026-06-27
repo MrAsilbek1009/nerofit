@@ -9,16 +9,19 @@ import { WeekStrip } from "@/features/home/components/WeekStrip";
 import { DailySummaryCarousel } from "@/features/home/components/DailySummaryCarousel";
 import { CaloriesCard } from "@/features/home/components/CaloriesCard";
 import { MacroGauges } from "@/features/home/components/MacroGauges";
+import { MicrosCard } from "@/features/home/components/MicrosCard";
 import { WaterCard } from "@/features/home/components/WaterCard";
 import { RecentMeal } from "@/features/home/components/RecentMeal";
 import { HealthMetricCard } from "@/features/home/components/HealthMetricCard";
 import { MiniBars, MiniSparkline } from "@/features/home/components/MiniCharts";
 import { ProgramsSection } from "@/features/home/components/ProgramsSection";
 import {
+  computeHealthScore,
   consumedFraction,
   deriveCalorieGoal,
   remaining,
   sumMealLogs,
+  sumMicros,
 } from "@/features/home/summary";
 import { computeDayStreak } from "@/features/progress/streak";
 import { useUserId } from "@/hooks/useUser";
@@ -102,6 +105,8 @@ export default function HomeScreen() {
 
   // Nutrition dashboard figures.
   const totals = sumMealLogs(logs);
+  const micros = sumMicros(logs);
+  const healthScore = computeHealthScore(micros);
   const calorieGoal = deriveCalorieGoal(profile);
   const macro = (goal: number, consumed: number) => ({
     left: remaining(goal, consumed),
@@ -152,6 +157,7 @@ export default function HomeScreen() {
                 fats={macro(profile.fats_goal_g, totals.fats)}
               />
             </View>,
+            <MicrosCard key="micros" micros={micros} score={healthScore} />,
             <WaterCard
               key="water"
               current={waterTotal.data ?? 0}

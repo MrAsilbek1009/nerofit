@@ -16,6 +16,7 @@ export const colors = {
   carbs: "#F5A623",
   fats: "#5B9BD5",
   streak: "#FF8A3D", // streak flame only
+  success: "#7CC576", // health-score "good" / in-range micros
 } as const;
 
 export const radii = {
