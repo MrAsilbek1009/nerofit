@@ -205,6 +205,30 @@
     "paused": "Пауза"
   },
 
+  "generator": {
+    "customWorkout": "Своя тренировка",
+    "promoTitle": "Создай свою",
+    "promoSub": "Время, мышцы и инвентарь",
+    "title": "Настроить тренировку",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "workoutTime": "Время тренировки",
+    "targetMuscles": "Целевые мышцы",
+    "focus": "Цель",
+    "difficulty": "Сложность",
+    "equipment": "Инвентарь",
+    "warmUp": "Разминка",
+    "stretching": "Заминка после тренировки",
+    "refresh": "Обновить",
+    "withWarmup": "С разминкой",
+    "targets": { "upper": "Верх тела", "lower": "Низ тела", "core": "Кор", "push": "Жим", "pull": "Тяга", "full": "Всё тело" },
+    "focuses": { "strength": "Сила", "muscle": "Масса", "endurance": "Выносливость" },
+    "focusReps": { "strength": "5-8 повт.", "muscle": "8-12 повт.", "endurance": "12-16 повт." },
+    "difficulties": { "beginner": "Новичок", "intermediate": "Средний", "advanced": "Продвинутый" },
+    "equipments": { "none": "Нет", "dumbbells": "Только гантели", "your": "Ваш инвентарь", "all_gym": "Весь зал" },
+    "empty": "Нет подходящих упражнений — измените фильтры."
+  },
+
   "progress": {
     "title": "Ваш прогресс",
     "period": { "week": "Неделя", "month": "Месяц", "year": "Год" },

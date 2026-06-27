@@ -205,6 +205,30 @@
     "paused": "Toʻxtatildi"
   },
 
+  "generator": {
+    "customWorkout": "O'z mashg'ulotim",
+    "promoTitle": "O'zingiz tuzing",
+    "promoSub": "Vaqt, mushak va jihozni tanlang",
+    "title": "Mashg'ulotni sozlash",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "workoutTime": "Mashg'ulot vaqti",
+    "targetMuscles": "Maqsadli mushaklar",
+    "focus": "Yo'nalish",
+    "difficulty": "Mashg'ulot qiyinligi",
+    "equipment": "Jihoz",
+    "warmUp": "Isinish",
+    "stretching": "Mashg'ulotdan keyin cho'zilish",
+    "refresh": "Yangilash",
+    "withWarmup": "Isinish bilan",
+    "targets": { "upper": "Yuqori tana", "lower": "Pastki tana", "core": "Korpus", "push": "Itarish", "pull": "Tortish", "full": "Butun tana" },
+    "focuses": { "strength": "Kuch", "muscle": "Mushak", "endurance": "Chidamlilik" },
+    "focusReps": { "strength": "5-8 takror", "muscle": "8-12 takror", "endurance": "12-16 takror" },
+    "difficulties": { "beginner": "Boshlang'ich", "intermediate": "O'rta", "advanced": "Yuqori" },
+    "equipments": { "none": "Yo'q", "dumbbells": "Faqat gantel", "your": "Sizning jihozingiz", "all_gym": "To'liq zal" },
+    "empty": "Mos mashq topilmadi — filtrlarni o'zgartiring."
+  },
+
   "progress": {
     "title": "Sizning natijangiz",
     "period": { "week": "Hafta", "month": "Oy", "year": "Yil" },

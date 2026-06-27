@@ -1,16 +1,29 @@
 import { Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Check, MoreHorizontal, X } from "lucide-react-native";
-import type { DayExerciseWithExercise } from "@/lib/api/curriculum";
 import type { ProgramSection } from "@/types/db";
 import { parseReps } from "../repsParse";
 import { exerciseImage } from "../exerciseImages";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
+// Minimal shape shared by curriculum (program_day_exercises) and custom
+// (custom_session_exercises) so this list works for both players.
+export type ListStep = {
+  id: string;
+  section: ProgramSection;
+  reps: string | null;
+  exercise: {
+    name_uz?: string | null;
+    title?: string | null;
+    image_url?: string | null;
+    category?: string | null;
+  } | null;
+};
+
 export type SessionExerciseListProps = {
   visible: boolean;
   title: string;
-  steps: DayExerciseWithExercise[];
+  steps: ListStep[];
   currentIndex: number;
   onClose: () => void;
   onJump?: (index: number) => void;
@@ -108,7 +121,7 @@ function Row({
   current,
   onPress,
 }: {
-  step: DayExerciseWithExercise;
+  step: ListStep;
   done: boolean;
   current: boolean;
   onPress?: () => void;

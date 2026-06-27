@@ -205,6 +205,30 @@
     "paused": "Paused"
   },
 
+  "generator": {
+    "customWorkout": "Custom workout",
+    "promoTitle": "Build your own",
+    "promoSub": "Choose time, muscles & gear",
+    "title": "Customize Workout",
+    "cancel": "Cancel",
+    "save": "Save",
+    "workoutTime": "Workout time",
+    "targetMuscles": "Target muscles",
+    "focus": "Focus",
+    "difficulty": "Workout difficulty",
+    "equipment": "Equipment",
+    "warmUp": "Warm up",
+    "stretching": "Post-workout stretching",
+    "refresh": "Refresh",
+    "withWarmup": "With warm-up",
+    "targets": { "upper": "Upper Body", "lower": "Lower Body", "core": "Core", "push": "Push", "pull": "Pull", "full": "Full Body" },
+    "focuses": { "strength": "Build strength", "muscle": "Build muscle", "endurance": "Endurance" },
+    "focusReps": { "strength": "5-8 reps", "muscle": "8-12 reps", "endurance": "12-16 reps" },
+    "difficulties": { "beginner": "Beginner", "intermediate": "Intermediate", "advanced": "Advanced" },
+    "equipments": { "none": "None", "dumbbells": "Only dumbbells", "your": "Your equipment", "all_gym": "All gym equipment" },
+    "empty": "No exercises match — adjust the filters."
+  },
+
   "progress": {
     "title": "Your Progress",
     "period": { "week": "Week", "month": "Month", "year": "Year" },
