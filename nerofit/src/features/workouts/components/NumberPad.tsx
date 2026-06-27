@@ -6,7 +6,6 @@ import { colors, fonts, radii, space, typography } from "@/theme";
 export type NumberPadProps = {
   visible: boolean;
   title: string;
-  initial: number;
   unit?: string;
   // Largest value accepted (defends against fat-finger entries).
   max?: number;
@@ -14,29 +13,33 @@ export type NumberPadProps = {
   onCancel: () => void;
 };
 
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"] as const;
+// 3 x 4 grid: digits, a blank cell, 0, and backspace — matching the design.
+const GRID = [
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  ["", "0", "del"],
+] as const;
 
-// Full-screen numeric keypad for entering reps / weight, mirroring the player
-// design. Editing starts fresh on the first digit so the user overwrites the
-// shown value rather than appending to it.
-export function NumberPad({
-  visible,
-  title,
-  initial,
-  unit,
-  max = 999,
-  onConfirm,
-  onCancel,
-}: NumberPadProps) {
+// Numeric keypad for entering reps / weight. Always starts at 0 (the previous
+// value is NOT pre-filled) so the user types fresh and never has to guess what
+// the shown number means.
+export function NumberPad({ visible, title, unit, max = 999, onConfirm, onCancel }: NumberPadProps) {
   const [buffer, setBuffer] = useState("");
 
   useEffect(() => {
     if (visible) setBuffer("");
   }, [visible]);
 
-  const shown = buffer === "" ? String(initial) : buffer;
+  const empty = buffer === "";
+  const shown = empty ? "0" : buffer;
 
   function press(k: string) {
+    if (k === "") return;
+    if (k === "del") {
+      setBuffer((b) => b.slice(0, -1));
+      return;
+    }
     setBuffer((b) => {
       const next = (b + k).replace(/^0+(?=\d)/, "");
       if (Number(next) > max) return b;
@@ -44,24 +47,11 @@ export function NumberPad({
     });
   }
 
-  function backspace() {
-    setBuffer((b) => b.slice(0, -1));
-  }
-
-  function confirm() {
-    const v = buffer === "" ? initial : Number(buffer);
-    onConfirm(Number.isFinite(v) ? v : initial);
-  }
-
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-      <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" }} onPress={onCancel} />
+      <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.45)" }} onPress={onCancel} />
       <View
         style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
           backgroundColor: colors.surface,
           borderTopLeftRadius: radii.md,
           borderTopRightRadius: radii.md,
@@ -73,29 +63,53 @@ export function NumberPad({
       >
         <Text style={[typography.labelCaps, { textAlign: "center" }]}>{title}</Text>
         <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "center", gap: space[2] }}>
-          <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 48 }}>{shown}</Text>
+          <Text
+            style={{
+              fontFamily: fonts.display,
+              color: empty ? colors.textLo : colors.textHi,
+              fontSize: 44,
+            }}
+          >
+            {shown}
+          </Text>
           {unit ? <Text style={typography.labelCaps}>{unit}</Text> : null}
         </View>
 
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>
-          {KEYS.map((k) => (
-            <Key key={k} onPress={() => press(k)}>
-              <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 24 }}>{k}</Text>
-            </Key>
+        <View style={{ gap: space[2] }}>
+          {GRID.map((row, ri) => (
+            <View key={ri} style={{ flexDirection: "row", gap: space[2] }}>
+              {row.map((k, ci) => (
+                <Pressable
+                  key={ci}
+                  onPress={() => press(k)}
+                  disabled={k === ""}
+                  accessibilityRole={k === "" ? undefined : "button"}
+                  style={{
+                    flex: 1,
+                    height: 56,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: radii.sm,
+                    backgroundColor: k === "" ? "transparent" : colors.elevated,
+                  }}
+                >
+                  {k === "del" ? (
+                    <Delete size={22} color={colors.textHi} />
+                  ) : k === "" ? null : (
+                    <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 24 }}>{k}</Text>
+                  )}
+                </Pressable>
+              ))}
+            </View>
           ))}
-          <Key onPress={backspace}>
-            <Delete size={22} color={colors.textHi} />
-          </Key>
         </View>
 
         <Pressable
-          onPress={confirm}
+          onPress={() => onConfirm(Number(buffer || "0"))}
           accessibilityRole="button"
           style={{
-            flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            gap: space[2],
             backgroundColor: colors.accent,
             borderRadius: radii.pill,
             paddingVertical: space[4],
@@ -105,26 +119,5 @@ export function NumberPad({
         </Pressable>
       </View>
     </Modal>
-  );
-}
-
-// 0–9 take a third of the row; backspace fills the last cell next to "0".
-function Key({ onPress, children }: { onPress: () => void; children: React.ReactNode }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      style={{
-        width: "31.5%",
-        flexGrow: 1,
-        height: 56,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: colors.elevated,
-        borderRadius: radii.sm,
-      }}
-    >
-      {children}
-    </Pressable>
   );
 }
