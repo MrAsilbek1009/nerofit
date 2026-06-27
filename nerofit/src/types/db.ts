@@ -547,6 +547,9 @@ export type Database = {
           protein_g: number;
           carbs_g: number;
           fats_g: number;
+          fiber_g: number | null;
+          sugar_g: number | null;
+          sodium_mg: number | null;
           image_url: string | null;
         };
         Insert: {
@@ -556,6 +559,9 @@ export type Database = {
           protein_g?: number;
           carbs_g?: number;
           fats_g?: number;
+          fiber_g?: number | null;
+          sugar_g?: number | null;
+          sodium_mg?: number | null;
           image_url?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["meals"]["Insert"]>;
@@ -573,6 +579,9 @@ export type Database = {
           protein_g: number | null;
           carbs_g: number | null;
           fats_g: number | null;
+          fiber_g: number | null;
+          sugar_g: number | null;
+          sodium_mg: number | null;
           source: MealSource;
           logged_at: string;
         };
@@ -587,6 +596,9 @@ export type Database = {
           protein_g?: number | null;
           carbs_g?: number | null;
           fats_g?: number | null;
+          fiber_g?: number | null;
+          sugar_g?: number | null;
+          sodium_mg?: number | null;
           source?: MealSource;
           logged_at?: string;
         };
