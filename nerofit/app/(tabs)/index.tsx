@@ -169,18 +169,18 @@ export default function HomeScreen() {
               />
             </View>,
             <MicrosCard key="micros" micros={micros} score={healthScore} />,
-            <ActivityCard
-              key="activity"
-              steps={stepCount}
-              goal={STEPS_GOAL}
-              caloriesBurned={caloriesBurned}
-            />,
-            <WaterCard
-              key="water"
-              current={waterTotal.data ?? 0}
-              goal={profile.daily_water_goal_ml}
-              onAdd={() => addWater.mutate(WATER_INCREMENT_ML)}
-            />,
+            <View key="activity" style={{ gap: space[3] }}>
+              <ActivityCard
+                steps={stepCount}
+                goal={STEPS_GOAL}
+                caloriesBurned={caloriesBurned}
+              />
+              <WaterCard
+                current={waterTotal.data ?? 0}
+                goal={profile.daily_water_goal_ml}
+                onAdd={() => addWater.mutate(WATER_INCREMENT_ML)}
+              />
+            </View>,
           ]}
         />
 
