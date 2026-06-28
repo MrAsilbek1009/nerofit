@@ -4,12 +4,14 @@ import {
   listMeals,
   listTodayMealLogs,
   logMeal,
+  logScannedMeal,
 } from "@/lib/api/meals";
 import {
   listSupplements,
   listTodaySupplementLogs,
   setSupplementTaken,
 } from "@/lib/api/supplements";
+import { analyzeFoodPhoto } from "@/lib/api/foodScan";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 import type { Meal, MealSlot } from "@/types/db";
@@ -40,6 +42,41 @@ export function useLogMeal(userId: string | undefined) {
     },
     onSuccess: (_data, { meal, slot }) => {
       track("meal_logged", { meal_id: meal.id, slot });
+      if (userId)
+        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
+    },
+  });
+}
+
+// ---- Food scan ----
+export function useAnalyzeFoodPhoto() {
+  return useMutation({
+    mutationFn: ({
+      imageBase64,
+      mediaType,
+    }: {
+      imageBase64: string;
+      mediaType: string;
+    }) => analyzeFoodPhoto(imageBase64, mediaType),
+  });
+}
+
+export function useLogScannedMeal(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (entry: {
+      name: string;
+      kcal: number;
+      protein_g: number;
+      carbs_g: number;
+      fats_g: number;
+      slot: MealSlot;
+    }) => {
+      if (!userId) throw new Error("Not authenticated");
+      return logScannedMeal(userId, entry);
+    },
+    onSuccess: (_data, entry) => {
+      track("meal_logged", { source: "scan", slot: entry.slot });
       if (userId)
         void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
     },

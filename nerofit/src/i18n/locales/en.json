@@ -230,7 +230,34 @@
     "protocol": "Protocol",
     "addToSlot": "Add to {{slot}}",
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
-    "emptyMeals": "No catalog meals yet."
+    "emptyMeals": "No catalog meals yet.",
+    "scan": {
+      "title": "Scan food",
+      "hint": "Center your meal in the frame",
+      "capture": "Capture",
+      "gallery": "Choose from gallery",
+      "analyzing": "Analyzing…",
+      "estimate": "AI estimate",
+      "confidence": {
+        "high": "High confidence",
+        "medium": "Medium confidence",
+        "low": "Low confidence — double-check"
+      },
+      "mealNamePlaceholder": "Name this meal",
+      "defaultName": "Scanned meal",
+      "servings": "Servings",
+      "detected": "Detected",
+      "addToMeal": "Add to meal",
+      "addToLog": "Add to log",
+      "retake": "Retake",
+      "retry": "Try again",
+      "permissionTitle": "Camera access needed",
+      "permissionBody": "Allow camera access to scan your meals, or pick a photo from your gallery.",
+      "grantAccess": "Grant camera access",
+      "errorTitle": "Couldn't analyze",
+      "errorBody": "Something went wrong reading that photo. Try again or retake.",
+      "rateLimited": "You've reached today's scan limit. Try again later."
+    }
   },
 
   "coach": {

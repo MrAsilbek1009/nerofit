@@ -61,6 +61,40 @@ export async function logMeal(
   return data;
 }
 
+/**
+ * Log a scanned / manually-edited meal. Unlike `logMeal` there is no catalog
+ * row, so every value is denormalized onto `meal_logs` and `source` is `scan`.
+ */
+export async function logScannedMeal(
+  userId: string,
+  entry: {
+    name: string;
+    kcal: number;
+    protein_g: number;
+    carbs_g: number;
+    fats_g: number;
+    slot: MealSlot;
+  },
+): Promise<MealLog> {
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .insert({
+      user_id: userId,
+      meal_id: null,
+      slot: entry.slot,
+      name: entry.name,
+      kcal: entry.kcal,
+      protein_g: entry.protein_g,
+      carbs_g: entry.carbs_g,
+      fats_g: entry.fats_g,
+      source: "scan",
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function deleteMealLog(id: string): Promise<void> {
   const { error } = await supabase.from("meal_logs").delete().eq("id", id);
   if (error) throw error;

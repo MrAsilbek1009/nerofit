@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Activity, HeartPulse } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { SectionHeader } from "@/components/ui";
+import { Button, SectionHeader } from "@/components/ui";
 import { HomeHeader } from "@/features/home/components/HomeHeader";
 import { WeekStrip } from "@/features/home/components/WeekStrip";
 import { DailySummaryCarousel } from "@/features/home/components/DailySummaryCarousel";
@@ -196,6 +196,11 @@ export default function HomeScreen() {
           ) : (
             <Text style={typography.bodyMuted}>{t("home.noMealsYet")}</Text>
           )}
+          <Button
+            label={t("nutrition.scan.title")}
+            variant="secondary"
+            onPress={() => router.push("/food-scan")}
+          />
         </View>
 
         <ProgramsSection />

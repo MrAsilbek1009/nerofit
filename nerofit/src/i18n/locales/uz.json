@@ -230,7 +230,34 @@
     "protocol": "Protokol",
     "addToSlot": "{{slot}}ga qoʻshish",
     "dayPart": { "morning": "Ertalab", "midday": "Kunduzi", "evening": "Kechqurun" },
-    "emptyMeals": "Hozircha taomlar yoʻq."
+    "emptyMeals": "Hozircha taomlar yoʻq.",
+    "scan": {
+      "title": "Taomni skanlash",
+      "hint": "Taomni ramka markaziga joylang",
+      "capture": "Suratga olish",
+      "gallery": "Galereyadan tanlash",
+      "analyzing": "Tahlil qilinmoqda…",
+      "estimate": "AI bahosi",
+      "confidence": {
+        "high": "Yuqori ishonch",
+        "medium": "Oʻrtacha ishonch",
+        "low": "Past ishonch — tekshiring"
+      },
+      "mealNamePlaceholder": "Taomga nom bering",
+      "defaultName": "Skanlangan taom",
+      "servings": "Porsiyalar",
+      "detected": "Aniqlandi",
+      "addToMeal": "Taomga qoʻshish",
+      "addToLog": "Kunlikka qoʻshish",
+      "retake": "Qayta olish",
+      "retry": "Qayta urinish",
+      "permissionTitle": "Kamera ruxsati kerak",
+      "permissionBody": "Taomlaringizni skanlash uchun kameraga ruxsat bering yoki galereyadan surat tanlang.",
+      "grantAccess": "Kameraga ruxsat berish",
+      "errorTitle": "Tahlil qilib boʻlmadi",
+      "errorBody": "Suratni oʻqishda xatolik yuz berdi. Qayta urinib koʻring yoki qaytadan suratga oling.",
+      "rateLimited": "Bugungi skanlash chegarasiga yetdingiz. Keyinroq urinib koʻring."
+    }
   },
 
   "coach": {
