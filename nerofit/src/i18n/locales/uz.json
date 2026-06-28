@@ -128,6 +128,8 @@
     "mg": "mg",
     "bands": { "good": "Yaxshi", "fair": "Oʻrtacha", "poor": "Past" },
     "micros": { "fiber": "Tola", "sugar": "Shakar", "sodium": "Natriy", "netCarbs": "Sof uglevod" },
+    "stepsToday": "Bugungi qadamlar",
+    "caloriesBurned": "Yoqilgan kaloriya",
     "dailyGoal": "Kunlik maqsadingizning {{percent}}% iga yetdingiz",
     "waterFormat": "{{value}} / {{goal}}",
     "healthMetrics": "Sogʻliq koʻrsatkichlari",

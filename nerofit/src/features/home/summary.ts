@@ -100,3 +100,13 @@ export function microIsGood(kind: "fiber" | "sugar" | "sodium", value: number): 
   if (kind === "fiber") return value >= MICRO_TARGETS.fiber;
   return value <= MICRO_TARGETS[kind];
 }
+
+// ── Activity ──────────────────────────────────────────────────────────────
+export const STEPS_GOAL = 10000;
+
+// Rough calories burned from steps, scaled by body weight (≈0.04 kcal/step at
+// 70 kg). An estimate — real "active energy" would come from HealthKit later.
+export function estimateCaloriesBurned(steps: number, weightKg: number | null): number {
+  const weight = weightKg && weightKg > 0 ? weightKg : 70;
+  return Math.round(steps * 0.04 * (weight / 70));
+}

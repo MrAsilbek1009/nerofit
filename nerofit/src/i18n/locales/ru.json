@@ -128,6 +128,8 @@
     "mg": "мг",
     "bands": { "good": "Хорошо", "fair": "Средне", "poor": "Плохо" },
     "micros": { "fiber": "Клетчатка", "sugar": "Сахар", "sodium": "Натрий", "netCarbs": "Чистые углеводы" },
+    "stepsToday": "Шаги сегодня",
+    "caloriesBurned": "Сожжено калорий",
     "dailyGoal": "Вы выполнили {{percent}}% дневной цели",
     "waterFormat": "{{value}} / {{goal}}",
     "healthMetrics": "Показатели здоровья",
