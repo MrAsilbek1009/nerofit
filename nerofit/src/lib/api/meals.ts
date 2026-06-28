@@ -33,6 +33,14 @@ export async function logMeal(
   meal: Meal,
   slot: MealSlot,
 ): Promise<MealLog> {
+  // Copy micros only when the catalog meal carries them. Reading an absent
+  // column yields undefined, so this is a no-op before the 0011 migration is
+  // applied — and the insert never references a column that doesn't exist yet.
+  const micros: Partial<Pick<MealLog, "fiber_g" | "sugar_g" | "sodium_mg">> = {};
+  if (meal.fiber_g != null) micros.fiber_g = meal.fiber_g;
+  if (meal.sugar_g != null) micros.sugar_g = meal.sugar_g;
+  if (meal.sodium_mg != null) micros.sodium_mg = meal.sodium_mg;
+
   const { data, error } = await supabase
     .from("meal_logs")
     .insert({
@@ -44,6 +52,7 @@ export async function logMeal(
       protein_g: meal.protein_g,
       carbs_g: meal.carbs_g,
       fats_g: meal.fats_g,
+      ...micros,
       source: "catalog",
     })
     .select("*")
