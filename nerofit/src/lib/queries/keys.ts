@@ -18,6 +18,9 @@ export const qk = {
   daySession: (userId: string, programDayId: string) =>
     ["day-session", userId, programDayId] as const,
   completedDays: (userId: string) => ["completed-days", userId] as const,
+  libraryExercises: () => ["library-exercises"] as const,
+  customSession: (id: string) => ["custom-session", id] as const,
+  customSessions: (userId: string) => ["custom-sessions", userId] as const,
   sessionTaskCompletions: (sessionId: string) =>
     ["task-completions", sessionId] as const,
   xpTotal: (userId: string) => ["xp-total", userId] as const,

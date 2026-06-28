@@ -180,6 +180,9 @@ function AuthGate() {
       <Stack.Screen name="program/[id]" />
       <Stack.Screen name="program-day/[id]" />
       <Stack.Screen name="program-day-player/[id]" options={{ presentation: "fullScreenModal" }} />
+      <Stack.Screen name="workout-generator" />
+      <Stack.Screen name="custom-workout" />
+      <Stack.Screen name="custom-workout-player/[id]" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="progress" />
       <Stack.Screen name="body-composition" />
       <Stack.Screen name="delete-account" />

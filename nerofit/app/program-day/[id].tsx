@@ -38,6 +38,7 @@ import type {
   ProgramDayTest,
   ProgramSection,
 } from "@/types/db";
+import { goBack } from "@/lib/nav";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 const SECTION_ORDER: ProgramSection[] = ["warmup", "main", "cooldown"];
@@ -72,7 +73,7 @@ export default function ProgramDayScreen() {
     completeDay.mutate(sid, {
       onSuccess: () => {
         void completedIds.refetch();
-        router.back();
+        goBack(router);
       },
     });
   }
@@ -106,7 +107,7 @@ export default function ProgramDayScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => goBack(router)} hitSlop={10} accessibilityRole="button">
           <ArrowLeft size={22} color={colors.textHi} />
         </Pressable>
         <Text style={[typography.h2, { flex: 1 }]} numberOfLines={2}>
