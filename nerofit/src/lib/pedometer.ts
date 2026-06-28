@@ -3,12 +3,22 @@
 // aren't available (Expo Go, no permission, simulator, or Android — where
 // getStepCountAsync isn't supported). iOS reads today's CMPedometer history.
 
+import { requireOptionalNativeModule } from "expo-modules-core";
+
 type PedometerModule = typeof import("expo-sensors").Pedometer;
 
 let pedometer: PedometerModule | null | undefined;
 
 function load(): PedometerModule | null {
   if (pedometer !== undefined) return pedometer;
+  // Only touch expo-sensors when its native module is actually in the build.
+  // requireOptionalNativeModule returns null (never throws) when it's absent,
+  // so a dev build made before expo-sensors was added degrades cleanly instead
+  // of red-boxing "Cannot find native module 'ExponentPedometer'".
+  if (!requireOptionalNativeModule("ExponentPedometer")) {
+    pedometer = null;
+    return null;
+  }
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     pedometer = (require("expo-sensors") as typeof import("expo-sensors")).Pedometer;
