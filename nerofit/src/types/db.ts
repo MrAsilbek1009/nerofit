@@ -38,6 +38,27 @@ export type ExerciseCategory =
   | "mobility_stretch";
 export type EquipmentTier = "bodyweight" | "dumbbell_band" | "gym_full";
 export type ProgramSection = "warmup" | "main" | "cooldown";
+
+// Custom workout generator parameters (stored on custom_sessions.params).
+export type GeneratorFocus = "strength" | "muscle" | "endurance";
+export type GeneratorTarget =
+  | "upper"
+  | "lower"
+  | "core"
+  | "push"
+  | "pull"
+  | "full";
+export type GeneratorDifficulty = "beginner" | "intermediate" | "advanced";
+export type GeneratorEquipment = "none" | "dumbbells" | "your" | "all_gym";
+export type GeneratorParams = {
+  timeMin: number;
+  target: GeneratorTarget;
+  focus: GeneratorFocus;
+  difficulty: GeneratorDifficulty;
+  equipment: GeneratorEquipment;
+  warmup: boolean;
+  stretch: boolean;
+};
 export type TaskType = "education" | "workout" | "lifestyle" | "challenge";
 export type TestLogType = "count" | "seconds" | "minutes";
 export type UnitSystem = "metric" | "imperial";
@@ -521,6 +542,62 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["task_completions"]["Insert"]>;
         Relationships: [];
       };
+      custom_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          params: GeneratorParams;
+          status: SessionStatus;
+          started_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          params: GeneratorParams;
+          status?: SessionStatus;
+          started_at?: string;
+          completed_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["custom_sessions"]["Insert"]>;
+        Relationships: [];
+      };
+      custom_session_exercises: {
+        Row: {
+          id: string;
+          custom_session_id: string;
+          exercise_id: string;
+          section: ProgramSection;
+          order_index: number;
+          reps: string | null;
+          sets: number | null;
+          rest_sec: number | null;
+          status: LogStatus | null;
+          sets_done: number | null;
+          reps_done: number | null;
+          weight_used: number | null;
+          logged_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          custom_session_id: string;
+          exercise_id: string;
+          section: ProgramSection;
+          order_index: number;
+          reps?: string | null;
+          sets?: number | null;
+          rest_sec?: number | null;
+          status?: LogStatus | null;
+          sets_done?: number | null;
+          reps_done?: number | null;
+          weight_used?: number | null;
+          logged_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["custom_session_exercises"]["Insert"]>;
+        Relationships: [];
+      };
       test_results: {
         Row: {
           id: string;
@@ -721,6 +798,10 @@ export type DayExerciseLog =
 export type TaskCompletion =
   Database["public"]["Tables"]["task_completions"]["Row"];
 export type TestResult = Database["public"]["Tables"]["test_results"]["Row"];
+export type CustomSession =
+  Database["public"]["Tables"]["custom_sessions"]["Row"];
+export type CustomSessionExercise =
+  Database["public"]["Tables"]["custom_session_exercises"]["Row"];
 
 export type ChatRole = "user" | "assistant";
 

@@ -10,6 +10,7 @@ import { useGoals } from "@/lib/queries/goals";
 import { useXpTotal } from "@/lib/queries/gamification";
 import { useCompletedDayIds, useProgramDays } from "@/lib/queries/curriculum";
 import type { ProgramDay } from "@/types/db";
+import { goBack } from "@/lib/nav";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function ProgramOverviewScreen() {
@@ -65,7 +66,7 @@ export default function ProgramOverviewScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => goBack(router)} hitSlop={10} accessibilityRole="button">
           <ArrowLeft size={22} color={colors.textHi} />
         </Pressable>
         <Text style={[typography.h2, { flex: 1 }]} numberOfLines={1}>

@@ -21,23 +21,16 @@ import { WorkoutSettingsSheet } from "@/features/workouts/components/WorkoutSett
 import { parseReps } from "@/features/workouts/repsParse";
 import { exerciseImage } from "@/features/workouts/exerciseImages";
 import { useUserId } from "@/hooks/useUser";
-import { useProgramDayDetail } from "@/lib/queries/curriculum";
 import {
-  useCompleteDaySession,
-  useDaySession,
-  useLogDayExercise,
-} from "@/lib/queries/curriculumSession";
+  useCompleteCustomSession,
+  useCustomSession,
+  useLogCustomExercise,
+} from "@/lib/queries/customWorkouts";
+import type { CustomExerciseWithExercise } from "@/lib/api/customWorkouts";
+import type { ProgramSection } from "@/types/db";
 import { useWorkoutSettings } from "@/store/workoutSettings";
 import { goBack } from "@/lib/nav";
-import type { DayExerciseWithExercise } from "@/lib/api/curriculum";
-import type { ProgramSection } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
-
-const SECTION_RANK: Record<ProgramSection, number> = {
-  warmup: 0,
-  main: 1,
-  cooldown: 2,
-};
 
 const RING = Math.min(Dimensions.get("window").width * 0.34, 140);
 
@@ -49,24 +42,20 @@ function fmt(total: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function ProgramDayPlayerScreen() {
+export default function CustomWorkoutPlayerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useTranslation();
   const userId = useUserId();
 
-  const detail = useProgramDayDetail(id);
-  const session = useDaySession(userId, id);
-  const logMutation = useLogDayExercise(userId, id);
-  const completeMutation = useCompleteDaySession();
+  const detail = useCustomSession(id);
+  const logMutation = useLogCustomExercise(id);
+  const completeMutation = useCompleteCustomSession(userId);
 
-  const steps = useMemo<DayExerciseWithExercise[]>(() => {
-    return [...(detail.data?.exercises ?? [])].sort(
-      (a, b) =>
-        SECTION_RANK[a.section] - SECTION_RANK[b.section] ||
-        a.order_index - b.order_index,
-    );
-  }, [detail.data]);
+  const steps = useMemo<CustomExerciseWithExercise[]>(
+    () => detail.data?.custom_session_exercises ?? [],
+    [detail.data],
+  );
 
   const [index, setIndex] = useState(0);
   const [mode, setMode] = useState<Mode>("ready");
@@ -90,7 +79,6 @@ export default function ProgramDayPlayerScreen() {
   const perSide = /har\s/i.test(current?.reps ?? "");
   const restBase = current?.rest_sec ?? 0;
 
-  // Initialise the first step once the plan loads.
   useEffect(() => {
     if (started || steps.length === 0) return;
     setStarted(true);
@@ -124,8 +112,7 @@ export default function ProgramDayPlayerScreen() {
   }
 
   function finish() {
-    const sid = session.data?.id;
-    if (sid) completeMutation.mutate(sid);
+    if (id) completeMutation.mutate(id);
     setFinished(true);
   }
 
@@ -138,10 +125,9 @@ export default function ProgramDayPlayerScreen() {
   }
 
   function logCurrent(status: "done" | "skipped") {
-    if (!current || !session.data) return;
+    if (!current) return;
     logMutation.mutate({
-      daySessionId: session.data.id,
-      programDayExerciseId: current.id,
+      id: current.id,
       status,
       setsDone: current.sets ?? 1,
       repsDone: status === "done" && reps > 0 ? reps : null,
@@ -169,7 +155,6 @@ export default function ProgramDayPlayerScreen() {
     else completeActive();
   }
 
-  // Countdown ticker — work timer (timed) and rest.
   useEffect(() => {
     if (paused) return;
     const counting = mode === "rest" || (mode === "active" && isTimed);
@@ -178,14 +163,12 @@ export default function ProgramDayPlayerScreen() {
     return () => clearInterval(iv);
   }, [paused, mode, isTimed]);
 
-  // Count-up stopwatch for rep-based exercises (no fixed duration).
   useEffect(() => {
     if (paused || mode !== "active" || isTimed) return;
     const iv = setInterval(() => setWorkUp((w) => w + 1), 1000);
     return () => clearInterval(iv);
   }, [paused, mode, isTimed]);
 
-  // Handle a countdown reaching zero.
   useEffect(() => {
     if (secondsLeft !== 0) return;
     if (mode === "rest") goToStep(index + 1);
@@ -193,14 +176,12 @@ export default function ProgramDayPlayerScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, mode, autoPilot]);
 
-  // Total elapsed workout time.
   useEffect(() => {
     if (paused || finished) return;
     const iv = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(iv);
   }, [paused, finished]);
 
-  // Exercise demo clip (looped, muted). Empty until videos are uploaded.
   const videoUri = current?.exercise?.exercise_videos?.[0]?.url ?? null;
   const player = useVideoPlayer(videoUri, (p) => {
     p.loop = true;
@@ -211,7 +192,7 @@ export default function ProgramDayPlayerScreen() {
     if (videoUri && mode === "active" && !paused) player.play();
   }, [videoUri, player, mode, paused]);
 
-  if (detail.isLoading || session.isLoading) {
+  if (detail.isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -221,7 +202,6 @@ export default function ProgramDayPlayerScreen() {
     );
   }
 
-  // Completion — "Way To Go".
   if (finished || steps.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -256,9 +236,7 @@ export default function ProgramDayPlayerScreen() {
               paddingVertical: space[4],
             }}
           >
-            <Text style={{ fontFamily: fonts.label, color: colors.canvas, fontSize: 15 }}>
-              {t("workouts.completeWorkout")}
-            </Text>
+            <Text style={{ fontFamily: fonts.label, color: colors.canvas, fontSize: 15 }}>{t("workouts.completeWorkout")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -275,14 +253,11 @@ export default function ProgramDayPlayerScreen() {
     if (videoUri) {
       return <VideoView player={player} style={{ width: "100%", height: "100%" }} contentFit="cover" nativeControls={false} />;
     }
-    return (
-      <Image source={{ uri: exerciseImage(current?.exercise) }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
-    );
+    return <Image source={{ uri: exerciseImage(current?.exercise) }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />;
   }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }} edges={["top", "bottom"]}>
-      {/* Top bar */}
       <View style={{ paddingHorizontal: space[5], paddingVertical: space[3], gap: space[3] }}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: space[3] }}>
@@ -316,7 +291,6 @@ export default function ProgramDayPlayerScreen() {
       </View>
 
       {mode === "ready" ? (
-        // "Get ready for …" over a dimmed clip. Tap anywhere to begin.
         <Pressable onPress={begin} style={{ flex: 1 }}>
           <View style={[StyleAbsoluteFill, { opacity: 0.25 }]}>{MediaFill()}</View>
           <View style={{ flex: 1, paddingHorizontal: space[5], justifyContent: "center", gap: space[2] }}>
@@ -331,11 +305,9 @@ export default function ProgramDayPlayerScreen() {
         </Pressable>
       ) : (
         <View style={{ flex: 1, paddingHorizontal: space[5], paddingBottom: space[4], gap: space[3] }}>
-          {/* Single exercise card */}
           <View style={{ flex: 1, borderRadius: radii.md, overflow: "hidden", backgroundColor: colors.elevated }}>
             <View style={StyleAbsoluteFill}>{MediaFill()}</View>
 
-            {/* Title (top) */}
             <View
               style={{
                 flexDirection: "row",
@@ -362,7 +334,6 @@ export default function ProgramDayPlayerScreen() {
 
             <View style={{ flex: 1 }} />
 
-            {/* Controls (bottom) */}
             <View
               style={{
                 flexDirection: "row",
@@ -400,7 +371,6 @@ export default function ProgramDayPlayerScreen() {
             </View>
           </View>
 
-          {/* Next + skip */}
           <View style={{ gap: space[2], alignItems: "center" }}>
             {nextName ? (
               <Text style={[typography.labelCaps, { textAlign: "center" }]} numberOfLines={1}>
@@ -414,7 +384,6 @@ export default function ProgramDayPlayerScreen() {
         </View>
       )}
 
-      {/* Pause overlay */}
       {paused ? (
         <View
           style={[
@@ -471,7 +440,7 @@ export default function ProgramDayPlayerScreen() {
       <WorkoutSettingsSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <SessionExerciseList
         visible={listOpen}
-        title={detail.data?.day.session_title ?? ""}
+        title={detail.data?.title ?? ""}
         steps={steps}
         currentIndex={index}
         onClose={() => setListOpen(false)}
