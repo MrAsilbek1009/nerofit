@@ -132,6 +132,13 @@
     "caloriesBurned": "Yoqilgan kaloriya",
     "dailyGoal": "Kunlik maqsadingizning {{percent}}% iga yetdingiz",
     "waterFormat": "{{value}} / {{goal}}",
+    "waterSettings": {
+      "title": "Suv sozlamalari",
+      "servingSize": "Porsiya hajmi",
+      "question": "Nam saqlanish uchun qancha suv kerak?",
+      "hint": "Har kimning ehtiyoji har xil, lekin kuniga kamida {{goal}} ml ({{liters}} L) suv ichishni tavsiya qilamiz.",
+      "save": "Saqlash"
+    },
     "healthMetrics": "Sogʻliq koʻrsatkichlari",
     "metrics": {
       "bloodPressure": "Qon bosimi",

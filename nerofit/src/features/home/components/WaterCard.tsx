@@ -1,18 +1,21 @@
 import { Pressable, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Droplet, Plus } from "lucide-react-native";
+import { Droplet, Plus, Settings2 } from "lucide-react-native";
 import { ProgressRing } from "@/components/ui";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
-// Carousel page 2: today's water with a ring and a quick-add button.
+// Carousel page 2: today's water with a ring, a quick-add button, and a gear
+// that opens the Water settings sheet (serving size).
 export function WaterCard({
   current,
   goal,
   onAdd,
+  onSettings,
 }: {
   current: number;
   goal: number;
   onAdd: () => void;
+  onSettings: () => void;
 }) {
   const { t } = useTranslation();
   const fraction = goal > 0 ? Math.min(1, current / goal) : 0;
@@ -41,7 +44,24 @@ export function WaterCard({
         </Text>
       </View>
 
-      <View style={{ flexDirection: "row", alignItems: "center", gap: space[4] }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: space[3] }}>
+        <Pressable
+          onPress={onSettings}
+          accessibilityRole="button"
+          accessibilityLabel={t("home.waterSettings.title")}
+          hitSlop={8}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Settings2 size={18} color={colors.textLo} />
+        </Pressable>
         <Pressable
           onPress={onAdd}
           accessibilityRole="button"

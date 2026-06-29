@@ -76,6 +76,7 @@ export type Database = {
           sex: BiologicalSex | null;
           date_of_birth: string | null;
           daily_water_goal_ml: number;
+          water_serving_ml: number;
           protein_goal_g: number;
           carbs_goal_g: number;
           fats_goal_g: number;
@@ -92,6 +93,7 @@ export type Database = {
           sex?: BiologicalSex | null;
           date_of_birth?: string | null;
           daily_water_goal_ml?: number;
+          water_serving_ml?: number;
           protein_goal_g?: number;
           carbs_goal_g?: number;
           fats_goal_g?: number;

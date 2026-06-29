@@ -132,6 +132,13 @@
     "caloriesBurned": "Calories burned",
     "dailyGoal": "You're {{percent}}% to your daily goal",
     "waterFormat": "{{value}} / {{goal}}",
+    "waterSettings": {
+      "title": "Water settings",
+      "servingSize": "Serving size",
+      "question": "How much water do you need to stay hydrated?",
+      "hint": "Everyone's needs are slightly different, but we recommend aiming for at least {{goal}} ml ({{liters}} L) of water each day.",
+      "save": "Save"
+    },
     "healthMetrics": "Health Metrics",
     "metrics": {
       "bloodPressure": "Blood Pressure",

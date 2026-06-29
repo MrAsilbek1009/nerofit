@@ -37,7 +37,8 @@ import { useStepsToday } from "@/lib/queries/steps";
 import { useAddWaterLog, useTodayWaterTotal } from "@/lib/queries/waterLogs";
 import { colors, space, typography } from "@/theme";
 
-const WATER_INCREMENT_ML = 250;
+// Fallback serving when the profile hasn't been loaded / migrated yet.
+const DEFAULT_WATER_SERVING_ML = 250;
 
 // Recent metrics come back newest-first; charts want oldest → newest.
 function chronological(values: number[]): number[] {
@@ -178,7 +179,12 @@ export default function HomeScreen() {
               <WaterCard
                 current={waterTotal.data ?? 0}
                 goal={profile.daily_water_goal_ml}
-                onAdd={() => addWater.mutate(WATER_INCREMENT_ML)}
+                onAdd={() =>
+                  addWater.mutate(
+                    profile.water_serving_ml ?? DEFAULT_WATER_SERVING_ML,
+                  )
+                }
+                onSettings={() => router.push("/water-settings")}
               />
             </View>,
           ]}
