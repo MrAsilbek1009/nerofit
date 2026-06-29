@@ -23,7 +23,8 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
-| 13 | Home redesign (Cal AI uslubi, gibrid) | 🟡 | Mirolim — Bosqich A ✅ (week strip, calories ring, makro gauges, water carousel, recently logged) · qoldi: B micros/health-score, C steps, D food-scan |
+| 13 | Home redesign (Cal AI uslubi, gibrid) | ✅ | Mirolim — A (carousel) ✅ · B micros/health-score ✅ (PR #8) · C steps ✅ · D food-scan ✅ + water settings (serving size) ✅ (PR #9) — barchasi main'ga merged; `food-analysis` deployed, `food_scans`+`water_serving_ml` migrations applied |
+| 14 | Barqarorlik + native chuqurlik (post-MVP) | ⬜ | Taklif — test/CI/lint, offline, a11y, HealthKit (Swift modul), bildirishnoma kontenti, food-scan kengaytmalari. Batafsil ↓ |
 
 ---
 
@@ -144,6 +145,53 @@ do'kon talablariga mos.
 | Yakuniy QA + submit | 🧑 + 🤖 | `eas submit` (submit config to'ldirish) |
 
 **DoD:** ikkala do'konda review'ga yuborilgan.
+
+---
+
+## Phase 14 — Barqarorlik + native chuqurlik (post-MVP)
+**Branch:** `phase-14-...` (har ish-yo'nalishi alohida sub-branch)
+**Holat:** ⬜ taklif. MVP do'konga chiqqach yoki parallel boshlanadi.
+
+> **Maqsad:** kod sifati poydevorini mustahkamlash + iOS native imkoniyatlarni
+> qo'shish (RN'da qolib, kerakli joyda Swift Expo Module). Kodni audit qildik;
+> quyidagilar topildi: **0 test, CI yo'q, ESLint/Prettier yo'q, offline ishlov yo'q,
+> butun ilovada atigi 2 ta `accessibilityLabel`**.
+
+### 14A — Muhandislik barqarorligi (🔴 launch sifati uchun eng muhim)
+| Ish | Kim | Izoh |
+|---|---|---|
+| Unit testlar | 🤖 | Jest + RN Testing Library — kritik mantiq: makros, streak, water/serving, food-scan JSON parse, onboarding submit |
+| E2E smoke | 🤖 + 🧑 | Maestro — login → onboarding → workout/log asosiy oqimi |
+| CI | 🤖 | GitHub Actions: har PR'da `tsc` + lint + test |
+| ESLint + Prettier | 🤖 | config + `lint`/`typecheck`/`format` npm scriptlar |
+| Offline holatlar | 🤖 | NetInfo banner + TanStack Query persist/retry (zalda internetsiz) |
+
+### 14B — Accessibility
+| Ish | Kim | Izoh |
+|---|---|---|
+| a11y audit | 🤖 + 🧑 | `accessibilityLabel`/role barcha bosiladigan elementlarga, Dynamic Type, kontrast |
+
+### 14C — Native chuqurlik (Swift Expo Modules — RN saqlanadi)
+| Ish | Kim | Izoh |
+|---|---|---|
+| **HealthKit / Health Connect** ⭐ | 🤖 + 🧑 | Qadam/yurak/mashqlarni Sog'liq ilovasidan olish (hozir faqat pedometer) — eng katta qiymat |
+| Sign in with Apple | 🤖 + 🧑 | Hozir stub; Apple talab qiladi |
+| Widgets / Live Activities / Apple Watch | 🤖 + 🧑 | Suv/kaloriya/qadam widget, lock-screen mashq taymeri (keyingi to'lqin) |
+
+### 14D — Mahsulot kengaytmalari
+| Ish | Kim | Izoh |
+|---|---|---|
+| Bildirishnoma kontenti | 🤖 + 🧑 | Suv/mashq/streak eslatmalari (infra `notifications.ts`'da bor) |
+| Food-scan kengaytmalari | 🤖 | barcode skan, ingredient qidiruv, "Fix with AI", tarix/favoritlar, rasmni Storage'ga saqlash (`photo_path`) |
+| Gamifikatsiya | 🤖 + 🧑 | leaderboard, do'stlar, challenge (XP/badge bor) |
+| Data export (GDPR) | 🤖 | `delete-account` bor; export qo'shiladi |
+
+### Tavsiya etilgan tartib
+14A (test/CI/lint) → 14B (a11y) → 14C-HealthKit → 14D. 14A'ni MVP do'konga chiqishidan
+oldin yoki parallel boshlash tavsiya etiladi (regressiyadan himoya).
+
+**DoD (14A uchun):** har PR CI'da yashil (tsc+lint+test), kritik mantiq test bilan qoplangan,
+offline'da ilova ishlaydi.
 
 ---
 
