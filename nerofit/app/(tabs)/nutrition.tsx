@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Droplet, Plus } from "lucide-react-native";
-import { ProgressRing } from "@/components/ui";
+import { Button, ProgressRing } from "@/components/ui";
 import { MacroBar } from "@/features/nutrition/components/MacroBar";
 import { SectionLabel } from "@/features/nutrition/components/SectionLabel";
 import { SupplementRow } from "@/features/nutrition/components/SupplementRow";
@@ -78,6 +78,12 @@ export default function NutritionScreen() {
         <Text style={[typography.display, { fontSize: 34, textTransform: "uppercase" }]}>
           {t("nutrition.title")}
         </Text>
+
+        {/* Scan food (AI) */}
+        <Button
+          label={t("nutrition.scan.title")}
+          onPress={() => router.push("/food-scan")}
+        />
 
         {/* Macros */}
         <View style={{ gap: space[4] }}>

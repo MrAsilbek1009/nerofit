@@ -3,22 +3,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Activity, HeartPulse } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { SectionHeader } from "@/components/ui";
+import { Button, SectionHeader } from "@/components/ui";
 import { HomeHeader } from "@/features/home/components/HomeHeader";
 import { WeekStrip } from "@/features/home/components/WeekStrip";
 import { DailySummaryCarousel } from "@/features/home/components/DailySummaryCarousel";
 import { CaloriesCard } from "@/features/home/components/CaloriesCard";
 import { MacroGauges } from "@/features/home/components/MacroGauges";
 import { MicrosCard } from "@/features/home/components/MicrosCard";
+import { ActivityCard } from "@/features/home/components/ActivityCard";
 import { WaterCard } from "@/features/home/components/WaterCard";
 import { RecentMeal } from "@/features/home/components/RecentMeal";
 import { HealthMetricCard } from "@/features/home/components/HealthMetricCard";
 import { MiniBars, MiniSparkline } from "@/features/home/components/MiniCharts";
 import { ProgramsSection } from "@/features/home/components/ProgramsSection";
 import {
+  STEPS_GOAL,
   computeHealthScore,
   consumedFraction,
   deriveCalorieGoal,
+  estimateCaloriesBurned,
   remaining,
   sumMealLogs,
   sumMicros,
@@ -26,13 +29,16 @@ import {
 import { computeDayStreak } from "@/features/progress/streak";
 import { useUserId } from "@/hooks/useUser";
 import { useProfile } from "@/lib/queries/profile";
+import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
 import { useRecentHealthMetrics } from "@/lib/queries/healthMetrics";
 import { useTodayMealLogs } from "@/lib/queries/nutrition";
 import { useStreakSessions, useWeekSessions } from "@/lib/queries/progress";
+import { useStepsToday } from "@/lib/queries/steps";
 import { useAddWaterLog, useTodayWaterTotal } from "@/lib/queries/waterLogs";
 import { colors, space, typography } from "@/theme";
 
-const WATER_INCREMENT_ML = 250;
+// Fallback serving when the profile hasn't been loaded / migrated yet.
+const DEFAULT_WATER_SERVING_ML = 250;
 
 // Recent metrics come back newest-first; charts want oldest → newest.
 function chronological(values: number[]): number[] {
@@ -51,6 +57,8 @@ export default function HomeScreen() {
   const streakSessions = useStreakSessions(userId);
   const heartRate = useRecentHealthMetrics(userId, "heart_rate");
   const bloodPressure = useRecentHealthMetrics(userId, "blood_pressure_systolic");
+  const steps = useStepsToday();
+  const latestBody = useLatestBodyMetric(userId);
 
   const addWater = useAddWaterLog(userId);
 
@@ -70,6 +78,7 @@ export default function HomeScreen() {
     void streakSessions.refetch();
     void heartRate.refetch();
     void bloodPressure.refetch();
+    void steps.refetch();
   }
 
   if (loading) {
@@ -108,6 +117,9 @@ export default function HomeScreen() {
   const micros = sumMicros(logs);
   const healthScore = computeHealthScore(micros);
   const calorieGoal = deriveCalorieGoal(profile);
+
+  const stepCount = steps.data ?? 0;
+  const caloriesBurned = estimateCaloriesBurned(stepCount, latestBody.data?.weight_kg ?? null);
   const macro = (goal: number, consumed: number) => ({
     left: remaining(goal, consumed),
     fraction: consumedFraction(goal, consumed),
@@ -158,12 +170,23 @@ export default function HomeScreen() {
               />
             </View>,
             <MicrosCard key="micros" micros={micros} score={healthScore} />,
-            <WaterCard
-              key="water"
-              current={waterTotal.data ?? 0}
-              goal={profile.daily_water_goal_ml}
-              onAdd={() => addWater.mutate(WATER_INCREMENT_ML)}
-            />,
+            <View key="activity" style={{ gap: space[3] }}>
+              <ActivityCard
+                steps={stepCount}
+                goal={STEPS_GOAL}
+                caloriesBurned={caloriesBurned}
+              />
+              <WaterCard
+                current={waterTotal.data ?? 0}
+                goal={profile.daily_water_goal_ml}
+                onAdd={() =>
+                  addWater.mutate(
+                    profile.water_serving_ml ?? DEFAULT_WATER_SERVING_ML,
+                  )
+                }
+                onSettings={() => router.push("/water-settings")}
+              />
+            </View>,
           ]}
         />
 
@@ -179,6 +202,11 @@ export default function HomeScreen() {
           ) : (
             <Text style={typography.bodyMuted}>{t("home.noMealsYet")}</Text>
           )}
+          <Button
+            label={t("nutrition.scan.title")}
+            variant="secondary"
+            onPress={() => router.push("/food-scan")}
+          />
         </View>
 
         <ProgramsSection />

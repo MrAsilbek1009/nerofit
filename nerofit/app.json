@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.nerofit.app",
+      "permissions": ["android.permission.ACTIVITY_RECOGNITION"],
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
@@ -43,6 +44,24 @@
         {
           "icon": "./assets/android-icon-monochrome.png",
           "color": "#D4E924"
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Allow Nerofit to use motion data to count your daily steps."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nerofit to use the camera to scan your meals and estimate their calories."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Nerofit to access your photos so you can scan a meal you already photographed."
         }
       ]
     ],
