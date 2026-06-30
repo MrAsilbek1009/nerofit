@@ -1,0 +1,12 @@
+# Smoke test: the app launches and renders its first screen without crashing.
+# Catches white-screen / native-module crashes on launch (e.g. a dev-client
+# missing a native module — exactly the ExpoCamera/dyld class of bug).
+#
+# Run: maestro test .maestro   (install Maestro: https://maestro.dev)
+appId: com.nerofit.app
+---
+- launchApp:
+    clearState: false
+# Login header ("Nerofit") or signed-in home header ("NEROFIT").
+- assertVisible:
+    text: "Nerofit|NEROFIT"
