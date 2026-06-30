@@ -31,6 +31,8 @@ import {
   CACHE_MAX_AGE_MS,
   queryClient,
 } from "@/lib/queryClient";
+import { initOnlineManager } from "@/lib/network";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
 import { bootstrapAuth, useAuthStore } from "@/store/auth";
 import { initRecoveryLinking } from "@/features/auth/recovery";
 import { initSentry, setSentryUser, wrapApp } from "@/lib/sentry";
@@ -63,6 +65,7 @@ function RootLayout() {
 
   useEffect(() => {
     initAnalytics();
+    initOnlineManager();
     const stopRecoveryLinking = initRecoveryLinking();
     const stopAuth = bootstrapAuth();
     return () => {
@@ -95,6 +98,7 @@ function RootLayout() {
         >
           <StatusBar style="light" />
           <AuthGate />
+          <OfflineBanner />
         </PersistQueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
