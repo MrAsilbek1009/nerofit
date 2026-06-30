@@ -7,9 +7,12 @@
     "@expo-google-fonts/inter": "^0.4.2",
     "@hookform/resolvers": "^5.4.0",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/netinfo": "12.0.1",
     "@sentry/react-native": "~7.11.0",
     "@supabase/supabase-js": "^2.107.0",
+    "@tanstack/query-async-storage-persister": "^5.101.2",
     "@tanstack/react-query": "^5.101.0",
+    "@tanstack/react-query-persist-client": "^5.101.2",
     "expo": "~56.0.9",
     "expo-application": "~56.0.3",
     "expo-camera": "56.0.7",
@@ -54,14 +57,38 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@react-native/jest-preset": "^0.85.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "^56.0.4",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^29.7.0",
+    "jest-expo": "~56.0.0",
+    "prettier": "^3.9.1",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "e2e": "maestro test .maestro"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/src/**/*.test.tsx"
+    ]
   },
   "private": true
 }

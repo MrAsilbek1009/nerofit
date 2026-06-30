@@ -432,6 +432,7 @@
     "loading": "Loading…",
     "error": "Something went wrong.",
     "retry": "Retry",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "offline": "No internet connection"
   }
 }

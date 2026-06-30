@@ -432,6 +432,7 @@
     "loading": "Yuklanmoqda…",
     "error": "Xatolik yuz berdi.",
     "retry": "Qayta urinish",
-    "cancel": "Bekor qilish"
+    "cancel": "Bekor qilish",
+    "offline": "Internet aloqasi yo'q"
   }
 }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { SplashScreen, Stack, useRouter, useSegments, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useProfile } from "@/lib/queries/profile";
@@ -26,7 +26,13 @@ import {
 
 import "../global.css";
 import "@/i18n";
-import { queryClient } from "@/lib/queryClient";
+import {
+  asyncStoragePersister,
+  CACHE_MAX_AGE_MS,
+  queryClient,
+} from "@/lib/queryClient";
+import { initOnlineManager } from "@/lib/network";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
 import { bootstrapAuth, useAuthStore } from "@/store/auth";
 import { initRecoveryLinking } from "@/features/auth/recovery";
 import { initSentry, setSentryUser, wrapApp } from "@/lib/sentry";
@@ -59,6 +65,7 @@ function RootLayout() {
 
   useEffect(() => {
     initAnalytics();
+    initOnlineManager();
     const stopRecoveryLinking = initRecoveryLinking();
     const stopAuth = bootstrapAuth();
     return () => {
@@ -82,10 +89,17 @@ function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.canvas }}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{
+            persister: asyncStoragePersister,
+            maxAge: CACHE_MAX_AGE_MS,
+          }}
+        >
           <StatusBar style="light" />
           <AuthGate />
-        </QueryClientProvider>
+          <OfflineBanner />
+        </PersistQueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
