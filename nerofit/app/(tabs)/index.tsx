@@ -15,7 +15,6 @@ import { WaterCard } from "@/features/home/components/WaterCard";
 import { RecentMeal } from "@/features/home/components/RecentMeal";
 import { HealthMetricCard } from "@/features/home/components/HealthMetricCard";
 import { MiniBars, MiniSparkline } from "@/features/home/components/MiniCharts";
-import { ProgramsSection } from "@/features/home/components/ProgramsSection";
 import {
   STEPS_GOAL,
   computeHealthScore,
@@ -208,8 +207,6 @@ export default function HomeScreen() {
             onPress={() => router.push("/food-scan")}
           />
         </View>
-
-        <ProgramsSection />
 
         {/* Health metrics (kept below the nutrition dashboard) */}
         <View style={{ gap: space[3] }}>

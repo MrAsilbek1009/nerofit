@@ -30,9 +30,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
+      {/* Hidden for now — Nerofit is gym-first; the workout curriculum track
+          comes later. Restore by removing `href: null`. */}
       <Tabs.Screen
         name="workouts"
         options={{
+          href: null,
           title: t("tabs.workouts"),
           tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
         }}
