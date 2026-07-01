@@ -387,9 +387,7 @@
     "tierElite": "Elite",
     "comingSoonTitle": "Coming soon",
     "subscriptionBody": "Subscriptions ship in a later update.",
-    "notificationsBody": "Push notifications ship in a later update.",
-    "notificationsDenied": "Enable notifications in Settings to get reminders.",
-    "notificationsUnavailable": "Reminders need a fresh app build. Rebuild the dev client, then try again."
+    "notificationsState": { "on": "On", "off": "Off" }
   },
 
   "deleteAccount": {
@@ -411,8 +409,50 @@
 
   "reminders": {
     "supplements": { "title": "Supplements", "body": "Take your daily supplements." },
-    "water": { "title": "Hydrate", "body": "Time for a glass of water." },
-    "workout": { "title": "Training time", "body": "Your workout is waiting." }
+    "water": {
+      "title": "Hydrate",
+      "body": "Time for a glass of water.",
+      "body2": "Stay hydrated — grab some water."
+    },
+    "workout": {
+      "title": "Training time",
+      "body": "Your workout is waiting.",
+      "body2": "Move your body — time to train."
+    },
+    "streak": {
+      "title": "Keep your streak",
+      "body": {
+        "none": "Start a streak today — log a workout.",
+        "active": "You're on a {{count}}-day streak. Don't break it tonight!"
+      }
+    }
+  },
+
+  "notificationSettings": {
+    "title": "Notifications",
+    "subtitle": "Choose which daily reminders you get and when.",
+    "time": "Time",
+    "unavailable": "Reminders need a fresh app build. Rebuild the dev client, then try again.",
+    "permissionNote": "Notifications are turned off for Nerofit. Enable them in Settings to receive reminders.",
+    "openSettings": "Open Settings",
+    "items": {
+      "supplements": {
+        "label": "Supplements",
+        "description": "A daily nudge to take your supplements."
+      },
+      "water": {
+        "label": "Hydration",
+        "description": "A reminder to drink water during the day."
+      },
+      "workout": {
+        "label": "Workout",
+        "description": "A prompt to get your training in."
+      },
+      "streak": {
+        "label": "Streak",
+        "description": "An evening reminder to protect your day streak."
+      }
+    }
   },
 
   "bodyComp": {

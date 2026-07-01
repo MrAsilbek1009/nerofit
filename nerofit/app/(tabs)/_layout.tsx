@@ -1,10 +1,13 @@
 import { Tabs } from "expo-router";
 import { Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { useReminderSync } from "@/features/notifications/useReminderSync";
 import { colors, fonts } from "@/theme";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  // Keep local reminders' dynamic copy (streak count) fresh on foreground.
+  useReminderSync();
   return (
     <Tabs
       screenOptions={{

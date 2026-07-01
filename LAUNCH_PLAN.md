@@ -24,7 +24,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
 | 13 | Home redesign (Cal AI uslubi, gibrid) | ✅ | Mirolim — A (carousel) ✅ · B micros/health-score ✅ (PR #8) · C steps ✅ · D food-scan ✅ + water settings (serving size) ✅ (PR #9) — barchasi main'ga merged; `food-analysis` deployed, `food_scans`+`water_serving_ml` migrations applied |
-| 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest 28 test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · 14C/D ⬜. Batafsil ↓ |
+| 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · **14C HealthKit ✅** (custom Swift module, PR #17) · **14D** ⬜ boshlandi: bildirishnoma kontenti ✅ (streak eslatma + per-reminder settings + dinamik matn, 43 test) · food-scan/gamifikatsiya/export ⬜. Batafsil ↓ |
 
 ---
 
@@ -181,7 +181,7 @@ do'kon talablariga mos.
 ### 14D — Mahsulot kengaytmalari
 | Ish | Kim | Izoh |
 |---|---|---|
-| Bildirishnoma kontenti | 🤖 + 🧑 | Suv/mashq/streak eslatmalari (infra `notifications.ts`'da bor) |
+| Bildirishnoma kontenti ✅ | 🤖 | Suv/mashq/streak eslatmalari + per-reminder Notification Settings ekrani (on/off + vaqt), foreground'da dinamik streak matni. Migration/Edge/native rebuild yo'q; 43 test yashil |
 | Food-scan kengaytmalari | 🤖 | barcode skan, ingredient qidiruv, "Fix with AI", tarix/favoritlar, rasmni Storage'ga saqlash (`photo_path`) |
 | Gamifikatsiya | 🤖 + 🧑 | leaderboard, do'stlar, challenge (XP/badge bor) |
 | Data export (GDPR) | 🤖 | `delete-account` bor; export qo'shiladi |
