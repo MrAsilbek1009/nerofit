@@ -1,5 +1,7 @@
+import { useCallback } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "expo-router";
 import QRCode from "react-native-qrcode-svg";
 import { useTranslation } from "react-i18next";
 import { CalendarClock, CheckCircle2, XCircle } from "lucide-react-native";
@@ -31,6 +33,15 @@ export default function MembershipScreen() {
   const payments = usePayments(userId);
 
   const active = isMembershipActive(membership.data);
+
+  // Refresh on focus so a just-activated membership (e.g. admin/SQL) shows up
+  // without an app restart.
+  useFocusEffect(
+    useCallback(() => {
+      void membership.refetch();
+      void payments.refetch();
+    }, [membership, payments]),
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
