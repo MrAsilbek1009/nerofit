@@ -31,12 +31,16 @@ export function WaterCard({
         padding: space[5],
       }}
     >
-      <View style={{ gap: space[1] }}>
+      <View style={{ gap: space[1], flex: 1, minWidth: 0 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
           <Droplet size={16} color={colors.fats} />
           <Text style={typography.labelCaps}>{t("nutrition.hydration")}</Text>
         </View>
-        <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 30 }}>
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 30 }}
+        >
           {current.toLocaleString()}
           <Text style={{ fontFamily: fonts.body, color: colors.textLo, fontSize: 16 }}>
             {" "}/ {goal.toLocaleString()} ml
@@ -44,7 +48,14 @@ export function WaterCard({
         </Text>
       </View>
 
-      <View style={{ flexDirection: "row", alignItems: "center", gap: space[3] }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: space[3],
+          flexShrink: 0,
+        }}
+      >
         <Pressable
           onPress={onSettings}
           accessibilityRole="button"

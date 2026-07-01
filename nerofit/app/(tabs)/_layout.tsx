@@ -33,9 +33,13 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
+      {/* 🔴 WORKOUT HIDDEN (gym-first pivot) — see WORKOUT_DEFERRED.md.
+          Nerofit is gym-first now; the workout track RETURNS later.
+          Restore: remove `href: null` below + re-add <ProgramsSection/> in index.tsx. */}
       <Tabs.Screen
         name="workouts"
         options={{
+          href: null,
           title: t("tabs.workouts"),
           tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
         }}

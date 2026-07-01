@@ -193,6 +193,7 @@
     "sectionMain": "Main",
     "sectionCooldown": "Cool Down",
     "startHere": "Start here",
+    "eliteLocked": "ELITE",
     "showEarlier": "Show earlier weeks",
     "hideEarlier": "Hide earlier weeks",
     "saveResult": "Save",
@@ -340,8 +341,8 @@
     "title": "Elite",
     "subtitle": "Train smarter with everything Nerofit offers.",
     "benefits": [
-      "Unlimited AI coaching with Forge",
-      "Full access to every program",
+      "All programs after week 1 of Beginner",
+      "Intermediate, Advanced & Profi levels",
       "Advanced progress insights"
     ],
     "subscribe": "Subscribe",

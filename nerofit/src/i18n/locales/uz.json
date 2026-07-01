@@ -193,6 +193,7 @@
     "sectionMain": "Asosiy",
     "sectionCooldown": "Yakuniy cho'zish",
     "startHere": "Shu yerdan boshlang",
+    "eliteLocked": "ELITE",
     "showEarlier": "Oldingi haftalarni ko'rsatish",
     "hideEarlier": "Oldingi haftalarni yashirish",
     "saveResult": "Saqlash",
@@ -340,8 +341,8 @@
     "title": "Elite",
     "subtitle": "Nerofit'ning barcha imkoniyatlari bilan aqlliroq mashq qiling.",
     "benefits": [
-      "Forge bilan cheksiz AI murabbiylik",
-      "Barcha dasturlarga toʻliq kirish",
+      "Boshlangʻich 1-haftadan keyin barcha dasturlar",
+      "Oʻrta, Yuqori va Professional darajalar",
       "Kengaytirilgan natija tahlili"
     ],
     "subscribe": "Obuna boʻlish",

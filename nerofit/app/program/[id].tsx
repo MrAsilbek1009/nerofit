@@ -3,9 +3,11 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-nati
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Check, ChevronDown, ChevronRight, Zap } from "lucide-react-native";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Lock, Zap } from "lucide-react-native";
 import { Button } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
+import { useIsElite } from "@/hooks/useEntitlement";
+import { isProgramWeekFree } from "@/features/workouts/gating";
 import { useGoals } from "@/lib/queries/goals";
 import { useXpTotal } from "@/lib/queries/gamification";
 import { useCompletedDayIds, useProgramDays } from "@/lib/queries/curriculum";
@@ -14,10 +16,15 @@ import { goBack } from "@/lib/nav";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 export default function ProgramOverviewScreen() {
-  const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
+  const { id, title, level } = useLocalSearchParams<{
+    id: string;
+    title?: string;
+    level?: string;
+  }>();
   const router = useRouter();
   const { t } = useTranslation();
   const userId = useUserId();
+  const isElite = useIsElite();
   const goals = useGoals(userId);
   const xp = useXpTotal(userId);
   const daysQuery = useProgramDays(id);
@@ -131,11 +138,37 @@ export default function ProgramOverviewScreen() {
               </Text>
             </Pressable>
           ) : null}
-          {visibleWeeks.map(([weekNo, days]) => (
+          {visibleWeeks.map(([weekNo, days]) => {
+            const locked = !isProgramWeekFree(level, weekNo) && !isElite;
+            return (
             <View key={weekNo} style={{ gap: space[3] }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
                 <Text style={typography.labelCaps}>{t("workouts.week", { n: weekNo })}</Text>
-                {weekNo === entryWeek && entryWeek > 1 ? (
+                {locked ? (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 3,
+                      backgroundColor: colors.surface,
+                      borderRadius: radii.pill,
+                      paddingHorizontal: space[2],
+                      paddingVertical: 2,
+                    }}
+                  >
+                    <Lock size={9} color={colors.textLo} />
+                    <Text
+                      style={{
+                        fontFamily: fonts.label,
+                        fontSize: 9,
+                        color: colors.textLo,
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      {t("workouts.eliteLocked")}
+                    </Text>
+                  </View>
+                ) : weekNo === entryWeek && entryWeek > 1 ? (
                   <View
                     style={{
                       backgroundColor: colors.accent,
@@ -163,15 +196,19 @@ export default function ProgramOverviewScreen() {
                     key={d.id}
                     day={d}
                     completed={completedDays.has(d.id)}
+                    locked={locked}
                     minLabel={t("workouts.minShort")}
                     restLabel={t("workouts.restDay")}
                     testLabel={t("workouts.testDay")}
-                    onPress={() => router.push(`/program-day/${d.id}`)}
+                    onPress={() =>
+                      router.push(locked ? "/paywall" : `/program-day/${d.id}`)
+                    }
                   />
                 ))}
               </View>
             </View>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -181,6 +218,7 @@ export default function ProgramOverviewScreen() {
 function DayRow({
   day,
   completed,
+  locked,
   minLabel,
   restLabel,
   testLabel,
@@ -188,6 +226,7 @@ function DayRow({
 }: {
   day: ProgramDay;
   completed: boolean;
+  locked: boolean;
   minLabel: string;
   restLabel: string;
   testLabel: string;
@@ -222,6 +261,7 @@ function DayRow({
         borderRadius: radii.md,
         paddingHorizontal: space[4],
         paddingVertical: space[3],
+        opacity: locked ? 0.55 : 1,
       }}
     >
       <View
@@ -231,16 +271,19 @@ function DayRow({
           borderRadius: radii.sm,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: completed
-            ? "transparent"
-            : accentBox
-              ? colors.accent
-              : colors.surface,
+          backgroundColor:
+            completed || locked
+              ? "transparent"
+              : accentBox
+                ? colors.accent
+                : colors.surface,
           borderWidth: completed ? 2 : 0,
           borderColor: completed ? colors.accent : "transparent",
         }}
       >
-        {completed ? (
+        {locked ? (
+          <Lock size={16} color={colors.textLo} />
+        ) : completed ? (
           <Check size={18} color={colors.accent} strokeWidth={2.5} />
         ) : (
           <Text
@@ -260,7 +303,11 @@ function DayRow({
         </Text>
         {meta ? <Text style={[typography.labelCaps, { fontSize: 9 }]}>{meta}</Text> : null}
       </View>
-      <ChevronRight size={18} color={colors.textLo} />
+      {locked ? (
+        <Lock size={16} color={colors.textLo} />
+      ) : (
+        <ChevronRight size={18} color={colors.textLo} />
+      )}
     </Pressable>
   );
 }

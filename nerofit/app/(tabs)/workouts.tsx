@@ -31,7 +31,7 @@ export default function WorkoutsScreen() {
             aspectRatio={16 / 11}
             onPress={() =>
               router.push(
-                `/program/${item.id}?title=${encodeURIComponent(item.title)}`,
+                `/program/${item.id}?title=${encodeURIComponent(item.title)}&level=${item.level}`,
               )
             }
           />
