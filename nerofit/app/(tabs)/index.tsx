@@ -33,7 +33,7 @@ import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
 import { useRecentHealthMetrics } from "@/lib/queries/healthMetrics";
 import { useTodayMealLogs } from "@/lib/queries/nutrition";
 import { useStreakSessions, useWeekSessions } from "@/lib/queries/progress";
-import { useStepsToday } from "@/lib/queries/steps";
+import { useActivityToday } from "@/lib/queries/activity";
 import { useAddWaterLog, useTodayWaterTotal } from "@/lib/queries/waterLogs";
 import { colors, space, typography } from "@/theme";
 
@@ -57,7 +57,7 @@ export default function HomeScreen() {
   const streakSessions = useStreakSessions(userId);
   const heartRate = useRecentHealthMetrics(userId, "heart_rate");
   const bloodPressure = useRecentHealthMetrics(userId, "blood_pressure_systolic");
-  const steps = useStepsToday();
+  const activity = useActivityToday();
   const latestBody = useLatestBodyMetric(userId);
 
   const addWater = useAddWaterLog(userId);
@@ -78,7 +78,7 @@ export default function HomeScreen() {
     void streakSessions.refetch();
     void heartRate.refetch();
     void bloodPressure.refetch();
-    void steps.refetch();
+    void activity.refetch();
   }
 
   if (loading) {
@@ -118,8 +118,11 @@ export default function HomeScreen() {
   const healthScore = computeHealthScore(micros);
   const calorieGoal = deriveCalorieGoal(profile);
 
-  const stepCount = steps.data ?? 0;
-  const caloriesBurned = estimateCaloriesBurned(stepCount, latestBody.data?.weight_kg ?? null);
+  const stepCount = activity.data?.steps ?? 0;
+  // Prefer HealthKit's real active energy; fall back to the step-based estimate.
+  const caloriesBurned =
+    activity.data?.activeEnergy ??
+    estimateCaloriesBurned(stepCount, latestBody.data?.weight_kg ?? null);
   const macro = (goal: number, consumed: number) => ({
     left: remaining(goal, consumed),
     fraction: consumedFraction(goal, consumed),

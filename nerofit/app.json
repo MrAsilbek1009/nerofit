@@ -15,7 +15,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nerofit.app"
+      "bundleIdentifier": "com.nerofit.app",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Allow Nerofit to read your steps and active energy to show your daily activity."
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      }
     },
     "android": {
       "package": "com.nerofit.app",

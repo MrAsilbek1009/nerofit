@@ -1,0 +1,7 @@
+{
+  "platforms": ["apple"],
+  "apple": {
+    "modules": ["NerofitHealthModule"],
+    "podspecPath": ["ios/NerofitHealth.podspec"]
+  }
+}
