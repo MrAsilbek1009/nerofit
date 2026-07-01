@@ -242,6 +242,7 @@ export default function ProfileScreen() {
         <Pressable
           onPress={signOut}
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.logOut")}
           style={{
             flexDirection: "row",
             alignItems: "center",
@@ -261,6 +262,7 @@ export default function ProfileScreen() {
         <Pressable
           onPress={() => router.push("/delete-account")}
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.deleteAccount")}
           style={{
             flexDirection: "row",
             alignItems: "center",

@@ -79,6 +79,7 @@ export function SessionExerciseList({
             onPress={onClose}
             hitSlop={10}
             accessibilityRole="button"
+            accessibilityLabel={t("a11y.close")}
             style={{ position: "absolute", right: space[5] }}
           >
             <X size={24} color={colors.textHi} />
@@ -171,7 +172,7 @@ function Row({
             />
           )}
         </View>
-        <MoreHorizontal size={20} color={colors.textLo} />
+        <MoreHorizontal size={20} color={colors.textLo} accessible={false} />
       </Pressable>
 
       {current ? (

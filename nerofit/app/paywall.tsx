@@ -68,7 +68,7 @@ export default function PaywallScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
       {/* Close */}
       <View style={{ flexDirection: "row", justifyContent: "flex-end", padding: space[4] }}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={10}>
+        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("a11y.close")} hitSlop={10}>
           <X size={24} color={colors.textHi} />
         </Pressable>
       </View>
@@ -158,6 +158,7 @@ export default function PaywallScreen() {
             <Pressable
               onPress={() => restore.mutate()}
               accessibilityRole="button"
+              accessibilityLabel={t("a11y.restorePurchases")}
               style={{ alignSelf: "center", paddingVertical: space[2] }}
             >
               <Text style={[typography.bodyMuted, { fontSize: 13 }]}>

@@ -434,5 +434,24 @@
     "retry": "Qayta urinish",
     "cancel": "Bekor qilish",
     "offline": "Internet aloqasi yo'q"
+  },
+  "a11y": {
+    "close": "Yopish",
+    "goBack": "Ortga",
+    "addMeal": "Taom qo'shish",
+    "addWater": "Suv qo'shish",
+    "notifications": "Bildirishnomalar",
+    "logOut": "Chiqish",
+    "deleteAccount": "Hisobni o'chirish",
+    "restorePurchases": "Xaridlarni tiklash",
+    "workoutOptions": "Mashg'ulot sozlamalari",
+    "adjustSettings": "Sozlamalarni o'zgartirish",
+    "voiceInput": "Ovozli kiritish",
+    "sendMessage": "Xabar yuborish",
+    "decrease": "Kamaytirish",
+    "increase": "Oshirish",
+    "backspace": "O'chirish",
+    "confirm": "Tasdiqlash",
+    "enterValue": "Qiymat kiritish"
   }
 }

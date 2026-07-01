@@ -60,7 +60,7 @@ export default function BodyCompositionScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.goBack")}>
           <ArrowLeft size={24} color={colors.textHi} />
         </Pressable>
       </View>

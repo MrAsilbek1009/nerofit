@@ -434,5 +434,24 @@
     "retry": "Повторить",
     "cancel": "Отмена",
     "offline": "Нет подключения к интернету"
+  },
+  "a11y": {
+    "close": "Закрыть",
+    "goBack": "Назад",
+    "addMeal": "Добавить приём пищи",
+    "addWater": "Добавить воду",
+    "notifications": "Уведомления",
+    "logOut": "Выйти",
+    "deleteAccount": "Удалить аккаунт",
+    "restorePurchases": "Восстановить покупки",
+    "workoutOptions": "Настройки тренировки",
+    "adjustSettings": "Изменить настройки",
+    "voiceInput": "Голосовой ввод",
+    "sendMessage": "Отправить сообщение",
+    "decrease": "Уменьшить",
+    "increase": "Увеличить",
+    "backspace": "Удалить",
+    "confirm": "Подтвердить",
+    "enterValue": "Ввести значение"
   }
 }

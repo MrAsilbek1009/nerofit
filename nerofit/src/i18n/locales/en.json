@@ -434,5 +434,24 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "offline": "No internet connection"
+  },
+  "a11y": {
+    "close": "Close",
+    "goBack": "Go back",
+    "addMeal": "Add meal",
+    "addWater": "Add water",
+    "notifications": "Notifications",
+    "logOut": "Log out",
+    "deleteAccount": "Delete account",
+    "restorePurchases": "Restore purchases",
+    "workoutOptions": "Workout options",
+    "adjustSettings": "Adjust settings",
+    "voiceInput": "Voice input",
+    "sendMessage": "Send message",
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "backspace": "Delete",
+    "confirm": "Confirm",
+    "enterValue": "Enter value"
   }
 }

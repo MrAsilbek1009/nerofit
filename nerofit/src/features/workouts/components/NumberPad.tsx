@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Check, Delete } from "lucide-react-native";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
@@ -25,6 +26,7 @@ const GRID = [
 // value is NOT pre-filled) so the user types fresh and never has to guess what
 // the shown number means.
 export function NumberPad({ visible, title, unit, max = 999, onConfirm, onCancel }: NumberPadProps) {
+  const { t } = useTranslation();
   const [buffer, setBuffer] = useState("");
 
   useEffect(() => {
@@ -84,6 +86,7 @@ export function NumberPad({ visible, title, unit, max = 999, onConfirm, onCancel
                   onPress={() => press(k)}
                   disabled={k === ""}
                   accessibilityRole={k === "" ? undefined : "button"}
+                  accessibilityLabel={k === "del" ? t("a11y.backspace") : undefined}
                   style={{
                     flex: 1,
                     height: 56,
@@ -107,6 +110,7 @@ export function NumberPad({ visible, title, unit, max = 999, onConfirm, onCancel
         <Pressable
           onPress={() => onConfirm(Number(buffer || "0"))}
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.confirm")}
           style={{
             alignItems: "center",
             justifyContent: "center",

@@ -58,6 +58,7 @@ export default function DeleteAccountScreen() {
         <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.goBack")}
           hitSlop={8}
         >
           <ArrowLeft size={24} color={colors.textHi} />

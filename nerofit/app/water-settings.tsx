@@ -17,6 +17,7 @@ const DEFAULT_SERVING_ML = 250;
 const RECOMMENDED_ML = 2000;
 
 function Header({ onClose, title }: { onClose: () => void; title: string }) {
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -31,6 +32,7 @@ function Header({ onClose, title }: { onClose: () => void; title: string }) {
         onPress={onClose}
         hitSlop={10}
         accessibilityRole="button"
+        accessibilityLabel={t("a11y.close")}
         style={{ position: "absolute", left: space[5] }}
       >
         <X size={24} color={colors.textHi} />

@@ -65,6 +65,7 @@ export function WaterCard({
         <Pressable
           onPress={onAdd}
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.addWater")}
           hitSlop={8}
           style={{
             width: 40,

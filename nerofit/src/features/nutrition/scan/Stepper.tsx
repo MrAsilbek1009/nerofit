@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "lucide-react-native";
 import { colors, fonts, space } from "@/theme";
 
@@ -25,11 +26,13 @@ export function Stepper({
   max = 20,
   format,
 }: StepperProps) {
+  const { t } = useTranslation();
   const round = (n: number) => Math.round(n * 100) / 100;
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: space[4] }}>
       <RoundButton
         icon={Minus}
+        label={t("a11y.decrease")}
         disabled={value <= min}
         onPress={() => onChange(round(Math.max(min, value - step)))}
       />
@@ -46,6 +49,7 @@ export function Stepper({
       </Text>
       <RoundButton
         icon={Plus}
+        label={t("a11y.increase")}
         disabled={value >= max}
         onPress={() => onChange(round(Math.min(max, value + step)))}
       />
@@ -55,10 +59,12 @@ export function Stepper({
 
 function RoundButton({
   icon: Icon,
+  label,
   onPress,
   disabled,
 }: {
   icon: typeof Minus;
+  label: string;
   onPress: () => void;
   disabled?: boolean;
 }) {
@@ -66,6 +72,7 @@ function RoundButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       disabled={disabled}
       onPress={onPress}
       onPressIn={() => setPressed(true)}
