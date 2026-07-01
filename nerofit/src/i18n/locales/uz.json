@@ -387,9 +387,7 @@
     "tierElite": "Elite",
     "comingSoonTitle": "Tez orada",
     "subscriptionBody": "Obunalar keyingi yangilanishda qoʻshiladi.",
-    "notificationsBody": "Push bildirishnomalar keyingi yangilanishda qoʻshiladi.",
-    "notificationsDenied": "Eslatmalar uchun Sozlamalarda bildirishnomalarni yoqing.",
-    "notificationsUnavailable": "Eslatmalar uchun yangi build kerak. Dev client'ni qayta build qiling va qaytadan urinib koʻring."
+    "notificationsState": { "on": "Yoniq", "off": "Oʻchiq" }
   },
 
   "deleteAccount": {
@@ -411,8 +409,50 @@
 
   "reminders": {
     "supplements": { "title": "Qoʻshimchalar", "body": "Kunlik qoʻshimchalaringizni qabul qiling." },
-    "water": { "title": "Suv iching", "body": "Bir stakan suv vaqti keldi." },
-    "workout": { "title": "Mashgʻulot vaqti", "body": "Mashgʻulotingiz kutmoqda." }
+    "water": {
+      "title": "Suv iching",
+      "body": "Bir stakan suv vaqti keldi.",
+      "body2": "Suv ichishni unutmang — bir oz suv iching."
+    },
+    "workout": {
+      "title": "Mashgʻulot vaqti",
+      "body": "Mashgʻulotingiz kutmoqda.",
+      "body2": "Tanangizni harakatlantiring — mashgʻulot vaqti."
+    },
+    "streak": {
+      "title": "Streak'ni saqlang",
+      "body": {
+        "none": "Bugun streak boshlang — mashgʻulot yozing.",
+        "active": "Siz {{count}} kunlik streak'dasiz. Bugun kechqurun uzmang!"
+      }
+    }
+  },
+
+  "notificationSettings": {
+    "title": "Bildirishnomalar",
+    "subtitle": "Qaysi kunlik eslatmalarni va qachon olishni tanlang.",
+    "time": "Vaqt",
+    "unavailable": "Eslatmalar uchun yangi build kerak. Dev client'ni qayta build qiling va qaytadan urinib koʻring.",
+    "permissionNote": "Nerofit uchun bildirishnomalar oʻchiq. Eslatmalarni olish uchun Sozlamalarda yoqing.",
+    "openSettings": "Sozlamalarni ochish",
+    "items": {
+      "supplements": {
+        "label": "Qoʻshimchalar",
+        "description": "Qoʻshimchalarni qabul qilish uchun kunlik turtki."
+      },
+      "water": {
+        "label": "Suv ichish",
+        "description": "Kun davomida suv ichishni eslatib turadi."
+      },
+      "workout": {
+        "label": "Mashgʻulot",
+        "description": "Mashgʻulotni bajarishga undov."
+      },
+      "streak": {
+        "label": "Streak",
+        "description": "Kunlik streak'ingizni saqlash uchun kechki eslatma."
+      }
+    }
   },
 
   "bodyComp": {

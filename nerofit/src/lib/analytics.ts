@@ -27,6 +27,9 @@ export type AnalyticsEvent =
   | "coach_message_sent"
   | "reminders_enabled"
   | "reminders_disabled"
+  | "notification_settings_opened"
+  | "reminder_toggled"
+  | "reminder_time_changed"
   | "password_reset_requested"
   | "account_deleted"
   | "subscription_purchased";
