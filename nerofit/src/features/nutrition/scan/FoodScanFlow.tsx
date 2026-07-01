@@ -523,9 +523,11 @@ function MacroStat({ label, value }: { label: string; value: string }) {
 }
 
 function CloseButton({ top, onPress }: { top: number; onPress: () => void }) {
+  const { t } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={t("a11y.close")}
       onPress={onPress}
       hitSlop={10}
       style={{

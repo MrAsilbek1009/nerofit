@@ -173,6 +173,7 @@ function MealSlotBlock({
       <Pressable
         onPress={onAdd}
         accessibilityRole="button"
+        accessibilityLabel={t("a11y.addMeal")}
         style={{ flexDirection: "row", alignItems: "center", gap: space[3] }}
       >
         <View

@@ -33,6 +33,7 @@ export function DailyGoalCard({ current, goal, onAddWater }: DailyGoalCardProps)
         </Text>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.addWater")}
           onPress={onAddWater}
           hitSlop={6}
           onPressIn={() => setPressed(true)}

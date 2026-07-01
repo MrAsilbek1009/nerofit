@@ -38,7 +38,7 @@ export function WorkoutSettingsSheet({ visible, onClose }: WorkoutSettingsSheetP
       >
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={typography.h2}>{t("workouts.settings")}</Text>
-          <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button">
+          <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.close")}>
             <X size={22} color={colors.textHi} />
           </Pressable>
         </View>

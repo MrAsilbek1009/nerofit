@@ -70,6 +70,7 @@ export function ChatInput({ value, onChange, onSend, sending }: Props) {
         />
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={t("a11y.voiceInput")}
           hitSlop={8}
           onPress={() => {/* mic – Phase 6 */}}
         >
@@ -79,6 +80,7 @@ export function ChatInput({ value, onChange, onSend, sending }: Props) {
 
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={t("a11y.sendMessage")}
         onPress={canSend ? onSend : undefined}
         style={{
           width: 44,

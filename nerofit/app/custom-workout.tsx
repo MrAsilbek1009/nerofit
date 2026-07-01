@@ -87,13 +87,13 @@ export default function CustomWorkoutScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => goBack(router)} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => goBack(router)} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.goBack")}>
           <ArrowLeft size={22} color={colors.textHi} />
         </Pressable>
         <Text style={[typography.h2, { flex: 1 }]} numberOfLines={1}>
           {generated?.title ?? t("generator.customWorkout")}
         </Text>
-        <Pressable onPress={() => router.replace("/workout-generator")} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => router.replace("/workout-generator")} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.adjustSettings")}>
           <SlidersHorizontal size={20} color={colors.textHi} />
         </Pressable>
       </View>

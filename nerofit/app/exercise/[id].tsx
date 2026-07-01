@@ -133,11 +133,11 @@ export default function ExercisePlayerScreen() {
           paddingVertical: space[3],
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.close")}>
           <X size={24} color={colors.textHi} />
         </Pressable>
         <Text style={typography.labelCaps}>{t("workouts.inProgress")}</Text>
-        <Pressable hitSlop={10} accessibilityRole="button">
+        <Pressable hitSlop={10} accessibilityRole="button" accessibilityLabel={t("a11y.workoutOptions")}>
           <MoreVertical size={22} color={colors.textHi} />
         </Pressable>
       </View>

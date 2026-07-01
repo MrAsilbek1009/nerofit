@@ -42,6 +42,7 @@ export function WelcomeHeader({
       <Pressable
         onPress={onNotifications}
         accessibilityRole="button"
+        accessibilityLabel={t("a11y.notifications")}
         hitSlop={8}
         style={{
           width: 40,
