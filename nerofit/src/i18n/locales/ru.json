@@ -363,7 +363,26 @@
     "workouts": "Тренировки",
     "nutrition": "Питание",
     "coach": "Тренер",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "membership": "Абонемент"
+  },
+
+  "membership": {
+    "subtitle": "Членство в зале",
+    "title": "Абонемент",
+    "statusActive": "Активен",
+    "activePlan": "Абонемент активен",
+    "daysLeft": "осталось {{n}} дн.",
+    "until": "Действует до:",
+    "qrHint": "Покажите этот QR-код на входе в зал",
+    "inactiveTitle": "Абонемент не активен",
+    "inactiveBody": "Выберите тариф для тренировок в зале.",
+    "plansTitle": "Тарифы",
+    "appPrice": "Через приложение (скидка)",
+    "gymPrice": "В зале {{price}} сум",
+    "choose": "Выбрать",
+    "paymentSoon": "Оплата скоро появится",
+    "historyTitle": "История платежей"
   },
 
   "profile": {

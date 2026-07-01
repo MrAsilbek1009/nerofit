@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
+import { CreditCard, Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useReminderSync } from "@/features/notifications/useReminderSync";
 import { colors, fonts } from "@/theme";
@@ -42,6 +42,13 @@ export default function TabsLayout() {
           href: null,
           title: t("tabs.workouts"),
           tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="membership"
+        options={{
+          title: t("tabs.membership"),
+          tabBarIcon: ({ color, size }) => <CreditCard color={color} size={size} />,
         }}
       />
       <Tabs.Screen
