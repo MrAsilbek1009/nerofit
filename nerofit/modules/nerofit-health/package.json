@@ -1,0 +1,10 @@
+{
+  "name": "nerofit-health",
+  "version": "1.0.0",
+  "description": "Local iOS HealthKit reader (today's steps + active energy) for Nerofit.",
+  "main": "index.ts",
+  "license": "UNLICENSED",
+  "author": "Nerofit",
+  "homepage": "https://nerofit.app",
+  "private": true
+}
