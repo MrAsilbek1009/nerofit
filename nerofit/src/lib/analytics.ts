@@ -32,7 +32,8 @@ export type AnalyticsEvent =
   | "reminder_time_changed"
   | "password_reset_requested"
   | "account_deleted"
-  | "subscription_purchased";
+  | "subscription_purchased"
+  | "membership_checkout_started";
 
 // Initialise once (from the root layout). Loads the native module on demand and
 // degrades to a no-op if it throws (older dev client / Expo Go) or no key is set.

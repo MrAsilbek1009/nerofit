@@ -142,11 +142,15 @@ Ilova → "To'lash" (Payme/Click checkout link/SDK)
 - Admin qo'lда faollashtirish (zalда to'lov → admin a'zolik beradi) — Payme/Click'siz test
 - **Natija:** to'liq oqim ishlaydi (to'lovдан tashqari), sinash mumkin
 
-### Bosqich 2 — Payme/Click integratsiya
-- Edge Function `payments-webhook` (Payme JSON-RPC + Click Prepare/Complete)
-- Ilovada "To'lash" tugmasi → checkout
-- Idempotentlik + imzo tekshiruv
-- **Natija:** avtomatik to'lov → a'zolik faollashadi
+### Bosqich 2 — Payme/Click integratsiya — 🟡 kod tayyor (scaffold)
+- ✅ Edge Function `payments-webhook` (Payme JSON-RPC + Click Prepare/Complete)
+- ✅ Edge Function `membership-checkout` (order yaratadi + checkout URL)
+- ✅ Ilovada "To'lash" tugmasi + Payme/Click tanlovi → checkout
+- ✅ Idempotentlik (`provider_txn`) + imzo tekshiruv (Payme Basic-Auth, Click MD5)
+- ✅ Migration `0016` (Payme holat/vaqt ustunlari)
+- ⬜ **Sizdan:** merchant akkaunt + secret'lar + deploy + webhook URL ro'yxati +
+  sandbox sinov → `PHASE15_STAGE2_HANDOFF.md`
+- **Natija (deploy'dan keyin):** avtomatik to'lov → a'zolik faollashadi
 
 ### Bosqich 3 — Sayqal
 - Muddat tugашига eslatма (push, 3 kun oldin)

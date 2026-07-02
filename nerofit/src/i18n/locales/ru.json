@@ -380,8 +380,10 @@
     "plansTitle": "Тарифы",
     "appPrice": "Через приложение (скидка)",
     "gymPrice": "В зале {{price}} сум",
-    "choose": "Выбрать",
-    "paymentSoon": "Оплата скоро появится",
+    "pay": "Оплатить",
+    "providerLabel": "Способ оплаты",
+    "checkoutErrorTitle": "Ошибка оплаты",
+    "checkoutErrorBody": "Не удалось начать оплату. Попробуйте ещё раз.",
     "historyTitle": "История платежей"
   },
 
