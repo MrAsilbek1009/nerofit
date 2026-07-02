@@ -86,6 +86,33 @@ Click:  https://orhhiqdvukshlvtqorgp.functions.supabase.co/payments-webhook?prov
 
 ---
 
+## Bosqich 3 — Admin QR tekshirish paneli (kod tayyor)
+
+Zal xodimi uchun **alohida ilova/hosting kerak emas** — bitta Edge Function
+brauzerда HTML sahifa beradi: parol → QR skaner (kamera) yoki `user_id` kiritish
+→ a'zolik **faol/emas** ko'rsatadi. Naqd to'lov uchun **qo'lda faollashtirish**
+tugmasi ham bor (Bosqich 1 admin faollashtirish shu yerда).
+
+Fayl: `nerofit/supabase/functions/admin-verify/index.ts`. Parol — yagona himoya
+chegarasi (funksiya service-role bilan RLS'ни chetlab o'tadi), shuning uchun
+kuchli parol qo'ying.
+
+```bash
+# 1. Panel parolini o'rnating
+npx supabase secrets set ADMIN_PANEL_PASSWORD=<kuchli-parol> --project-ref orhhiqdvukshlvtqorgp
+# 2. Deploy (public sahifa → --no-verify-jwt)
+npx supabase functions deploy admin-verify --no-verify-jwt --project-ref orhhiqdvukshlvtqorgp
+```
+
+Zal xodimiga havolani bering (brauzerда oching, telefonда ham ishlaydi):
+```
+https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify
+```
+Kamera QR skaner uchun **HTTPS** kerak (Supabase URL HTTPS — mos). Sinash: a'zoning
+ilovadagi QR'ini skaner qiling yoki uning `user_id`sini kiriting → holat chiqadi.
+
+---
+
 ## Sinash (sandbox)
 1. Payme/Click **sandbox** kalitlari bilan 3-qadamni bajaring.
 2. Ilovada A'zolik tab → provayder tanlang → tarifda "To'lash" → checkout ochiladi.

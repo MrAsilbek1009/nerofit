@@ -153,9 +153,11 @@ Ilova → "To'lash" (Payme/Click checkout link/SDK)
 - **Natija (deploy'dan keyin):** avtomatik to'lov → a'zolik faollashadi
 
 ### Bosqich 3 — Sayqal
-- Muddat tugашига eslatма (push, 3 kun oldin)
-- Freeze (muzlatish), tarif o'zgartirish
-- Admin panel (tariflar, a'zolar, to'lovlar)
+- ✅ **Admin QR tekshirish paneli** (`admin-verify` Edge Function — brauzер
+  sahifasi: parol + QR skaner/`user_id` → faol/emas + qo'lда faollashtirish).
+  Deploy: `PHASE15_STAGE2_HANDOFF.md`.
+- ⬜ Muddat tugашига eslatма (push, 3 kun oldin)
+- ⬜ Freeze (muzlatish), tarif o'zgartirish
 
 ---
 
