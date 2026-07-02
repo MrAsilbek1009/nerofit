@@ -380,8 +380,10 @@
     "plansTitle": "Tariflar",
     "appPrice": "Ilova orqali (chegirma)",
     "gymPrice": "Zalda {{price}} so'm",
-    "choose": "Tanlash",
-    "paymentSoon": "To'lov integratsiyasi tez orada",
+    "pay": "To'lash",
+    "providerLabel": "To'lov usuli",
+    "checkoutErrorTitle": "To'lov xatosi",
+    "checkoutErrorBody": "To'lovni boshlab bo'lmadi. Qayta urinib ko'ring.",
     "historyTitle": "To'lovlar tarixi"
   },
 

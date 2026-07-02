@@ -380,8 +380,10 @@
     "plansTitle": "Plans",
     "appPrice": "In-app (discount)",
     "gymPrice": "At gym {{price}} so'm",
-    "choose": "Choose",
-    "paymentSoon": "Payment coming soon",
+    "pay": "Pay",
+    "providerLabel": "Payment method",
+    "checkoutErrorTitle": "Payment error",
+    "checkoutErrorBody": "Couldn't start the payment. Please try again.",
     "historyTitle": "Payment history"
   },
 

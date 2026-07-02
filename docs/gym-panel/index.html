@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Nerofit — A'zolik tekshirish</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root { --bg:#000; --card:#141414; --line:#262626; --hi:#fff; --lo:#8a8a8a; --acc:#D4E924; --ok:#D4E924; --bad:#ff5a5a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--hi); font-family:-apple-system,Segoe UI,Roboto,sans-serif; padding:16px; max-width:520px; margin:0 auto; }
+  h1 { font-size:18px; letter-spacing:.14em; text-transform:uppercase; color:var(--lo); font-weight:700; }
+  input, select, button { font-size:16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--hi); padding:12px 14px; width:100%; }
+  button { background:var(--acc); color:#000; border:none; font-weight:700; letter-spacing:.04em; cursor:pointer; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  .row > * { flex:1; }
+  #reader { margin-top:14px; border-radius:12px; overflow:hidden; }
+  .card { background:var(--card); border-radius:16px; padding:18px; margin-top:16px; border:1px solid var(--line); }
+  .badge { display:inline-block; padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase; }
+  .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
+  .muted { color:var(--lo); font-size:14px; } .big { font-size:26px; font-weight:800; margin:8px 0; }
+  label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--lo); display:block; margin:14px 0 6px; }
+</style>
+</head>
+<body>
+  <h1>Nerofit · A'zolik</h1>
+  <label>Panel paroli</label>
+  <input id="pwd" type="password" placeholder="parol" autocomplete="off" />
+  <div class="row">
+    <button id="scanBtn" onclick="toggleScan()">Skaner</button>
+  </div>
+  <div id="reader"></div>
+  <label>Yoki foydalanuvchi ID</label>
+  <div class="row">
+    <input id="uid" placeholder="user_id" autocomplete="off" />
+    <button style="flex:0 0 120px" onclick="verify(document.getElementById('uid').value)">Tekshirish</button>
+  </div>
+  <div id="out"></div>
+
+<script>
+  var API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
+  var scanner = null, scanning = false, plans = null;
+  function el(t,c,txt){ var e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; }
+  function out(){ return document.getElementById('out'); }
+
+  async function api(action, extra){
+    var b = Object.assign({ action:action, password: document.getElementById('pwd').value }, extra||{});
+    var res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(b) });
+    var data = {}; try { data = await res.json(); } catch(e){}
+    return { status: res.status, data: data };
+  }
+
+  function toggleScan(){
+    if(scanning){ stopScan(); return; }
+    scanner = new Html5Qrcode('reader');
+    scanner.start({ facingMode:'environment' }, { fps:10, qrbox:240 }, function(text){
+      stopScan(); document.getElementById('uid').value = text; verify(text);
+    }).then(function(){ scanning = true; document.getElementById('scanBtn').textContent = 'To‘xtatish'; })
+      .catch(function(){ alert('Kamera ochilmadi'); });
+  }
+  function stopScan(){ if(scanner && scanning){ scanner.stop().catch(function(){}); } scanning=false; document.getElementById('scanBtn').textContent='Skaner'; }
+
+  async function verify(userId){
+    userId = (userId||'').trim(); if(!userId) return;
+    out().innerHTML=''; out().appendChild(el('p','muted','Tekshirilmoqda…'));
+    var r = await api('verify', { user_id:userId });
+    if(r.status === 401){ out().innerHTML=''; out().appendChild(el('p','muted','Parol noto‘g‘ri')); return; }
+    render(r.data, userId);
+  }
+
+  function render(d, userId){
+    out().innerHTML='';
+    var c = el('div','card');
+    if(!d.found){ c.appendChild(el('p','muted','Foydalanuvchi topilmadi')); out().appendChild(c); return; }
+    c.appendChild(el('span','badge '+(d.active?'ok':'bad'), d.active?'FAOL':'FAOL EMAS'));
+    if(d.name) c.appendChild(el('div','big', d.name));
+    if(d.active){
+      c.appendChild(el('div',null,(d.plan_name||'')));
+      c.appendChild(el('div','muted','Tugaydi: '+(d.end_date||'-')+' · '+d.days_left+' kun qoldi'));
+    } else {
+      c.appendChild(el('div','muted','Holat: '+d.status));
+      buildActivate(c, userId);
+    }
+    out().appendChild(c);
+  }
+
+  async function buildActivate(c, userId){
+    c.appendChild(el('label',null,'Qo‘lda faollashtirish (naqd to‘lov)'));
+    var sel = el('select'); sel.id='plan';
+    if(!plans){ var p = await api('plans'); plans = (p.data && p.data.plans) || []; }
+    plans.forEach(function(pl){ var o=el('option',null, pl.name_uz+' — '+pl.price_app_uzs.toLocaleString('ru-RU')+' so‘m'); o.value=pl.id; sel.appendChild(o); });
+    c.appendChild(sel);
+    var btn = el('button',null,'Faollashtirish'); btn.style.marginTop='10px';
+    btn.onclick = async function(){ btn.disabled=true; btn.textContent='...';
+      var r = await api('activate', { user_id:userId, plan_id: sel.value });
+      if(r.data && r.data.ok){ verify(userId); } else { alert((r.data && r.data.error) || 'Xato'); btn.disabled=false; btn.textContent='Faollashtirish'; }
+    };
+    c.appendChild(btn);
+  }
+</script>
+</body>
+</html>
