@@ -15,16 +15,22 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 
 **Jamoa:** Asilbek (@MrAsilbek1009) · Mirolim (@MirolimSodiq)
 
+> 🔴 **GYM-FIRST PIVOT (2026-07-02):** Nerofit — fitness **zal** ilovasi. Workout
+> track (Phase 9) **VAQTINCHA YASHIRILDI** — qaytadi (`WORKOUT_DEFERRED.md`).
+> Asosiy funksiya endi = **zal abonementi (Phase 15)**. RevenueCat abonement uchun
+> KERAK EMAS (jismoniy xizmat → tashqi to'lov Payme/Click, 30% komissiyasiz).
+
 | Phase | Mavzu | Holat | Kim ishlayapti |
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — merged (PR #1) + `delete-account` deployed |
 | 8 | Build & Backend hardening | ✅ | Mirolim — merged (PR #2): AI rate-limit, Sentry, EAS env; `ai-coach` deployed |
-| 9 | Real kontent (Workout Track) | 🟡 | Claude — W1–W4 ✅ · W5 video infra ✅ · W6 ✅ (task+XP, test, milestone) · injury filtr ✅ · barchasi main'ga merged · qoldi: real video (trener), technique-check |
+| 9 | Workout Track — 🔴 **YASHIRIN (qaytadi)** | ✅→🔴 | Claude — to'liq qurilган (W1–W6, video infra, injury filtr) LEKIN **gym-first pivot bilan vaqtincha yashirilди** (`WORKOUT_DEFERRED.md`). Qaytариш: `href: null` + `ProgramsSection` olib tashlashни bekor qilish |
 | 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
 | 13 | Home redesign (Cal AI uslubi, gibrid) | ✅ | Mirolim — A (carousel) ✅ · B micros/health-score ✅ (PR #8) · C steps ✅ · D food-scan ✅ + water settings (serving size) ✅ (PR #9) — barchasi main'ga merged; `food-analysis` deployed, `food_scans`+`water_serving_ml` migrations applied |
 | 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · **14C HealthKit ✅** (custom Swift module, PR #17) · **14D** ⬜ boshlandi: bildirishnoma kontenti ✅ (streak eslatma + per-reminder settings + dinamik matn, 43 test) · food-scan/gamifikatsiya/export ⬜. Batafsil ↓ |
+| 15 | 🔴 **Zal abonementi (Gym Membership) — ASOSIY** | 🟡 | Claude — **Bosqich 1 ✅** (migration 0015: plans/memberships/payments + RLS; a'zolik holati + **QR** + tariflar (app/zal narx) ekrani; **"A'zolik" tab** yashirin workout o'rniga; qo'lда faollashtirish). **Bosqich 2** ⬜ Payme+Click webhook. **Bosqich 3** ⬜ eslatma/freeze/admin web-panel. Reja: `GYM_MEMBERSHIP_PLAN.md` |
 
 ---
 
