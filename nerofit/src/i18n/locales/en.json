@@ -316,7 +316,16 @@
       "grantAccess": "Grant camera access",
       "errorTitle": "Couldn't analyze",
       "errorBody": "Something went wrong reading that photo. Try again or retake.",
-      "rateLimited": "You've reached today's scan limit. Try again later."
+      "rateLimited": "You've reached today's scan limit. Try again later.",
+      "modes": { "photo": "Photo", "barcode": "Barcode", "search": "Search" },
+      "barcodeHint": "Point at a product barcode",
+      "barcodeNotFound": "No product found for that barcode. Try a photo or search instead.",
+      "search": {
+        "placeholder": "Search foods, e.g. greek yogurt",
+        "hint": "Type at least 2 characters to search.",
+        "empty": "No matches. Try a different name.",
+        "poweredByOff": "Data from Open Food Facts"
+      }
     }
   },
 

@@ -316,7 +316,16 @@
       "grantAccess": "Kameraga ruxsat berish",
       "errorTitle": "Tahlil qilib boʻlmadi",
       "errorBody": "Suratni oʻqishda xatolik yuz berdi. Qayta urinib koʻring yoki qaytadan suratga oling.",
-      "rateLimited": "Bugungi skanlash chegarasiga yetdingiz. Keyinroq urinib koʻring."
+      "rateLimited": "Bugungi skanlash chegarasiga yetdingiz. Keyinroq urinib koʻring.",
+      "modes": { "photo": "Rasm", "barcode": "Shtrix-kod", "search": "Qidiruv" },
+      "barcodeHint": "Mahsulot shtrix-kodiga qarating",
+      "barcodeNotFound": "Bu shtrix-kod uchun mahsulot topilmadi. Rasm yoki qidiruvdan foydalaning.",
+      "search": {
+        "placeholder": "Taom qidiring, masalan yunon yogurti",
+        "hint": "Qidirish uchun kamida 2 ta belgi kiriting.",
+        "empty": "Mos keladigan natija yoʻq. Boshqa nom kiriting.",
+        "poweredByOff": "Maʼlumot: Open Food Facts"
+      }
     }
   },
 
