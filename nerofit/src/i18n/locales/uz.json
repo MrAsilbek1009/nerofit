@@ -363,7 +363,26 @@
     "workouts": "Mashqlar",
     "nutrition": "Ovqatlanish",
     "coach": "Murabbiy",
-    "profile": "Profil"
+    "profile": "Profil",
+    "membership": "A'zolik"
+  },
+
+  "membership": {
+    "subtitle": "Zal a'zoligi",
+    "title": "Abonement",
+    "statusActive": "Faol",
+    "activePlan": "A'zolik faol",
+    "daysLeft": "{{n}} kun qoldi",
+    "until": "Amal qiladi:",
+    "qrHint": "Zalga kirishda bu QR kodni ko'rsating",
+    "inactiveTitle": "Abonement faol emas",
+    "inactiveBody": "Zalda mashg'ulot uchun tarif tanlang.",
+    "plansTitle": "Tariflar",
+    "appPrice": "Ilova orqali (chegirma)",
+    "gymPrice": "Zalda {{price}} so'm",
+    "choose": "Tanlash",
+    "paymentSoon": "To'lov integratsiyasi tez orada",
+    "historyTitle": "To'lovlar tarixi"
   },
 
   "profile": {

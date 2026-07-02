@@ -832,3 +832,44 @@ export type ChatMessage = {
   embed: ChatEmbed | null;
   created_at: string;
 };
+
+// ── Gym membership (abonement) ──────────────────────────────────────────
+export type MembershipStatus =
+  | "pending"
+  | "active"
+  | "expired"
+  | "frozen"
+  | "cancelled";
+export type PaymentStatus = "created" | "paid" | "cancelled";
+
+export type MembershipPlan = {
+  id: string;
+  name_uz: string;
+  duration_days: number;
+  price_app_uzs: number;
+  price_gym_uzs: number;
+  is_active: boolean;
+  sort_order: number;
+};
+
+export type Membership = {
+  id: string;
+  user_id: string;
+  plan_id: string;
+  status: MembershipStatus;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+};
+
+export type Payment = {
+  id: string;
+  user_id: string;
+  membership_id: string | null;
+  amount_uzs: number;
+  provider: string;
+  provider_txn: string | null;
+  status: PaymentStatus;
+  paid_at: string | null;
+  created_at: string;
+};

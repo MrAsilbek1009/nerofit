@@ -363,7 +363,26 @@
     "workouts": "Workouts",
     "nutrition": "Nutrition",
     "coach": "Coach",
-    "profile": "Profile"
+    "profile": "Profile",
+    "membership": "Membership"
+  },
+
+  "membership": {
+    "subtitle": "Gym membership",
+    "title": "Membership",
+    "statusActive": "Active",
+    "activePlan": "Membership active",
+    "daysLeft": "{{n}} days left",
+    "until": "Valid until:",
+    "qrHint": "Show this QR code at the gym entrance",
+    "inactiveTitle": "No active membership",
+    "inactiveBody": "Choose a plan to train at the gym.",
+    "plansTitle": "Plans",
+    "appPrice": "In-app (discount)",
+    "gymPrice": "At gym {{price}} so'm",
+    "choose": "Choose",
+    "paymentSoon": "Payment coming soon",
+    "historyTitle": "Payment history"
   },
 
   "profile": {

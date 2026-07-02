@@ -14,6 +14,12 @@ let mod: Notifications | null | undefined;
 // whole app at import time.
 function getMod(): Notifications | null {
   if (mod !== undefined) return mod;
+  // Web has no local notifications — expo-notifications imports but its methods
+  // (cancelAllScheduledNotificationsAsync, etc.) throw. Treat as unavailable.
+  if (Platform.OS === "web") {
+    mod = null;
+    return null;
+  }
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const N = require("expo-notifications") as Notifications;
