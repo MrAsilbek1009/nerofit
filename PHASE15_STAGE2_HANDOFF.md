@@ -86,30 +86,35 @@ Click:  https://orhhiqdvukshlvtqorgp.functions.supabase.co/payments-webhook?prov
 
 ---
 
-## Bosqich 3 — Admin QR tekshirish paneli (kod tayyor)
+## Bosqich 3 — Admin QR tekshirish paneli (deployed ✅)
 
-Zal xodimi uchun **alohida ilova/hosting kerak emas** — bitta Edge Function
-brauzerда HTML sahifa beradi: parol → QR skaner (kamera) yoki `user_id` kiritish
-→ a'zolik **faol/emas** ko'rsatadi. Naqd to'lov uchun **qo'lda faollashtirish**
-tugmasi ham bor (Bosqich 1 admin faollashtirish shu yerда).
+Zal xodimi uchun ikki qismдан iborat:
+- **JSON API** — `admin-verify` Edge Function (`nerofit/supabase/functions/admin-verify/index.ts`).
+  POST actions: `verify` / `activate` / `plans`, hammasi `password` talab qiladi.
+- **Sahifa (UI)** — `docs/gym-panel/index.html`, **GitHub Pages**'да joylashadi
+  (parol + QR skaner/`user_id` → faol/emas + qo'лда faollashtirish).
 
-Fayl: `nerofit/supabase/functions/admin-verify/index.ts`. Parol — yagona himoya
-chegarasi (funksiya service-role bilan RLS'ни chetlab o'tadi), shuning uchun
-kuchli parol qo'ying.
+> ⚠️ **Nega Edge Function o'zi HTML bermaydi?** Supabase funksiya domeni
+> (`*.functions.supabase.co`) javobни majburan `text/plain` + `sandbox` CSP
+> qiladi (phishing'нинг oldини olish) — HTML render bo'lmaydi, skript ishlamaydi.
+> Shuning uchun UI Pages'да, funksiya faqat JSON API. Funksiya CORS ochiq.
 
+Parol — yagona himoya chegarasi (funksiya service-role bilan RLS'ни chetlab
+o'tadi), shuning uchun kuchli parol qo'ying.
+
+**Holat (2026-07-02 da bajarildi):**
+- ✅ `ADMIN_PANEL_PASSWORD` secret o'rnatilди (dashboard)
+- ✅ `admin-verify` deploy qilinди (`--no-verify-jwt`)
+- ✅ **GitHub Pages** yoqилди (source: hozir `phase-15-stage2-payments` /docs;
+  PR merge'дан keyin `main` /docs ga o'tkaziladi — URL o'zгармайди) → panel URL:
+  `https://mrasilbek1009.github.io/nerofit/gym-panel/`
+
+Qayta deploy kerak bo'lса:
 ```bash
-# 1. Panel parolini o'rnating
-npx supabase secrets set ADMIN_PANEL_PASSWORD=<kuchli-parol> --project-ref orhhiqdvukshlvtqorgp
-# 2. Deploy (public sahifa → --no-verify-jwt)
 npx supabase functions deploy admin-verify --no-verify-jwt --project-ref orhhiqdvukshlvtqorgp
 ```
-
-Zal xodimiga havolani bering (brauzerда oching, telefonда ham ishlaydi):
-```
-https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify
-```
-Kamera QR skaner uchun **HTTPS** kerak (Supabase URL HTTPS — mos). Sinash: a'zoning
-ilovadagi QR'ini skaner qiling yoki uning `user_id`sini kiriting → holat chiqadi.
+Sahifани o'zгартирса — `docs/gym-panel/index.html` ni tahrirlab, `main`'ga push
+qiling (Pages avtomatik qayta quradi).
 
 ---
 
