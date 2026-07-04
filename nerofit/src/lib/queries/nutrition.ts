@@ -12,6 +12,7 @@ import {
   setSupplementTaken,
 } from "@/lib/api/supplements";
 import { analyzeFoodPhoto } from "@/lib/api/foodScan";
+import { lookupBarcode, searchFoods } from "@/lib/api/openFoodFacts";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 import type { Meal, MealSlot } from "@/types/db";
@@ -80,6 +81,25 @@ export function useLogScannedMeal(userId: string | undefined) {
       if (userId)
         void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
     },
+  });
+}
+
+// ---- Barcode + ingredient search (OpenFoodFacts) ----
+// Returns null when the code is unknown / unusable (caller shows "not found").
+export function useBarcodeLookup() {
+  return useMutation({
+    mutationFn: (code: string) => lookupBarcode(code),
+  });
+}
+
+// Debounce the `query` string in the caller; this keys the cache on it.
+export function useFoodSearch(query: string) {
+  const q = query.trim();
+  return useQuery({
+    queryKey: ["food-search", q],
+    queryFn: () => searchFoods(q),
+    enabled: q.length >= 2,
+    staleTime: 1000 * 60 * 5,
   });
 }
 

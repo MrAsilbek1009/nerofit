@@ -22,6 +22,8 @@ export type AnalyticsEvent =
   | "workout_completed"
   | "exercise_logged"
   | "meal_logged"
+  | "food_barcode_scanned"
+  | "food_search_selected"
   | "supplement_toggled"
   | "water_logged"
   | "coach_message_sent"

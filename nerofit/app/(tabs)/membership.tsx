@@ -108,7 +108,7 @@ export default function MembershipScreen() {
                   padding: space[4],
                 }}
               >
-                <Text style={typography.body}>{uzs(pay.amount_uzs)} so'm</Text>
+                <Text style={typography.body}>{`${uzs(pay.amount_uzs)} so'm`}</Text>
                 <Text style={typography.bodyMuted}>
                   {pay.provider} · {pay.status}
                 </Text>
