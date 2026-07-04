@@ -40,6 +40,13 @@
 <script>
   var API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
   var scanner = null, scanning = false, plans = null;
+
+  // Remember the panel password on this device (gym desk / staff phone).
+  var pwdEl = document.getElementById('pwd');
+  try { pwdEl.value = localStorage.getItem('np_pwd') || ''; } catch (e) {}
+  pwdEl.addEventListener('input', function () {
+    try { localStorage.setItem('np_pwd', pwdEl.value); } catch (e) {}
+  });
   function el(t,c,txt){ var e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; }
   function out(){ return document.getElementById('out'); }
 
