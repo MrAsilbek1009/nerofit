@@ -86,13 +86,29 @@ Click:  https://orhhiqdvukshlvtqorgp.functions.supabase.co/payments-webhook?prov
 
 ---
 
-## Bosqich 3 — Admin QR tekshirish paneli (deployed ✅)
+## Bosqich 3 — Xodim + Admin panellari (deployed ✅)
 
-Zal xodimi uchun ikki qismдан iborat:
+Ikki rol, ikkаласи **faqat parol** bilan kiradi:
+- **admin** — `ADMIN_PANEL_PASSWORD` secret (master). Hammasini qiladi.
+- **staff (xodim)** — `gym_staff` jadvалидаги qator (parol **hash**langan). Faqat
+  verify / activate.
+
+Uch qism:
 - **JSON API** — `admin-verify` Edge Function (`nerofit/supabase/functions/admin-verify/index.ts`).
-  POST actions: `verify` / `activate` / `plans`, hammasi `password` talab qiladi.
-- **Sahifa (UI)** — `docs/gym-panel/index.html`, **Vercel**'да joylashadi
-  (parol + QR skaner/`user_id` → faol/emas + qo'лда faollashtirish).
+  POST `{ password, action }`. Staff+admin: `verify` (+ har skan `gym_checkins`ga
+  yoziladi) / `activate` (`activated_by`) / `plans` / `session`. Admin-only:
+  `staff_list/add/set_password/set_active/delete`, `members_search`,
+  `member_detail`, `checkins_recent`.
+- **Xodim paneli** — `docs/gym-panel/index.html` (Vercel): parol + QR skaner/`user_id`
+  → faol/emas + qo'лда faollashtirish. Parolни qurilmада eslaydi.
+- **Admin paneli** — `docs/gym-admin/index.html` (Vercel): xodim boshqaruvi
+  (qo'shish/parol/o'chirish), a'zolarni qidirish → to'lov + kelish tarixi,
+  so'nggi kelishlar tasmasi.
+
+> 🔐 Parollar `SHA-256(service_role_key + ":" + parol)` bilan hashlanadi
+> (service-role kaliti = pepper, git'да emas). Login faqat parol bilan → hash
+> noyob (`gym_staff.password_hash unique`). `gym_staff`/`gym_checkins` — RLS
+> yopiq (faqat funksiya, service-role).
 
 > ⚠️ **Nega Edge Function o'zi HTML bermaydi?** Supabase funksiya domeni
 > (`*.functions.supabase.co`) javobни majburan `text/plain` + `sandbox` CSP
@@ -103,20 +119,26 @@ Parol — yagona himoya chegarasi (funksiya service-role bilan RLS'ни chetlab
 o'tadi), shuning uchun kuchli parol qo'ying.
 
 **Holat (2026-07-04 da bajarildi):**
-- ✅ `ADMIN_PANEL_PASSWORD` secret o'rnatilди (dashboard)
-- ✅ `admin-verify` deploy qilinди (`--no-verify-jwt`)
-- ✅ **Vercel**'да joylashди (jamoa `asilbeks-project`) → **jonли panel URL:**
-  `https://gym-panel-chi.vercel.app`
+- ✅ Migration `0017` qo'llanди (`gym_staff`, `gym_checkins`, `payments.activated_by`)
+- ✅ `ADMIN_PANEL_PASSWORD` = admin master parol (CLI orqали)
+- ✅ `admin-verify` deploy (`--no-verify-jwt`) — rol + check-in + admin actions
+- ✅ Vercel (jamoa `asilbeks-project`):
+  - Xodim paneli: **https://gym-panel-chi.vercel.app**
+  - Admin paneli: **https://gym-admin-jet.vercel.app**
 
 Qayta deploy kerak bo'lса:
 ```bash
 # Funksiya (JSON API):
 npx supabase functions deploy admin-verify --no-verify-jwt --project-ref orhhiqdvukshlvtqorgp
-# Sahifa (Vercel) — VERCEL_TOKEN env bilan:
+# Sahifalar (Vercel) — VERCEL_TOKEN env bilan:
 npx vercel deploy docs/gym-panel --prod --yes --scope asilbeks-project
+npx vercel deploy docs/gym-admin --prod --yes --scope asilbeks-project
 ```
-Sahifани o'zгартирса — `docs/gym-panel/index.html` ni tahrirlab, yuqoriдаги Vercel
-buyrug'ini qayta ishga tushiring.
+Parolni almashtirish (admin master):
+```bash
+npx supabase secrets set ADMIN_PANEL_PASSWORD=<yangi> --project-ref orhhiqdvukshlvtqorgp
+```
+Xodim parollари admin panelидан boshqariladi (secret emas).
 
 ---
 

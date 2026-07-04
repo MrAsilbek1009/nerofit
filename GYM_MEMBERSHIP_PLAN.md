@@ -153,8 +153,11 @@ Ilova → "To'lash" (Payme/Click checkout link/SDK)
 - **Natija (deploy'dan keyin):** avtomatik to'lov → a'zolik faollashadi
 
 ### Bosqich 3 — Sayqal
-- ✅ **Admin QR tekshirish paneli** (`admin-verify` Edge Function — brauzер
-  sahifasi: parol + QR skaner/`user_id` → faol/emas + qo'lда faollashtirish).
+- ✅ **Admin QR tekshirish paneli** (`admin-verify` Edge Fn + Vercel sahifa:
+  parol + QR skaner/`user_id` → faol/emas + qo'lда faollashtirish).
+- ✅ **Xodim akkauntlari** (`gym_staff`, hashlangan parol) + **admin paneli**
+  (`docs/gym-admin`): xodim boshqaruvi, a'zolar qidiruvi (to'lov + kelish tarixi),
+  attendance (`gym_checkins` — har skan). Migration `0017`.
   Deploy: `PHASE15_STAGE2_HANDOFF.md`.
 - ⬜ Muddat tugашига eslatма (push, 3 kun oldin)
 - ⬜ Freeze (muzlatish), tarif o'zgartirish
