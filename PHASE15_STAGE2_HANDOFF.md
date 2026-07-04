@@ -91,7 +91,7 @@ Click:  https://orhhiqdvukshlvtqorgp.functions.supabase.co/payments-webhook?prov
 Zal xodimi uchun ikki qismдан iborat:
 - **JSON API** — `admin-verify` Edge Function (`nerofit/supabase/functions/admin-verify/index.ts`).
   POST actions: `verify` / `activate` / `plans`, hammasi `password` talab qiladi.
-- **Sahifa (UI)** — `docs/gym-panel/index.html`, **GitHub Pages**'да joylashadi
+- **Sahifa (UI)** — `docs/gym-panel/index.html`, **Vercel**'да joylashadi
   (parol + QR skaner/`user_id` → faol/emas + qo'лда faollashtirish).
 
 > ⚠️ **Nega Edge Function o'zi HTML bermaydi?** Supabase funksiya domeni
@@ -102,19 +102,21 @@ Zal xodimi uchun ikki qismдан iborat:
 Parol — yagona himoya chegarasi (funksiya service-role bilan RLS'ни chetlab
 o'tadi), shuning uchun kuchli parol qo'ying.
 
-**Holat (2026-07-02 da bajarildi):**
+**Holat (2026-07-04 da bajarildi):**
 - ✅ `ADMIN_PANEL_PASSWORD` secret o'rnatilди (dashboard)
 - ✅ `admin-verify` deploy qilinди (`--no-verify-jwt`)
-- ✅ **GitHub Pages** yoqилди (source: hozir `phase-15-stage2-payments` /docs;
-  PR merge'дан keyin `main` /docs ga o'tkaziladi — URL o'zгармайди) → panel URL:
-  `https://mrasilbek1009.github.io/nerofit/gym-panel/`
+- ✅ **Vercel**'да joylashди (jamoa `asilbeks-project`) → **jonли panel URL:**
+  `https://gym-panel-chi.vercel.app`
 
 Qayta deploy kerak bo'lса:
 ```bash
+# Funksiya (JSON API):
 npx supabase functions deploy admin-verify --no-verify-jwt --project-ref orhhiqdvukshlvtqorgp
+# Sahifa (Vercel) — VERCEL_TOKEN env bilan:
+npx vercel deploy docs/gym-panel --prod --yes --scope asilbeks-project
 ```
-Sahifани o'zгартирса — `docs/gym-panel/index.html` ni tahrirlab, `main`'ga push
-qiling (Pages avtomatik qayta quradi).
+Sahifани o'zгартирса — `docs/gym-panel/index.html` ni tahrirlab, yuqoriдаги Vercel
+buyrug'ini qayta ishga tushiring.
 
 ---
 
