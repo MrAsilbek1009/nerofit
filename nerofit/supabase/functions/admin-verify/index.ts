@@ -191,6 +191,21 @@ async function handlePost(req: Request): Promise<Response> {
     return json({ ok: true });
   }
 
+  // Admin changes their OWN password. `password` (verified admin above) is the
+  // current password; the new one is stored as a gym_staff role='admin' row.
+  // The env ADMIN_PANEL_PASSWORD stays as a permanent recovery key.
+  if (action === "admin_set_password") {
+    const pw = String(body.new_password ?? "").trim();
+    if (!pw) return json({ error: "new_password required" }, 400);
+    const hash = await hashPw(pw);
+    const { data: existing } = await db.from("gym_staff").select("id").eq("role", "admin").limit(1).maybeSingle();
+    const res = existing
+      ? await db.from("gym_staff").update({ password_hash: hash, is_active: true }).eq("id", existing.id)
+      : await db.from("gym_staff").insert({ name: "admin", role: "admin", password_hash: hash });
+    if (res.error) return json({ error: res.error.code === "23505" ? "Bu parol band — boshqasini tanlang" : res.error.message }, 400);
+    return json({ ok: true });
+  }
+
   if (action === "members_search") {
     const q = String(body.q ?? "").trim();
     if (!q) return json({ members: [] });

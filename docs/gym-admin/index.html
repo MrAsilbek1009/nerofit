@@ -29,7 +29,7 @@
   .hidden { display:none; }
   .item { padding:9px 0; border-bottom:1px solid var(--line); }
   .item:last-child { border-bottom:none; }
-  .clickable { cursor:pointer; }
+  .detail { margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
   label { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--lo); display:block; margin:12px 0 5px; }
 </style>
 </head>
@@ -64,8 +64,20 @@
         <button style="margin-top:10px" onclick="addStaff()">Qo'shish</button>
         <p id="ns-msg" class="muted"></p>
       </div>
+
       <h2>Xodimlar ro'yxati</h2>
       <div id="staffList"></div>
+
+      <h2>Admin paroli (o'zingizniki)</h2>
+      <div class="card">
+        <label>Hozirgi parol</label>
+        <input id="ap-cur" type="password" placeholder="hozirgi" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
+        <label>Yangi parol</label>
+        <input id="ap-new" type="password" placeholder="yangi" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
+        <button style="margin-top:10px" onclick="changeAdminPw()">Saqlash</button>
+        <p id="ap-msg" class="muted"></p>
+      </div>
+
       <button class="ghost" style="margin-top:24px" onclick="logout()">Chiqish</button>
     </section>
 
@@ -77,7 +89,6 @@
         <button style="flex:0 0 110px" onclick="searchMembers()">Qidirish</button>
       </div>
       <div id="memberResults"></div>
-      <div id="memberDetail"></div>
 
       <div class="between" style="margin-top:20px">
         <h2 style="margin:0">So'nggi kelishlar</h2>
@@ -91,6 +102,7 @@
   const API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
   let PWD = "";
   let staffCache = [];
+  const expandedStaff = new Set();
   const $ = (id) => document.getElementById(id);
   const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
   const btn = (text, cls, on) => { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; };
@@ -137,6 +149,17 @@
     });
     if (tab === "members") loadFeed();
   }
+  async function changeAdminPw() {
+    const cur = $("ap-cur").value.trim(), nw = $("ap-new").value.trim();
+    if (!cur || !nw) { $("ap-msg").textContent = "Ikkala maydon kerak"; return; }
+    const r = await api("admin_set_password", { password: cur, new_password: nw });
+    if (r.data && r.data.ok) {
+      PWD = nw; try { localStorage.setItem("na_pwd", nw); } catch (e) {}
+      $("ap-cur").value = ""; $("ap-new").value = ""; $("ap-msg").textContent = "Parol yangilandi ✓";
+    } else {
+      $("ap-msg").textContent = r.status === 401 ? "Hozirgi parol noto'g'ri" : ((r.data && r.data.error) || "Xato");
+    }
+  }
 
   // ── Staff management ────────────────────────────────────────────────────
   async function loadStaff() {
@@ -149,22 +172,38 @@
       const top = el("div", "between");
       const left = el("div");
       left.innerHTML = '<div style="font-weight:700">' + escapeHtml(s.name) + ' <span class="muted">· ' + s.role + '</span></div>';
-      const badge = el("span", "badge " + (s.is_active ? "ok" : "bad"), s.is_active ? "FAOL" : "O‘CHIQ");
-      top.appendChild(left); top.appendChild(badge);
+      top.appendChild(left);
+      top.appendChild(el("span", "badge " + (s.is_active ? "ok" : "bad"), s.is_active ? "FAOL" : "O‘CHIQ"));
       c.appendChild(top);
 
-      // One "Tahrirlash" button reveals the actions.
-      const acts = el("div"); acts.style.display = "none"; acts.style.marginTop = "10px";
-      const rowA = el("div", "row");
-      rowA.appendChild(btn("Parol", "ghost mini", () => setStaffPw(s)));
-      rowA.appendChild(btn(s.is_active ? "O'chirish" : "Yoqish", "ghost mini", () => toggleStaff(s)));
-      rowA.appendChild(btn("Del", "danger mini", () => delStaff(s)));
-      acts.appendChild(rowA);
+      // Actions revealed by "Tahrirlash" — kept open across reloads via expandedStaff.
+      const acts = el("div"); acts.style.marginTop = "10px";
+      acts.style.display = expandedStaff.has(s.id) ? "block" : "none";
 
-      const edit = btn("Tahrirlash", "ghost mini", () => { acts.style.display = acts.style.display === "none" ? "block" : "none"; });
+      const pwWrap = el("div"); pwWrap.style.display = "none"; pwWrap.style.marginTop = "8px";
+      const pwInput = el("input"); pwInput.placeholder = "yangi parol"; pwInput.setAttribute("autocomplete", "off");
+      pwInput.setAttribute("autocapitalize", "none"); pwInput.setAttribute("autocorrect", "off"); pwInput.setAttribute("spellcheck", "false");
+      const pwSave = btn("Saqlash", "", async () => {
+        const v = pwInput.value.trim(); if (!v) return;
+        const rr = await api("staff_set_password", { staff_id: s.id, new_password: v });
+        if (rr.data && rr.data.ok) { pwInput.value = ""; pwWrap.style.display = "none"; alert("Parol o‘zgartirildi"); }
+        else { alert((rr.data && rr.data.error) || "Xato"); }
+      });
+      pwSave.style.marginTop = "8px";
+      pwWrap.appendChild(pwInput); pwWrap.appendChild(pwSave);
+
+      const rowA = el("div", "row");
+      rowA.appendChild(btn("Parol o‘zgartirish", "ghost mini", () => { pwWrap.style.display = pwWrap.style.display === "none" ? "block" : "none"; }));
+      rowA.appendChild(btn(s.is_active ? "O‘chirish" : "Yoqish", "ghost mini", () => toggleStaff(s)));
+      rowA.appendChild(btn("Del", "danger mini", () => delStaff(s)));
+      acts.appendChild(rowA); acts.appendChild(pwWrap);
+
+      const edit = btn(expandedStaff.has(s.id) ? "Yopish" : "Tahrirlash", "ghost mini", () => {
+        if (expandedStaff.has(s.id)) { expandedStaff.delete(s.id); acts.style.display = "none"; edit.textContent = "Tahrirlash"; }
+        else { expandedStaff.add(s.id); acts.style.display = "block"; edit.textContent = "Yopish"; }
+      });
       edit.style.marginTop = "10px";
-      c.appendChild(edit);
-      c.appendChild(acts);
+      c.appendChild(edit); c.appendChild(acts);
       box.appendChild(c);
     });
   }
@@ -175,21 +214,43 @@
     if (r.data && r.data.ok) { $("ns-name").value = ""; $("ns-pwd").value = ""; $("ns-msg").textContent = "Qo‘shildi ✓"; loadStaff(); }
     else { $("ns-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
-  async function setStaffPw(s) {
-    const pw = prompt("'" + s.name + "' uchun yangi parol:");
-    if (!pw) return;
-    const r = await api("staff_set_password", { staff_id: s.id, new_password: pw.trim() });
-    alert(r.data && r.data.ok ? "Parol o‘zgartirildi" : ((r.data && r.data.error) || "Xato"));
-  }
-  async function toggleStaff(s) { await api("staff_set_active", { staff_id: s.id, is_active: !s.is_active }); loadStaff(); }
+  async function toggleStaff(s) { await api("staff_set_active", { staff_id: s.id, is_active: !s.is_active }); await loadStaff(); }
   async function delStaff(s) {
     if (!confirm("'" + s.name + "' o‘chirilsinmi?")) return;
-    await api("staff_delete", { staff_id: s.id }); loadStaff();
+    expandedStaff.delete(s.id);
+    await api("staff_delete", { staff_id: s.id }); await loadStaff();
   }
 
-  // ── Members + activity ──────────────────────────────────────────────────
+  // ── Members + activity (inline accordion) ───────────────────────────────
+  function memberDetailHtml(d) {
+    if (!d || !d.found) return '<p class="muted">Ma’lumot yo’q.</p>';
+    let h = '<span class="badge ' + (d.active ? "ok" : "bad") + '">' + (d.active ? "FAOL" : "FAOL EMAS") + '</span>';
+    h += '<div class="big">' + escapeHtml(d.name || "(ismsiz)") + '</div>';
+    if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + (d.membership.end_date || "-") + '</div>';
+    h += '<h2>To‘lovlar (qachon qabul bo‘ldi)</h2>';
+    h += (d.payments && d.payments.length) ? d.payments.map((p) =>
+      '<div class="item"><div class="between"><span>' + uzs(p.amount_uzs) + ' so‘m · ' + p.provider + '</span><span class="muted">' + p.status + '</span></div>' +
+      '<div class="muted">' + fmt(p.paid_at || p.created_at) + (p.staff_name ? ' · ' + escapeHtml(p.staff_name) : '') + '</div></div>'
+    ).join("") : '<p class="muted">Yo’q</p>';
+    h += '<h2>Kelishlar (qachon keldi)</h2>';
+    h += (d.checkins && d.checkins.length) ? d.checkins.map((c) =>
+      '<div class="item"><div class="between"><span>' + fmt(c.checked_at) + '</span><span class="badge ' + (c.was_active ? "ok" : "bad") + '">' + (c.was_active ? "faol" : "emas") + '</span></div>' +
+      '<div class="muted">' + escapeHtml(c.staff_name || "-") + '</div></div>'
+    ).join("") : '<p class="muted">Hali kelmagan</p>';
+    return h;
+  }
+  // A "Ko'rish ▾" button + an inline detail div that opens IN PLACE.
+  function makeViewToggle(userId) {
+    const detail = el("div", "detail"); detail.style.display = "none";
+    let open = false;
+    const b = btn("Ko‘rish ▾", "ghost mini", async () => {
+      open = !open;
+      if (open) { detail.style.display = "block"; b.textContent = "Yopish ▴"; detail.innerHTML = '<p class="muted">Yuklanmoqda…</p>'; const r = await api("member_detail", { user_id: userId }); detail.innerHTML = memberDetailHtml(r.data); }
+      else { detail.style.display = "none"; detail.innerHTML = ""; b.textContent = "Ko‘rish ▾"; }
+    });
+    return { button: b, detail };
+  }
   async function searchMembers() {
-    $("memberDetail").innerHTML = "";
     const q = $("mq").value.trim(); if (!q) return;
     const box = $("memberResults"); box.innerHTML = '<p class="muted">Qidirilmoqda…</p>';
     const r = await api("members_search", { q });
@@ -198,34 +259,15 @@
     if (list.length === 0) { box.innerHTML = '<p class="muted">Topilmadi.</p>'; return; }
     const c = el("div", "card");
     list.forEach((m) => {
-      const it = el("div", "item clickable", m.name || "(ismsiz) " + m.id.slice(0, 8));
-      it.onclick = () => openMember(m.id);
+      const it = el("div", "item");
+      const b = el("div", "between");
+      b.appendChild(el("div", null, m.name || "(ismsiz) " + m.id.slice(0, 8)));
+      const vt = makeViewToggle(m.id);
+      b.appendChild(vt.button);
+      it.appendChild(b); it.appendChild(vt.detail);
       c.appendChild(it);
     });
     box.appendChild(c);
-  }
-  async function openMember(userId) {
-    const box = $("memberDetail"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
-    box.scrollIntoView({ behavior: "smooth", block: "start" });
-    const r = await api("member_detail", { user_id: userId });
-    const d = r.data;
-    if (!d || !d.found) { box.innerHTML = '<p class="muted">Ma’lumot yo’q.</p>'; return; }
-    let html = '<div class="card">';
-    html += '<span class="badge ' + (d.active ? "ok" : "bad") + '">' + (d.active ? "FAOL" : "FAOL EMAS") + '</span>';
-    html += '<div class="big">' + escapeHtml(d.name || "(ismsiz)") + '</div>';
-    if (d.membership) html += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + (d.membership.end_date || "-") + '</div>';
-    html += '<h2>To‘lovlar (qachon qabul bo‘ldi)</h2>';
-    html += (d.payments && d.payments.length) ? d.payments.map((p) =>
-      '<div class="item"><div class="between"><span>' + uzs(p.amount_uzs) + ' so‘m · ' + p.provider + '</span><span class="muted">' + p.status + '</span></div>' +
-      '<div class="muted">' + fmt(p.paid_at || p.created_at) + (p.staff_name ? ' · ' + escapeHtml(p.staff_name) : '') + '</div></div>'
-    ).join("") : '<p class="muted">Yo’q</p>';
-    html += '<h2>Kelishlar (qachon keldi)</h2>';
-    html += (d.checkins && d.checkins.length) ? d.checkins.map((c) =>
-      '<div class="item"><div class="between"><span>' + fmt(c.checked_at) + '</span><span class="badge ' + (c.was_active ? "ok" : "bad") + '">' + (c.was_active ? "faol" : "emas") + '</span></div>' +
-      '<div class="muted">' + escapeHtml(c.staff_name || "-") + '</div></div>'
-    ).join("") : '<p class="muted">Hali kelmagan</p>';
-    html += '</div>';
-    box.innerHTML = html;
   }
   async function loadFeed() {
     const box = $("feed"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
@@ -240,10 +282,11 @@
       const info = el("div");
       info.innerHTML = '<div>' + escapeHtml(k.member_name || "(ismsiz)") + '</div><div class="muted">' + fmt(k.checked_at) + ' · ' + escapeHtml(k.staff_name || "-") + '</div>';
       const right = el("div"); right.style.display = "flex"; right.style.gap = "8px"; right.style.alignItems = "center";
-      right.appendChild(btn("Ko'rish", "ghost mini", () => openMember(k.user_id)));
+      const vt = makeViewToggle(k.user_id);
+      right.appendChild(vt.button);
       right.appendChild(el("span", "badge " + (k.was_active ? "ok" : "bad"), k.was_active ? "FAOL" : "EMAS"));
       b.appendChild(info); b.appendChild(right);
-      it.appendChild(b);
+      it.appendChild(b); it.appendChild(vt.detail);
       c.appendChild(it);
     });
     box.appendChild(c);
