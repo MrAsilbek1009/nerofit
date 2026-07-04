@@ -160,8 +160,10 @@ async function handlePost(req: Request): Promise<Response> {
   }
 
   if (action === "staff_add" || action === "staff_set_password") {
-    const pw = String(body.password ?? "").trim();
-    if (!pw) return json({ error: "password required" }, 400);
+    // NB: the new staff password is `new_password` — `password` is the admin's
+    // own auth password (used by authenticate() above), so they must not collide.
+    const pw = String(body.new_password ?? "").trim();
+    if (!pw) return json({ error: "new_password required" }, 400);
     const hash = await hashPw(pw);
     if (action === "staff_add") {
       const name = String(body.name ?? "").trim();

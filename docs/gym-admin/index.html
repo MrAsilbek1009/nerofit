@@ -168,14 +168,14 @@
   async function addStaff() {
     const name = $("ns-name").value.trim(), pw = $("ns-pwd").value.trim();
     if (!name || !pw) { $("ns-msg").textContent = "Ism va parol kerak"; return; }
-    const r = await api("staff_add", { name, password: pw });
+    const r = await api("staff_add", { name, new_password: pw });
     if (r.data && r.data.ok) { $("ns-name").value = ""; $("ns-pwd").value = ""; $("ns-msg").textContent = "Qo‘shildi ✓"; loadStaff(); }
     else { $("ns-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
   async function setStaffPw(s) {
     const pw = prompt("'" + s.name + "' uchun yangi parol:");
     if (!pw) return;
-    const r = await api("staff_set_password", { staff_id: s.id, password: pw.trim() });
+    const r = await api("staff_set_password", { staff_id: s.id, new_password: pw.trim() });
     alert(r.data && r.data.ok ? "Parol o‘zgartirildi" : ((r.data && r.data.error) || "Xato"));
   }
   async function toggleStaff(s) {
