@@ -292,6 +292,12 @@
     "addToSlot": "{{slot}}ga qoʻshish",
     "dayPart": { "morning": "Ertalab", "midday": "Kunduzi", "evening": "Kechqurun" },
     "emptyMeals": "Hozircha taomlar yoʻq.",
+    "recentScans": "Soʻnggi skanlar →",
+    "scanHistory": {
+      "title": "Skan tarixi",
+      "empty": "Hali skan yoʻq. Ovqat, shtrix-kod yoki qidiruvdan boshlang.",
+      "deleteA11y": "Skanni oʻchirish"
+    },
     "scan": {
       "title": "Taomni skanlash",
       "hint": "Taomni ramka markaziga joylang",

@@ -203,6 +203,7 @@ function AuthGate() {
       <Stack.Screen name="paywall" options={{ presentation: "modal" }} />
       <Stack.Screen name="meal-picker" options={{ presentation: "modal" }} />
       <Stack.Screen name="food-scan" options={{ presentation: "fullScreenModal" }} />
+      <Stack.Screen name="scan-history" options={{ presentation: "modal" }} />
       <Stack.Screen name="water-settings" options={{ presentation: "modal" }} />
       <Stack.Screen name="notification-settings" options={{ presentation: "modal" }} />
     </Stack>

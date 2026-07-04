@@ -16,6 +16,7 @@ import {
   useAnalyzeFoodPhoto,
   useBarcodeLookup,
   useLogScannedMeal,
+  useRecordFoodScan,
 } from "@/lib/queries/nutrition";
 import type { FoodScanResult } from "@/lib/api/foodScan";
 import { track } from "@/lib/analytics";
@@ -65,6 +66,7 @@ export function FoodScanFlow() {
   const analyze = useAnalyzeFoodPhoto();
   const barcode = useBarcodeLookup();
   const logScanned = useLogScannedMeal(userId);
+  const record = useRecordFoodScan(userId);
 
   const [mode, setMode] = useState<ScanMode>("photo");
   const [stage, setStage] = useState<Stage>("input");
@@ -164,6 +166,7 @@ export function FoodScanFlow() {
       onSuccess: (r) => {
         if (r) {
           track("food_barcode_scanned", { found: true });
+          record.mutate(r); // best-effort history record
           setResult(r);
           setStage("result");
         } else {
@@ -181,6 +184,7 @@ export function FoodScanFlow() {
 
   // ---- Search (OpenFoodFacts) ----
   function onPickSearch(r: FoodScanResult) {
+    record.mutate(r); // best-effort history record
     setPreviewUri(null);
     setResult(r);
     setStage("result");

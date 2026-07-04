@@ -80,10 +80,22 @@ export default function NutritionScreen() {
         </Text>
 
         {/* Scan food (AI) */}
-        <Button
-          label={t("nutrition.scan.title")}
-          onPress={() => router.push("/food-scan")}
-        />
+        <View style={{ gap: space[2] }}>
+          <Button
+            label={t("nutrition.scan.title")}
+            onPress={() => router.push("/food-scan")}
+          />
+          <Pressable
+            onPress={() => router.push("/scan-history")}
+            accessibilityRole="button"
+            style={{ alignSelf: "flex-end" }}
+            hitSlop={8}
+          >
+            <Text style={[typography.labelCaps, { color: colors.accent }]}>
+              {t("nutrition.recentScans")}
+            </Text>
+          </Pressable>
+        </View>
 
         {/* Macros */}
         <View style={{ gap: space[4] }}>

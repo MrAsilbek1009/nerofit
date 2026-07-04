@@ -52,3 +52,45 @@ export async function analyzeFoodPhoto(
   }
   return data as FoodScanResult;
 }
+
+// One stored scan (history). `food_scans` isn't in the generated db.ts yet, so —
+// like the membership tables — we query by string and cast the row shape.
+export type FoodScanRecord = {
+  id: string;
+  photo_path: string | null;
+  result: FoodScanResult;
+  created_at: string;
+};
+
+// Past scans (AI photo + recorded barcode/search), newest first.
+export async function listFoodScans(
+  userId: string,
+  limit = 50,
+): Promise<FoodScanRecord[]> {
+  const { data, error } = await supabase
+    .from("food_scans")
+    .select("id, photo_path, result, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as FoodScanRecord[];
+}
+
+export async function deleteFoodScan(id: string): Promise<void> {
+  const { error } = await supabase.from("food_scans").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// Record a barcode/search estimate to history (the AI photo path is recorded
+// server-side by the Edge Function). Best-effort — callers ignore failures.
+export async function recordFoodScan(
+  userId: string,
+  result: FoodScanResult,
+  photoPath: string | null = null,
+): Promise<void> {
+  const { error } = await supabase
+    .from("food_scans")
+    .insert({ user_id: userId, result, photo_path: photoPath } as never);
+  if (error) throw error;
+}
