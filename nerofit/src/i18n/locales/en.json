@@ -292,6 +292,12 @@
     "addToSlot": "Add to {{slot}}",
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
     "emptyMeals": "No catalog meals yet.",
+    "recentScans": "Recent scans →",
+    "scanHistory": {
+      "title": "Scan history",
+      "empty": "No scans yet. Scan a meal, a barcode, or search to get started.",
+      "deleteA11y": "Delete scan"
+    },
     "scan": {
       "title": "Scan food",
       "hint": "Center your meal in the frame",

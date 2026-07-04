@@ -188,7 +188,7 @@ do'kon talablariga mos.
 | Ish | Kim | Izoh |
 |---|---|---|
 | Bildirishnoma kontenti ✅ | 🤖 | Suv/mashq/streak eslatmalari + per-reminder Notification Settings ekrani (on/off + vaqt), foreground'da dinamik streak matni. Migration/Edge/native rebuild yo'q; 43 test yashil |
-| Food-scan kengaytmalari | 🤖 | **barcode skan + ingredient qidiruv ✅** (OpenFoodFacts, kalitsiz; Photo/Barcode/Search rejimlari; migration/Edge/rebuild yo'q). Qolgan: "Fix with AI", tarix/favoritlar, rasmni Storage'ga (`photo_path`) ⬜ |
+| Food-scan kengaytmalari | 🤖 | **barcode skan + ingredient qidiruv ✅** (OpenFoodFacts, kalitsiz; Photo/Barcode/Search rejimlari) · **scan tarixi ✅** (mavjud `food_scans`; qayta-log + o'chirish; barcode/search ham yoziladi). Migration/Edge/rebuild yo'q. Qolgan: "Fix with AI", favoritlar, rasmni Storage'ga (`photo_path`) ⬜ |
 | Gamifikatsiya | 🤖 + 🧑 | leaderboard, do'stlar, challenge (XP/badge bor) |
 | Data export (GDPR) | 🤖 | `delete-account` bor; export qo'shiladi |
 

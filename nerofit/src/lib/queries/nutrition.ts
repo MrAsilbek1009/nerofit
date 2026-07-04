@@ -11,7 +11,13 @@ import {
   listTodaySupplementLogs,
   setSupplementTaken,
 } from "@/lib/api/supplements";
-import { analyzeFoodPhoto } from "@/lib/api/foodScan";
+import {
+  analyzeFoodPhoto,
+  deleteFoodScan,
+  listFoodScans,
+  recordFoodScan,
+  type FoodScanResult,
+} from "@/lib/api/foodScan";
 import { lookupBarcode, searchFoods } from "@/lib/api/openFoodFacts";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
@@ -100,6 +106,40 @@ export function useFoodSearch(query: string) {
     queryFn: () => searchFoods(q),
     enabled: q.length >= 2,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+// ---- Scan history ----
+export function useFoodScans(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["food-scans", userId] : ["food-scans", "none"],
+    queryFn: () => listFoodScans(userId!),
+    enabled: !!userId,
+  });
+}
+
+export function useDeleteFoodScan(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteFoodScan(id),
+    onSuccess: () => {
+      if (userId) void qc.invalidateQueries({ queryKey: ["food-scans", userId] });
+    },
+  });
+}
+
+// Save a barcode/search estimate to history (best-effort — never blocks the
+// scan flow if it fails).
+export function useRecordFoodScan(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (result: FoodScanResult) => {
+      if (!userId) throw new Error("Not authenticated");
+      return recordFoodScan(userId, result);
+    },
+    onSuccess: () => {
+      if (userId) void qc.invalidateQueries({ queryKey: ["food-scans", userId] });
+    },
   });
 }
 
