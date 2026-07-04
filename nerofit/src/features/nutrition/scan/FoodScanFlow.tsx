@@ -19,6 +19,7 @@ import {
   useRecordFoodScan,
 } from "@/lib/queries/nutrition";
 import type { FoodScanResult } from "@/lib/api/foodScan";
+import { uploadScanPhoto } from "@/lib/api/foodPhotos";
 import { track } from "@/lib/analytics";
 import { colors, radii, space, typography } from "@/theme";
 import { CloseButton } from "./CloseButton";
@@ -71,7 +72,11 @@ export function FoodScanFlow() {
   const [mode, setMode] = useState<ScanMode>("photo");
   const [stage, setStage] = useState<Stage>("input");
   const [previewUri, setPreviewUri] = useState<string | null>(null);
-  const [prepared, setPrepared] = useState<{ base64: string; mediaType: string } | null>(null);
+  const [prepared, setPrepared] = useState<{
+    base64: string;
+    mediaType: string;
+    photoPath: string | null;
+  } | null>(null);
   const [result, setResult] = useState<FoodScanResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -103,9 +108,9 @@ export function FoodScanFlow() {
   }
 
   // ---- Photo (AI) ----
-  function runAnalysis(prep: { base64: string; mediaType: string }) {
+  function runAnalysis(prep: { base64: string; mediaType: string; photoPath: string | null }) {
     analyze.mutate(
-      { imageBase64: prep.base64, mediaType: prep.mediaType },
+      { imageBase64: prep.base64, mediaType: prep.mediaType, photoPath: prep.photoPath },
       {
         onSuccess: (r) => {
           setResult(normalize(r));
@@ -124,8 +129,14 @@ export function FoodScanFlow() {
     setStage("analyzing");
     try {
       const prep = await prepareImage(uri, width, height);
-      setPrepared({ base64: prep.base64, mediaType: prep.mediaType });
-      runAnalysis(prep);
+      // Upload the photo first (best-effort) so the Edge Function can store its
+      // path on the scan. Falls back to null when the bucket isn't set up yet.
+      const photoPath = userId
+        ? await uploadScanPhoto(userId, prep.base64, prep.mediaType)
+        : null;
+      const full = { base64: prep.base64, mediaType: prep.mediaType, photoPath };
+      setPrepared(full);
+      runAnalysis(full);
     } catch (e) {
       setErrorMsg(errorText(e));
       setStage("error");
