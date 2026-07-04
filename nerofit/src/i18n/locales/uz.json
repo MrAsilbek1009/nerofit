@@ -375,6 +375,7 @@
     "daysLeft": "{{n}} kun qoldi",
     "until": "Amal qiladi:",
     "qrHint": "Zalga kirishda bu QR kodni ko'rsating",
+    "memberId": "Sizning ID (skaner ishlamasa)",
     "inactiveTitle": "Abonement faol emas",
     "inactiveBody": "Zalda mashg'ulot uchun tarif tanlang.",
     "plansTitle": "Tariflar",

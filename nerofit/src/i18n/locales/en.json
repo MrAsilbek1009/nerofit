@@ -375,6 +375,7 @@
     "daysLeft": "{{n}} days left",
     "until": "Valid until:",
     "qrHint": "Show this QR code at the gym entrance",
+    "memberId": "Your ID (if scan fails)",
     "inactiveTitle": "No active membership",
     "inactiveBody": "Choose a plan to train at the gym.",
     "plansTitle": "Plans",

@@ -87,6 +87,7 @@ export default function MembershipScreen() {
             leftLabel={t("membership.daysLeft", { n: daysLeft(membership.data!.end_date!) })}
             untilLabel={t("membership.until")}
             qrHint={t("membership.qrHint")}
+            idLabel={t("membership.memberId")}
           />
         ) : (
           <InactiveBanner
@@ -169,6 +170,7 @@ function ActiveCard({
   leftLabel,
   untilLabel,
   qrHint,
+  idLabel,
 }: {
   endDate: string;
   userId: string;
@@ -176,6 +178,7 @@ function ActiveCard({
   leftLabel: string;
   untilLabel: string;
   qrHint: string;
+  idLabel: string;
 }) {
   return (
     <View
@@ -197,6 +200,22 @@ function ActiveCard({
         <QRCode value={userId} size={180} />
       </View>
       <Text style={[typography.bodyMuted, { fontSize: 12, textAlign: "center" }]}>{qrHint}</Text>
+
+      {/* Member ID — read this out (or copy) if the QR scan fails at the desk */}
+      <View style={{ alignItems: "center", gap: space[1] }}>
+        <Text style={[typography.labelCaps, { fontSize: 9 }]}>{idLabel}</Text>
+        <Text
+          selectable
+          style={{
+            fontFamily: fonts.body,
+            color: colors.textLo,
+            fontSize: 12,
+            textAlign: "center",
+          }}
+        >
+          {userId}
+        </Text>
+      </View>
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
         <CalendarClock size={16} color={colors.textLo} />
