@@ -25,14 +25,14 @@
 <body>
   <h1>Nerofit · A'zolik</h1>
   <label>Panel paroli</label>
-  <input id="pwd" type="password" placeholder="parol" autocomplete="off" />
+  <input id="pwd" type="password" placeholder="parol" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
   <div class="row">
     <button id="scanBtn" onclick="toggleScan()">Skaner</button>
   </div>
   <div id="reader"></div>
   <label>Yoki foydalanuvchi ID</label>
   <div class="row">
-    <input id="uid" placeholder="user_id" autocomplete="off" />
+    <input id="uid" placeholder="user_id" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
     <button style="flex:0 0 120px" onclick="verify(document.getElementById('uid').value)">Tekshirish</button>
   </div>
   <div id="out"></div>
