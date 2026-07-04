@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
+import { CreditCard, Dumbbell, Home, MessageCircle, User, Utensils } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useReminderSync } from "@/features/notifications/useReminderSync";
 import { colors, fonts } from "@/theme";
@@ -33,11 +33,22 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
+      {/* 🔴 WORKOUT HIDDEN (gym-first pivot) — see WORKOUT_DEFERRED.md.
+          Nerofit is gym-first now; the workout track RETURNS later.
+          Restore: remove `href: null` below + re-add <ProgramsSection/> in index.tsx. */}
       <Tabs.Screen
         name="workouts"
         options={{
+          href: null,
           title: t("tabs.workouts"),
           tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="membership"
+        options={{
+          title: t("tabs.membership"),
+          tabBarIcon: ({ color, size }) => <CreditCard color={color} size={size} />,
         }}
       />
       <Tabs.Screen

@@ -193,6 +193,7 @@
     "sectionMain": "Asosiy",
     "sectionCooldown": "Yakuniy cho'zish",
     "startHere": "Shu yerdan boshlang",
+    "eliteLocked": "ELITE",
     "showEarlier": "Oldingi haftalarni ko'rsatish",
     "hideEarlier": "Oldingi haftalarni yashirish",
     "saveResult": "Saqlash",
@@ -349,8 +350,8 @@
     "title": "Elite",
     "subtitle": "Nerofit'ning barcha imkoniyatlari bilan aqlliroq mashq qiling.",
     "benefits": [
-      "Forge bilan cheksiz AI murabbiylik",
-      "Barcha dasturlarga toʻliq kirish",
+      "Boshlangʻich 1-haftadan keyin barcha dasturlar",
+      "Oʻrta, Yuqori va Professional darajalar",
       "Kengaytirilgan natija tahlili"
     ],
     "subscribe": "Obuna boʻlish",
@@ -371,7 +372,26 @@
     "workouts": "Mashqlar",
     "nutrition": "Ovqatlanish",
     "coach": "Murabbiy",
-    "profile": "Profil"
+    "profile": "Profil",
+    "membership": "A'zolik"
+  },
+
+  "membership": {
+    "subtitle": "Zal a'zoligi",
+    "title": "Abonement",
+    "statusActive": "Faol",
+    "activePlan": "A'zolik faol",
+    "daysLeft": "{{n}} kun qoldi",
+    "until": "Amal qiladi:",
+    "qrHint": "Zalga kirishda bu QR kodni ko'rsating",
+    "inactiveTitle": "Abonement faol emas",
+    "inactiveBody": "Zalda mashg'ulot uchun tarif tanlang.",
+    "plansTitle": "Tariflar",
+    "appPrice": "Ilova orqali (chegirma)",
+    "gymPrice": "Zalda {{price}} so'm",
+    "choose": "Tanlash",
+    "paymentSoon": "To'lov integratsiyasi tez orada",
+    "historyTitle": "To'lovlar tarixi"
   },
 
   "profile": {
