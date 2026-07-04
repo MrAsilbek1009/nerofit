@@ -1,9 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getActiveMembership,
   getMembershipPlans,
   getPayments,
+  startCheckout,
+  type PaymentProvider,
 } from "@/lib/api/membership";
+import { track } from "@/lib/analytics";
 
 export function useMembershipPlans() {
   return useQuery({
@@ -26,6 +29,19 @@ export function usePayments(userId: string | undefined) {
     queryKey: userId ? ["payments", userId] : ["payments", "none"],
     queryFn: () => getPayments(userId!),
     enabled: !!userId,
+  });
+}
+
+// Start Payme/Click checkout for a plan. Returns the provider checkout URL for
+// the caller to open; the membership activates via the webhook once paid, and
+// the screen refetches on focus.
+export function useStartCheckout() {
+  return useMutation({
+    mutationFn: ({ planId, provider }: { planId: string; provider: PaymentProvider }) =>
+      startCheckout(planId, provider),
+    onSuccess: (_data, { provider }) => {
+      track("membership_checkout_started", { provider });
+    },
   });
 }
 

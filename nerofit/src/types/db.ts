@@ -872,4 +872,11 @@ export type Payment = {
   status: PaymentStatus;
   paid_at: string | null;
   created_at: string;
+  // Provider bookkeeping (migration 0016) — only set by the payments-webhook.
+  // Payme transaction state: 1 created, 2 performed, -1/-2 cancelled.
+  provider_state: number | null;
+  create_time: number | null;
+  perform_time: number | null;
+  cancel_time: number | null;
+  cancel_reason: number | null;
 };

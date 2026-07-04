@@ -1,17 +1,20 @@
-import { useCallback } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
+import * as Linking from "expo-linking";
 import QRCode from "react-native-qrcode-svg";
 import { useTranslation } from "react-i18next";
 import { CalendarClock, CheckCircle2, XCircle } from "lucide-react-native";
-import { Button } from "@/components/ui";
+import { Button, Chip } from "@/components/ui";
 import { useUserId } from "@/hooks/useUser";
+import type { PaymentProvider } from "@/lib/api/membership";
 import {
   isMembershipActive,
   useActiveMembership,
   useMembershipPlans,
   usePayments,
+  useStartCheckout,
 } from "@/lib/queries/membership";
 import type { MembershipPlan } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
@@ -25,23 +28,42 @@ function daysLeft(endDate: string): number {
   return Math.max(0, Math.ceil(ms / 86_400_000));
 }
 
+const PROVIDERS: PaymentProvider[] = ["payme", "click"];
+
 export default function MembershipScreen() {
   const { t } = useTranslation();
   const userId = useUserId();
   const membership = useActiveMembership(userId);
   const plans = useMembershipPlans();
   const payments = usePayments(userId);
+  const checkout = useStartCheckout();
+
+  const [provider, setProvider] = useState<PaymentProvider>("payme");
 
   const active = isMembershipActive(membership.data);
 
-  // Refresh on focus so a just-activated membership (e.g. admin/SQL) shows up
-  // without an app restart.
+  // Refresh on focus so a just-activated membership (webhook, admin/SQL) shows
+  // up without an app restart.
   useFocusEffect(
     useCallback(() => {
       void membership.refetch();
       void payments.refetch();
     }, [membership, payments]),
   );
+
+  const onPay = useCallback(
+    async (planId: string) => {
+      try {
+        const { checkoutUrl } = await checkout.mutateAsync({ planId, provider });
+        await Linking.openURL(checkoutUrl);
+      } catch {
+        Alert.alert(t("membership.checkoutErrorTitle"), t("membership.checkoutErrorBody"));
+      }
+    },
+    [checkout, provider, t],
+  );
+
+  const pendingPlanId = checkout.isPending ? checkout.variables?.planId : undefined;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -59,13 +81,13 @@ export default function MembershipScreen() {
           </View>
         ) : active ? (
           <ActiveCard
-            planName={t("membership.activePlan")}
             endDate={membership.data!.end_date!}
             userId={userId!}
             statusLabel={t("membership.statusActive")}
             leftLabel={t("membership.daysLeft", { n: daysLeft(membership.data!.end_date!) })}
             untilLabel={t("membership.until")}
             qrHint={t("membership.qrHint")}
+            idLabel={t("membership.memberId")}
           />
         ) : (
           <InactiveBanner
@@ -77,6 +99,24 @@ export default function MembershipScreen() {
         {/* Tariffs — always visible so members can renew / upgrade too */}
         <View style={{ gap: space[3] }}>
           <Text style={typography.labelCaps}>{t("membership.plansTitle")}</Text>
+
+          {/* Payment method selector — chartreuse on the selected chip only. */}
+          <View style={{ gap: space[2] }}>
+            <Text style={[typography.labelCaps, { fontSize: 9 }]}>
+              {t("membership.providerLabel")}
+            </Text>
+            <View style={{ flexDirection: "row", gap: space[2] }}>
+              {PROVIDERS.map((p) => (
+                <Chip
+                  key={p}
+                  label={p === "payme" ? "Payme" : "Click"}
+                  selected={provider === p}
+                  onPress={() => setProvider(p)}
+                />
+              ))}
+            </View>
+          </View>
+
           {plans.isLoading ? (
             <ActivityIndicator color={colors.accent} />
           ) : (
@@ -86,8 +126,10 @@ export default function MembershipScreen() {
                 plan={p}
                 appLabel={t("membership.appPrice")}
                 gymLabel={t("membership.gymPrice", { price: uzs(p.price_gym_uzs) })}
-                cta={t("membership.choose")}
-                soon={t("membership.paymentSoon")}
+                cta={t("membership.pay")}
+                loading={pendingPlanId === p.id}
+                disabled={checkout.isPending}
+                onPay={() => onPay(p.id)}
               />
             ))
           )}
@@ -122,21 +164,21 @@ export default function MembershipScreen() {
 }
 
 function ActiveCard({
-  planName,
   endDate,
   userId,
   statusLabel,
   leftLabel,
   untilLabel,
   qrHint,
+  idLabel,
 }: {
-  planName: string;
   endDate: string;
   userId: string;
   statusLabel: string;
   leftLabel: string;
   untilLabel: string;
   qrHint: string;
+  idLabel: string;
 }) {
   return (
     <View
@@ -153,11 +195,27 @@ function ActiveCard({
         <Text style={[typography.labelCaps, { color: colors.accent }]}>{statusLabel}</Text>
       </View>
 
-      {/* QR — gym staff scans this (membership id) */}
+      {/* QR — gym staff scans this (user id) */}
       <View style={{ backgroundColor: "#fff", padding: space[3], borderRadius: radii.sm }}>
         <QRCode value={userId} size={180} />
       </View>
       <Text style={[typography.bodyMuted, { fontSize: 12, textAlign: "center" }]}>{qrHint}</Text>
+
+      {/* Member ID — read this out (or copy) if the QR scan fails at the desk */}
+      <View style={{ alignItems: "center", gap: space[1] }}>
+        <Text style={[typography.labelCaps, { fontSize: 9 }]}>{idLabel}</Text>
+        <Text
+          selectable
+          style={{
+            fontFamily: fonts.body,
+            color: colors.textLo,
+            fontSize: 12,
+            textAlign: "center",
+          }}
+        >
+          {userId}
+        </Text>
+      </View>
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
         <CalendarClock size={16} color={colors.textLo} />
@@ -197,13 +255,17 @@ function PlanCard({
   appLabel,
   gymLabel,
   cta,
-  soon,
+  loading,
+  disabled,
+  onPay,
 }: {
   plan: MembershipPlan;
   appLabel: string;
   gymLabel: string;
   cta: string;
-  soon: string;
+  loading: boolean;
+  disabled: boolean;
+  onPay: () => void;
 }) {
   return (
     <View
@@ -226,9 +288,7 @@ function PlanCard({
       <Text style={[typography.bodyMuted, { fontSize: 12, textDecorationLine: "line-through" }]}>
         {gymLabel}
       </Text>
-      {/* Purchase is Stage 2 (Payme/Click). For now show it's coming. */}
-      <Button label={cta} variant="secondary" disabled onPress={() => undefined} />
-      <Text style={[typography.bodyMuted, { fontSize: 11, textAlign: "center" }]}>{soon}</Text>
+      <Button label={cta} variant="primary" loading={loading} disabled={disabled} onPress={onPay} />
     </View>
   );
 }

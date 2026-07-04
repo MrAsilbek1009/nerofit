@@ -384,13 +384,16 @@
     "daysLeft": "{{n}} kun qoldi",
     "until": "Amal qiladi:",
     "qrHint": "Zalga kirishda bu QR kodni ko'rsating",
+    "memberId": "Sizning ID (skaner ishlamasa)",
     "inactiveTitle": "Abonement faol emas",
     "inactiveBody": "Zalda mashg'ulot uchun tarif tanlang.",
     "plansTitle": "Tariflar",
     "appPrice": "Ilova orqali (chegirma)",
     "gymPrice": "Zalda {{price}} so'm",
-    "choose": "Tanlash",
-    "paymentSoon": "To'lov integratsiyasi tez orada",
+    "pay": "To'lash",
+    "providerLabel": "To'lov usuli",
+    "checkoutErrorTitle": "To'lov xatosi",
+    "checkoutErrorBody": "To'lovni boshlab bo'lmadi. Qayta urinib ko'ring.",
     "historyTitle": "To'lovlar tarixi"
   },
 
