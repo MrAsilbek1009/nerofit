@@ -19,7 +19,7 @@
   .row > * { flex:1; }
   .card { background:var(--card); border-radius:14px; padding:14px; margin-top:10px; border:1px solid var(--line); }
   .between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
-  .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
   .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
   .muted { color:var(--lo); font-size:13px; }
   .big { font-size:22px; font-weight:800; margin:4px 0; }
@@ -51,7 +51,6 @@
     <div class="nav">
       <button id="tab-staff" class="on" onclick="show('staff')">Xodimlar</button>
       <button id="tab-members" class="off" onclick="show('members')">A'zolar</button>
-      <button id="tab-feed" class="off" onclick="show('feed')">Faoliyat</button>
     </div>
 
     <!-- Staff -->
@@ -67,9 +66,10 @@
       </div>
       <h2>Xodimlar ro'yxati</h2>
       <div id="staffList"></div>
+      <button class="ghost" style="margin-top:24px" onclick="logout()">Chiqish</button>
     </section>
 
-    <!-- Members -->
+    <!-- Members + activity (merged) -->
     <section id="sec-members" class="hidden">
       <h2>A'zoni qidirish (ism bo'yicha)</h2>
       <div class="row">
@@ -78,18 +78,13 @@
       </div>
       <div id="memberResults"></div>
       <div id="memberDetail"></div>
-    </section>
 
-    <!-- Feed -->
-    <section id="sec-feed" class="hidden">
-      <div class="between" style="margin-top:14px">
+      <div class="between" style="margin-top:20px">
         <h2 style="margin:0">So'nggi kelishlar</h2>
         <button class="ghost mini" onclick="loadFeed()">Yangilash</button>
       </div>
       <div id="feed"></div>
     </section>
-
-    <button class="ghost" style="margin-top:26px" onclick="logout()">Chiqish</button>
   </div>
 
 <script>
@@ -97,6 +92,9 @@
   let PWD = "";
   let staffCache = [];
   const $ = (id) => document.getElementById(id);
+  const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+  const btn = (text, cls, on) => { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; };
+  const escapeHtml = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
   async function api(action, extra) {
     const res = await fetch(API, {
@@ -107,15 +105,13 @@
     let data = {}; try { data = await res.json(); } catch (e) {}
     return { status: res.status, data };
   }
-
   function fmt(dt) {
     if (!dt) return "-";
-    const d = new Date(dt);
-    if (isNaN(d)) return dt;
+    const d = new Date(dt); if (isNaN(d)) return dt;
     const p = (n) => String(n).padStart(2, "0");
     return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
   }
-  function uzs(n) { return (n || 0).toLocaleString("ru-RU"); }
+  const uzs = (n) => (n || 0).toLocaleString("ru-RU");
 
   // ── Auth ──────────────────────────────────────────────────────────────
   async function login() {
@@ -128,18 +124,18 @@
     $("loginMsg").textContent = "";
     $("login").classList.add("hidden");
     $("dash").classList.remove("hidden");
-    loadStaff(); loadFeed();
+    loadStaff();
   }
   function logout() {
     PWD = ""; try { localStorage.removeItem("na_pwd"); } catch (e) {}
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["staff", "members", "feed"].forEach((t) => {
+    ["staff", "members"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
-    if (tab === "feed") loadFeed();
+    if (tab === "members") loadFeed();
   }
 
   // ── Staff management ────────────────────────────────────────────────────
@@ -149,19 +145,26 @@
     const box = $("staffList"); box.innerHTML = "";
     if (staffCache.length === 0) { box.innerHTML = '<p class="muted">Hali xodim yo’q.</p>'; return; }
     staffCache.forEach((s) => {
-      const c = document.createElement("div"); c.className = "card";
-      const top = document.createElement("div"); top.className = "between";
-      const left = document.createElement("div");
-      left.innerHTML = '<div style="font-weight:700">' + escapeHtml(s.name) + ' <span class="muted">· ' + s.role + '</span></div>' +
-        '<div class="muted">' + (s.is_active ? "faol" : "o‘chirilgan") + '</div>';
-      const badge = document.createElement("span");
-      badge.className = "badge " + (s.is_active ? "ok" : "bad"); badge.textContent = s.is_active ? "ON" : "OFF";
-      top.appendChild(left); top.appendChild(badge); c.appendChild(top);
-      const row = document.createElement("div"); row.className = "row"; row.style.marginTop = "10px";
-      row.appendChild(btn("Parol", "ghost mini", () => setStaffPw(s)));
-      row.appendChild(btn(s.is_active ? "O'chirish" : "Yoqish", "ghost mini", () => toggleStaff(s)));
-      row.appendChild(btn("Del", "danger mini", () => delStaff(s)));
-      c.appendChild(row);
+      const c = el("div", "card");
+      const top = el("div", "between");
+      const left = el("div");
+      left.innerHTML = '<div style="font-weight:700">' + escapeHtml(s.name) + ' <span class="muted">· ' + s.role + '</span></div>';
+      const badge = el("span", "badge " + (s.is_active ? "ok" : "bad"), s.is_active ? "FAOL" : "O‘CHIQ");
+      top.appendChild(left); top.appendChild(badge);
+      c.appendChild(top);
+
+      // One "Tahrirlash" button reveals the actions.
+      const acts = el("div"); acts.style.display = "none"; acts.style.marginTop = "10px";
+      const rowA = el("div", "row");
+      rowA.appendChild(btn("Parol", "ghost mini", () => setStaffPw(s)));
+      rowA.appendChild(btn(s.is_active ? "O'chirish" : "Yoqish", "ghost mini", () => toggleStaff(s)));
+      rowA.appendChild(btn("Del", "danger mini", () => delStaff(s)));
+      acts.appendChild(rowA);
+
+      const edit = btn("Tahrirlash", "ghost mini", () => { acts.style.display = acts.style.display === "none" ? "block" : "none"; });
+      edit.style.marginTop = "10px";
+      c.appendChild(edit);
+      c.appendChild(acts);
       box.appendChild(c);
     });
   }
@@ -178,15 +181,13 @@
     const r = await api("staff_set_password", { staff_id: s.id, new_password: pw.trim() });
     alert(r.data && r.data.ok ? "Parol o‘zgartirildi" : ((r.data && r.data.error) || "Xato"));
   }
-  async function toggleStaff(s) {
-    await api("staff_set_active", { staff_id: s.id, is_active: !s.is_active }); loadStaff();
-  }
+  async function toggleStaff(s) { await api("staff_set_active", { staff_id: s.id, is_active: !s.is_active }); loadStaff(); }
   async function delStaff(s) {
     if (!confirm("'" + s.name + "' o‘chirilsinmi?")) return;
     await api("staff_delete", { staff_id: s.id }); loadStaff();
   }
 
-  // ── Members ─────────────────────────────────────────────────────────────
+  // ── Members + activity ──────────────────────────────────────────────────
   async function searchMembers() {
     $("memberDetail").innerHTML = "";
     const q = $("mq").value.trim(); if (!q) return;
@@ -195,10 +196,9 @@
     const list = (r.data && r.data.members) || [];
     box.innerHTML = "";
     if (list.length === 0) { box.innerHTML = '<p class="muted">Topilmadi.</p>'; return; }
-    const c = document.createElement("div"); c.className = "card";
+    const c = el("div", "card");
     list.forEach((m) => {
-      const it = document.createElement("div"); it.className = "item clickable";
-      it.textContent = m.name || "(ismsiz) " + m.id.slice(0, 8);
+      const it = el("div", "item clickable", m.name || "(ismsiz) " + m.id.slice(0, 8));
       it.onclick = () => openMember(m.id);
       c.appendChild(it);
     });
@@ -206,6 +206,7 @@
   }
   async function openMember(userId) {
     const box = $("memberDetail"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
     const r = await api("member_detail", { user_id: userId });
     const d = r.data;
     if (!d || !d.found) { box.innerHTML = '<p class="muted">Ma’lumot yo’q.</p>'; return; }
@@ -226,27 +227,27 @@
     html += '</div>';
     box.innerHTML = html;
   }
-
-  // ── Feed ────────────────────────────────────────────────────────────────
   async function loadFeed() {
     const box = $("feed"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
     const r = await api("checkins_recent");
     const list = (r.data && r.data.checkins) || [];
     box.innerHTML = "";
     if (list.length === 0) { box.innerHTML = '<p class="muted">Hali kelishlar yo’q.</p>'; return; }
-    const c = document.createElement("div"); c.className = "card";
+    const c = el("div", "card");
     list.forEach((k) => {
-      const it = document.createElement("div"); it.className = "item";
-      it.innerHTML = '<div class="between"><span>' + escapeHtml(k.member_name || "(ismsiz)") + '</span>' +
-        '<span class="badge ' + (k.was_active ? "ok" : "bad") + '">' + (k.was_active ? "faol" : "emas") + '</span></div>' +
-        '<div class="muted">' + fmt(k.checked_at) + ' · ' + escapeHtml(k.staff_name || "-") + '</div>';
+      const it = el("div", "item");
+      const b = el("div", "between");
+      const info = el("div");
+      info.innerHTML = '<div>' + escapeHtml(k.member_name || "(ismsiz)") + '</div><div class="muted">' + fmt(k.checked_at) + ' · ' + escapeHtml(k.staff_name || "-") + '</div>';
+      const right = el("div"); right.style.display = "flex"; right.style.gap = "8px"; right.style.alignItems = "center";
+      right.appendChild(btn("Ko'rish", "ghost mini", () => openMember(k.user_id)));
+      right.appendChild(el("span", "badge " + (k.was_active ? "ok" : "bad"), k.was_active ? "FAOL" : "EMAS"));
+      b.appendChild(info); b.appendChild(right);
+      it.appendChild(b);
       c.appendChild(it);
     });
     box.appendChild(c);
   }
-
-  function btn(text, cls, on) { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; }
-  function escapeHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch])); }
 
   // Auto-login if a password is remembered on this device.
   (function () {
