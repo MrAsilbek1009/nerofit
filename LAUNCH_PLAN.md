@@ -29,7 +29,7 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 | 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
 | 13 | Home redesign (Cal AI uslubi, gibrid) | ✅ | Mirolim — A (carousel) ✅ · B micros/health-score ✅ (PR #8) · C steps ✅ · D food-scan ✅ + water settings (serving size) ✅ (PR #9) — barchasi main'ga merged; `food-analysis` deployed, `food_scans`+`water_serving_ml` migrations applied |
-| 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · **14C HealthKit ✅** (custom Swift module, PR #17) · **14D** ⬜ boshlandi: bildirishnoma kontenti ✅ (streak eslatma + per-reminder settings + dinamik matn, 43 test) · food-scan/gamifikatsiya/export ⬜. Batafsil ↓ |
+| 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · **14C HealthKit ✅** (custom Swift module, PR #17) · **14D** ⬜ boshlandi: bildirishnoma kontenti ✅ (PR #18) · food-scan barcode+ingredient qidiruv ✅ (OpenFoodFacts, zero handoff, 55 test) · food-scan (Fix-with-AI/tarix/rasm), gamifikatsiya, export ⬜. Batafsil ↓ |
 | 15 | 🔴 **Zal abonementi (Gym Membership) — ASOSIY** | 🟡 | Claude — **Bosqich 1 ✅** (migration 0015: plans/memberships/payments + RLS; a'zolik holati + **QR** + tariflar (app/zal narx) ekrani; **"A'zolik" tab** yashirin workout o'rniga; qo'lда faollashtirish). **Bosqich 2** 🟡 kod tayyor (scaffold): `payments-webhook` (Payme JSON-RPC + Click Prepare/Complete) + `membership-checkout` + ilova to'lov oqimi + migration 0016; 🧑 merchant akkaunt/secret/deploy/webhook URL → `PHASE15_STAGE2_HANDOFF.md`. **Bosqich 3** 🟡 admin QR paneli + **xodim akkauntлари** (`gym_staff`) + **admin paneli** (`docs/gym-admin` — xodim boshqaruvi, a'zolar, attendance `gym_checkins`) ✅ Vercel'да jonли (migration 0017); ⬜ eslatma/freeze. Reja: `GYM_MEMBERSHIP_PLAN.md` |
 
 ---
@@ -188,7 +188,7 @@ do'kon talablariga mos.
 | Ish | Kim | Izoh |
 |---|---|---|
 | Bildirishnoma kontenti ✅ | 🤖 | Suv/mashq/streak eslatmalari + per-reminder Notification Settings ekrani (on/off + vaqt), foreground'da dinamik streak matni. Migration/Edge/native rebuild yo'q; 43 test yashil |
-| Food-scan kengaytmalari | 🤖 | barcode skan, ingredient qidiruv, "Fix with AI", tarix/favoritlar, rasmni Storage'ga saqlash (`photo_path`) |
+| Food-scan kengaytmalari | 🤖 | **barcode skan + ingredient qidiruv ✅** (OpenFoodFacts, kalitsiz; Photo/Barcode/Search rejimlari; migration/Edge/rebuild yo'q). Qolgan: "Fix with AI", tarix/favoritlar, rasmni Storage'ga (`photo_path`) ⬜ |
 | Gamifikatsiya | 🤖 + 🧑 | leaderboard, do'stlar, challenge (XP/badge bor) |
 | Data export (GDPR) | 🤖 | `delete-account` bor; export qo'shiladi |
 
