@@ -31,6 +31,14 @@ function today(): Date {
 function daysLeft(endDate: string): number {
   return Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000));
 }
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+// Whole days from one ISO date to another (clamped at 0). Used for a frozen
+// membership's preserved remaining days and for the freeze duration on unfreeze.
+function daysBetween(fromIso: string, toIso: string): number {
+  return Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000));
+}
 
 // SHA-256(pepper + ":" + password), hex. Pepper = service-role key (secret, not
 // in git). Deterministic so we can look a staff up by their password's hash.
@@ -87,7 +95,7 @@ async function handlePost(req: Request): Promise<Response> {
     if (!userId) return json({ found: false });
     const { data: m } = await db
       .from("memberships")
-      .select("status, start_date, end_date, membership_plans(name_uz)")
+      .select("status, start_date, end_date, frozen_at, membership_plans(name_uz)")
       .eq("user_id", userId)
       .order("end_date", { ascending: false, nullsFirst: false })
       .limit(1)
@@ -96,6 +104,7 @@ async function handlePost(req: Request): Promise<Response> {
     if (!prof && !m) return json({ found: false });
 
     const active = !!m && m.status === "active" && !!m.end_date && new Date(m.end_date) >= today();
+    const frozen = !!m && m.status === "frozen";
     // Log the door check (attendance) — only for a real profile (FK).
     if (prof) {
       await db.from("gym_checkins").insert({
@@ -104,15 +113,22 @@ async function handlePost(req: Request): Promise<Response> {
         was_active: active,
       });
     }
+    // A frozen membership's remaining days are preserved as of the freeze date
+    // (the clock stopped), so measure end_date from frozen_at, not from now.
+    const daysRemaining = frozen && m?.frozen_at && m?.end_date
+      ? daysBetween(m.frozen_at, m.end_date)
+      : m?.end_date ? daysLeft(m.end_date) : 0;
     return json({
       found: true,
       active,
+      frozen,
       status: m?.status ?? "none",
+      frozen_at: m?.frozen_at ?? null,
       name: prof?.name ?? null,
       // deno-lint-ignore no-explicit-any
       plan_name: (m as any)?.membership_plans?.name_uz ?? null,
       end_date: m?.end_date ?? null,
-      days_left: m?.end_date ? daysLeft(m.end_date) : 0,
+      days_left: daysRemaining,
     });
   }
 
@@ -220,6 +236,60 @@ async function handlePost(req: Request): Promise<Response> {
     return json({ ok: true, end_date: iso(end), days_left: duration });
   }
 
+  // ── freeze / unfreeze (staff + admin) ──────────────────────────────────
+  // Pause the membership clock. Freeze records the date; unfreeze pushes the
+  // end_date forward by however long it was frozen, so no paid days are lost.
+  if (action === "freeze") {
+    const userId = String(body.user_id ?? "").trim();
+    if (!userId) return json({ error: "user_id required" }, 400);
+    const { data: m } = await db
+      .from("memberships")
+      .select("id, status, end_date")
+      .eq("user_id", userId)
+      .order("end_date", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    if (!m) return json({ error: "A'zolik topilmadi" }, 404);
+    if (m.status !== "active" || !m.end_date || new Date(m.end_date) < today()) {
+      return json({ error: "Faqat faol a'zolikni muzlatish mumkin" }, 400);
+    }
+    const { error } = await db
+      .from("memberships")
+      .update({ status: "frozen", frozen_at: isoDate(today()) })
+      .eq("id", m.id);
+    if (error) return json({ error: error.message }, 500);
+    return json({ ok: true, status: "frozen", days_left: daysLeft(m.end_date) });
+  }
+
+  if (action === "unfreeze") {
+    const userId = String(body.user_id ?? "").trim();
+    if (!userId) return json({ error: "user_id required" }, 400);
+    const { data: m } = await db
+      .from("memberships")
+      .select("id, status, end_date, frozen_at, frozen_days_total")
+      .eq("user_id", userId)
+      .order("end_date", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    if (!m) return json({ error: "A'zolik topilmadi" }, 404);
+    if (m.status !== "frozen" || !m.frozen_at || !m.end_date) {
+      return json({ error: "Bu a'zolik muzlatilmagan" }, 400);
+    }
+    const frozenDays = daysBetween(m.frozen_at, isoDate(today()));
+    const newEnd = isoDate(new Date(new Date(m.end_date).getTime() + frozenDays * 86_400_000));
+    const { error } = await db
+      .from("memberships")
+      .update({
+        status: "active",
+        end_date: newEnd,
+        frozen_at: null,
+        frozen_days_total: (m.frozen_days_total ?? 0) + frozenDays,
+      })
+      .eq("id", m.id);
+    if (error) return json({ error: error.message }, 500);
+    return json({ ok: true, status: "active", end_date: newEnd, days_left: daysLeft(newEnd), frozen_days: frozenDays });
+  }
+
   // ── admin-only actions ─────────────────────────────────────────────────
   if (auth.role !== "admin") return json({ error: "Admin only" }, 403);
 
@@ -291,7 +361,7 @@ async function handlePost(req: Request): Promise<Response> {
     const { data: prof } = await db.from("profiles").select("name").eq("id", userId).maybeSingle();
     const { data: m } = await db
       .from("memberships")
-      .select("status, start_date, end_date, membership_plans(name_uz)")
+      .select("status, start_date, end_date, frozen_at, membership_plans(name_uz)")
       .eq("user_id", userId)
       .order("end_date", { ascending: false, nullsFirst: false })
       .limit(1)
@@ -320,7 +390,7 @@ async function handlePost(req: Request): Promise<Response> {
       name: prof?.name ?? null,
       active,
       // deno-lint-ignore no-explicit-any
-      membership: m ? { status: m.status, start_date: m.start_date, end_date: m.end_date, plan_name: (m as any).membership_plans?.name_uz ?? null } : null,
+      membership: m ? { status: m.status, start_date: m.start_date, end_date: m.end_date, frozen_at: m.frozen_at, plan_name: (m as any).membership_plans?.name_uz ?? null } : null,
       payments: (pays ?? []).map((p) => ({ ...p, staff_name: p.activated_by ? names[p.activated_by] ?? null : null })),
       checkins: (checks ?? []).map((c) => ({ ...c, staff_name: c.staff_id ? names[c.staff_id] ?? null : "admin" })),
     });

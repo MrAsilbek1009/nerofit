@@ -116,10 +116,18 @@ async function ensureAndroidChannel(N: Notifications): Promise<void> {
   });
 }
 
-// Replace any existing schedule with the enabled reminders from `prefs`.
+// A one-off, date-based reminder (e.g. "membership expires soon"). Scheduled in
+// the same pass as the daily reminders so the daily reschedule doesn't wipe it.
+export type DatedReminder = { content: ReminderCopy; date: Date };
+
+// Replace any existing schedule with the enabled daily reminders from `prefs`,
+// plus an optional one-off dated reminder. Because this cancels ALL scheduled
+// notifications first, callers must pass every reminder they still want on each
+// run — see useReminderSync.
 export async function scheduleReminders(
   prefs: ReminderPrefs,
   texts: ReminderTexts,
+  dated?: DatedReminder | null,
 ): Promise<void> {
   const N = getMod();
   if (!N) return;
@@ -132,6 +140,16 @@ export async function scheduleReminders(
         type: N.SchedulableTriggerInputTypes.DAILY,
         hour: req.hour,
         minute: req.minute,
+        channelId: CHANNEL_ID,
+      },
+    });
+  }
+  if (dated && dated.date.getTime() > Date.now()) {
+    await N.scheduleNotificationAsync({
+      content: { title: dated.content.title, body: dated.content.body },
+      trigger: {
+        type: N.SchedulableTriggerInputTypes.DATE,
+        date: dated.date,
         channelId: CHANNEL_ID,
       },
     });

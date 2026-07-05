@@ -21,6 +21,7 @@
   .between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
   .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
   .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
+  .badge.warn { background:#333; color:#fff; }
   .muted { color:var(--lo); font-size:13px; }
   .big { font-size:22px; font-weight:800; margin:4px 0; }
   .nav { display:flex; gap:8px; margin-top:14px; }
@@ -230,9 +231,12 @@
   // ── Members + activity (inline accordion) ───────────────────────────────
   function memberDetailHtml(d) {
     if (!d || !d.found) return '<p class="muted">Ma’lumot yo’q.</p>';
-    let h = '<span class="badge ' + (d.active ? "ok" : "bad") + '">' + (d.active ? "FAOL" : "FAOL EMAS") + '</span>';
+    const frozen = !!(d.membership && d.membership.status === "frozen");
+    const badgeCls = d.active ? "ok" : (frozen ? "warn" : "bad");
+    const badgeTxt = d.active ? "FAOL" : (frozen ? "MUZLATILGAN" : "FAOL EMAS");
+    let h = '<span class="badge ' + badgeCls + '">' + badgeTxt + '</span>';
     h += '<div class="big">' + escapeHtml(d.name || "(ismsiz)") + '</div>';
-    if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + fmt(d.membership.end_date) + '</div>';
+    if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + fmt(d.membership.end_date) + (frozen ? ' · muzlatilgan' : '') + '</div>';
     h += '<h2>To‘lovlar (qachon qabul bo‘ldi)</h2>';
     h += (d.payments && d.payments.length) ? d.payments.map((p) =>
       '<div class="item"><div class="between"><span>' + uzs(p.amount_uzs) + ' so‘m · ' + p.provider + '</span><span class="muted">' + p.status + '</span></div>' +
