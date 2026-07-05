@@ -33,7 +33,7 @@
   <label>Yoki foydalanuvchi ID</label>
   <div class="row">
     <input id="uid" placeholder="user_id" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
-    <button style="flex:0 0 120px" onclick="verify(document.getElementById('uid').value)">Tekshirish</button>
+    <button style="flex:0 0 120px" onclick="handleCode(document.getElementById('uid').value)">Tekshirish</button>
   </div>
   <div id="out"></div>
 
@@ -49,6 +49,8 @@
   });
   function el(t,c,txt){ var e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; }
   function out(){ return document.getElementById('out'); }
+  // "2026-10-03" → "03.10.2026" (date part only).
+  function fmt(s){ if(!s) return '-'; var p=String(s).slice(0,10).split('-'); return p.length===3 ? p[2]+'.'+p[1]+'.'+p[0] : String(s); }
 
   async function api(action, extra){
     var b = Object.assign({ action:action, password: document.getElementById('pwd').value }, extra||{});
@@ -61,7 +63,7 @@
     if(scanning){ stopScan(); return; }
     scanner = new Html5Qrcode('reader');
     scanner.start({ facingMode:'environment' }, { fps:10, qrbox:240 }, function(text){
-      stopScan(); document.getElementById('uid').value = text; verify(text);
+      stopScan(); document.getElementById('uid').value = text; handleCode(text);
     }).then(function(){ scanning = true; document.getElementById('scanBtn').textContent = 'To‘xtatish'; })
       .catch(function(){ alert('Kamera ochilmadi'); });
   }
@@ -83,7 +85,7 @@
     if(d.name) c.appendChild(el('div','big', d.name));
     if(d.active){
       c.appendChild(el('div',null,(d.plan_name||'')));
-      c.appendChild(el('div','muted','Tugaydi: '+(d.end_date||'-')+' · '+d.days_left+' kun qoldi'));
+      c.appendChild(el('div','muted','Tugaydi: '+fmt(d.end_date)+' · '+d.days_left+' kun qoldi'));
     } else {
       c.appendChild(el('div','muted','Holat: '+d.status));
       buildActivate(c, userId);
@@ -103,6 +105,52 @@
       if(r.data && r.data.ok){ verify(userId); } else { alert((r.data && r.data.error) || 'Xato'); btn.disabled=false; btn.textContent='Faollashtirish'; }
     };
     c.appendChild(btn);
+  }
+
+  // Route a scanned/entered code: "order:<id>" → cash order, otherwise a member.
+  function handleCode(text){
+    text = (text||'').trim();
+    if(text.indexOf('order:') === 0){ verifyOrder(text); } else { verify(text); }
+  }
+
+  async function verifyOrder(raw){
+    var orderId = (raw||'').replace(/^order:/,'').trim(); if(!orderId) return;
+    out().innerHTML=''; out().appendChild(el('p','muted','Buyurtma tekshirilmoqda…'));
+    var r = await api('order_detail', { order_id: orderId });
+    if(r.status === 401){ out().innerHTML=''; out().appendChild(el('p','muted','Parol noto‘g‘ri')); return; }
+    renderOrder(r.data, orderId);
+  }
+
+  function renderOrder(d, orderId){
+    out().innerHTML='';
+    var c = el('div','card'); c.style.padding='12px 14px';
+    if(!d.found){ c.appendChild(el('p','muted','Buyurtma topilmadi')); out().appendChild(c); return; }
+    var paid = d.status === 'paid';
+    c.appendChild(el('span','badge '+(paid?'ok':'bad'), paid?'TO‘LANGAN':'NAQD KUTILMOQDA'));
+    if(d.user_name){ var nm0=el('div',null,d.user_name); nm0.style.fontWeight='700'; nm0.style.marginTop='8px'; c.appendChild(nm0); }
+    c.appendChild(el('div','muted',(d.plan_name||'')));
+    c.appendChild(el('div','muted',(d.amount_uzs||0).toLocaleString('ru-RU')+' so‘m'));
+    if(paid){
+      c.appendChild(el('div','muted','Allaqachon faollashtirilgan'));
+    } else {
+      var btn = el('button',null,'Naqd olindi — faollashtirish');
+      btn.style.marginTop='12px'; btn.style.width='auto'; btn.style.padding='9px 18px'; btn.style.fontSize='14px';
+      btn.onclick = async function(){ btn.disabled=true; btn.textContent='...';
+        var r = await api('order_activate', { order_id: orderId });
+        if(r.data && r.data.ok){
+          out().innerHTML='';
+          var cc = el('div','card'); cc.style.padding='12px 14px';
+          var hd = el('div'); hd.style.display='flex'; hd.style.alignItems='center'; hd.style.gap='10px';
+          hd.appendChild(el('span','badge ok','FAOLLASHTIRILDI'));
+          if(d.user_name){ var nm=el('div',null,d.user_name); nm.style.fontWeight='700'; hd.appendChild(nm); }
+          cc.appendChild(hd);
+          cc.appendChild(el('div','muted','Tugaydi: '+fmt(r.data.end_date)+' · '+r.data.days_left+' kun'));
+          out().appendChild(cc);
+        } else { alert((r.data && r.data.error) || 'Xato'); btn.disabled=false; btn.textContent='Naqd olindi — faollashtirish'; }
+      };
+      c.appendChild(btn);
+    }
+    out().appendChild(c);
   }
 </script>
 </body>

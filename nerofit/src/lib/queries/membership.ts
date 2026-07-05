@@ -3,6 +3,7 @@ import {
   getActiveMembership,
   getMembershipPlans,
   getPayments,
+  startCashOrder,
   startCheckout,
   type PaymentProvider,
 } from "@/lib/api/membership";
@@ -42,6 +43,13 @@ export function useStartCheckout() {
     onSuccess: (_data, { provider }) => {
       track("membership_checkout_started", { provider });
     },
+  });
+}
+
+// Create a cash order (returns payment_id) for staff to activate at the desk.
+export function useStartCashOrder() {
+  return useMutation({
+    mutationFn: (planId: string) => startCashOrder(planId),
   });
 }
 
