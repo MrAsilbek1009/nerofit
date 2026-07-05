@@ -400,7 +400,24 @@
     "providerLabel": "Payment method",
     "checkoutErrorTitle": "Payment error",
     "checkoutErrorBody": "Couldn't start the payment. Please try again.",
-    "historyTitle": "Payment history"
+    "historyTitle": "Payment history",
+    "seeMore": "See details",
+    "seeLess": "Hide",
+    "durationDays": "{{n}}-day membership",
+    "includes": ["Full gym access", "All machines & equipment", "Fast QR entry", "Unlimited visits during opening hours"],
+    "copy": "Copy",
+    "copied": "Copied",
+    "congratsTitle": "You're all set!",
+    "congratsBody": "Your membership is active. Show your QR at the gym to check in.",
+    "viewQr": "View QR",
+    "methodLabel": "Payment type",
+    "methodCard": "Card",
+    "methodCash": "Cash",
+    "cashCta": "Cash order",
+    "cashTitle": "Cash payment",
+    "cashInstruction": "Show this QR at the desk. Staff will take the cash and activate your membership.",
+    "cashPending": "Waiting for staff to confirm…",
+    "close": "Close"
   },
 
   "profile": {

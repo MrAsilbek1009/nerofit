@@ -30,7 +30,7 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-type Provider = "payme" | "click";
+type Provider = "payme" | "click" | "cash";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -55,8 +55,8 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const planId = typeof body.plan_id === "string" ? body.plan_id : "";
     const provider = body.provider as Provider;
-    if (!planId || (provider !== "payme" && provider !== "click")) {
-      return json({ error: "plan_id and provider (payme|click) are required" }, 400);
+    if (!planId || (provider !== "payme" && provider !== "click" && provider !== "cash")) {
+      return json({ error: "plan_id and provider (payme|click|cash) are required" }, 400);
     }
 
     // 3. Load the plan (public read is fine, but use service role for a clean read).
@@ -94,6 +94,12 @@ Deno.serve(async (req) => {
       .select("id")
       .single();
     if (pErr) return json({ error: "Could not create payment", detail: pErr.message }, 500);
+
+    // Cash: no online checkout. The app shows an order QR (payment.id) that gym
+    // staff scan + confirm at the desk (admin-verify order_activate).
+    if (provider === "cash") {
+      return json({ payment_id: payment.id, membership_id: membership.id, cash: true });
+    }
 
     // 5. Build the provider checkout URL, embedding payment.id as the order ref.
     const returnUrl =

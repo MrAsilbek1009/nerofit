@@ -117,11 +117,17 @@
     let data = {}; try { data = await res.json(); } catch (e) {}
     return { status: res.status, data };
   }
+  // kun.oy.yil — date-only "2026-10-03" → "03.10.2026"; datetime keeps HH:MM.
   function fmt(dt) {
     if (!dt) return "-";
-    const d = new Date(dt); if (isNaN(d)) return dt;
+    const s = String(dt);
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(s);
+    const d = new Date(dt); if (isNaN(d)) return s;
     const p = (n) => String(n).padStart(2, "0");
-    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    const date = dateOnly
+      ? s.slice(8, 10) + "." + s.slice(5, 7) + "." + s.slice(0, 4)
+      : p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear();
+    return dateOnly ? date : date + " " + p(d.getHours()) + ":" + p(d.getMinutes());
   }
   const uzs = (n) => (n || 0).toLocaleString("ru-RU");
 
@@ -226,7 +232,7 @@
     if (!d || !d.found) return '<p class="muted">Ma’lumot yo’q.</p>';
     let h = '<span class="badge ' + (d.active ? "ok" : "bad") + '">' + (d.active ? "FAOL" : "FAOL EMAS") + '</span>';
     h += '<div class="big">' + escapeHtml(d.name || "(ismsiz)") + '</div>';
-    if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + (d.membership.end_date || "-") + '</div>';
+    if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + fmt(d.membership.end_date) + '</div>';
     h += '<h2>To‘lovlar (qachon qabul bo‘ldi)</h2>';
     h += (d.payments && d.payments.length) ? d.payments.map((p) =>
       '<div class="item"><div class="between"><span>' + uzs(p.amount_uzs) + ' so‘m · ' + p.provider + '</span><span class="muted">' + p.status + '</span></div>' +

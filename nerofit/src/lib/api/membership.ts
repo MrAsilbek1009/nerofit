@@ -69,3 +69,27 @@ export async function startCheckout(
   }
   return data as { checkoutUrl: string; payment_id: string };
 }
+
+// Cash order (Variant A): no online checkout. Creates a pending order and
+// returns its payment id — the app shows it as a QR that gym staff scan and
+// confirm at the desk (admin-verify order_activate), which activates the
+// membership. The screen refetches on focus.
+export async function startCashOrder(planId: string): Promise<{ payment_id: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) throw new Error("Not authenticated — please log in again.");
+
+  const { data, error } = await supabase.functions.invoke("membership-checkout", {
+    body: { plan_id: planId, provider: "cash" },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (error) {
+    const ctx = (error as { context?: Response }).context;
+    if (ctx && typeof ctx.text === "function") {
+      const body = await ctx.text().catch(() => "");
+      throw new Error(`HTTP ${ctx.status}: ${body || error.message}`);
+    }
+    throw error;
+  }
+  return data as { payment_id: string };
+}

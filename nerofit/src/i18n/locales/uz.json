@@ -400,7 +400,24 @@
     "providerLabel": "To'lov usuli",
     "checkoutErrorTitle": "To'lov xatosi",
     "checkoutErrorBody": "To'lovni boshlab bo'lmadi. Qayta urinib ko'ring.",
-    "historyTitle": "To'lovlar tarixi"
+    "historyTitle": "To'lovlar tarixi",
+    "seeMore": "Batafsil",
+    "seeLess": "Yopish",
+    "durationDays": "{{n}} kunlik a'zolik",
+    "includes": ["Zalga to'liq kirish", "Barcha trenajyor va jihozlar", "QR bilan tez kirish", "Ish vaqti davomida cheksiz tashrif"],
+    "copy": "Nusxa olish",
+    "copied": "Nusxa olindi",
+    "congratsTitle": "Tabriklaymiz!",
+    "congratsBody": "A'zoligingiz faollashtirildi. Endi zalga QR bilan kirishingiz mumkin.",
+    "viewQr": "QR'ni ko'rish",
+    "methodLabel": "To'lov turi",
+    "methodCard": "Karta",
+    "methodCash": "Naqd",
+    "cashCta": "Naqd buyurtma",
+    "cashTitle": "Naqd to'lov",
+    "cashInstruction": "Bu QR kodni kassaga ko'rsating. Xodim naqdni qabul qilib, a'zoligingizni faollashtiradi.",
+    "cashPending": "Xodim tasdig'ini kutmoqda…",
+    "close": "Yopish"
   },
 
   "profile": {

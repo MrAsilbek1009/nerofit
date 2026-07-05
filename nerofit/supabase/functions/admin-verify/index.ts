@@ -148,6 +148,78 @@ async function handlePost(req: Request): Promise<Response> {
     return json({ ok: true, end_date: iso(end), days_left: plan.duration_days });
   }
 
+  // ── cash order (Variant A): the app creates a pending order (payment id in a
+  // QR); staff scan it, take cash, and confirm here. ──────────────────────
+  if (action === "order_detail") {
+    const orderId = String(body.order_id ?? "").trim();
+    if (!orderId) return json({ found: false });
+    const { data: pay } = await db
+      .from("payments")
+      .select("id, user_id, amount_uzs, provider, status, membership_id")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!pay) return json({ found: false });
+    const { data: prof } = await db.from("profiles").select("name").eq("id", pay.user_id).maybeSingle();
+    let planName: string | null = null;
+    let durationDays: number | null = null;
+    if (pay.membership_id) {
+      const { data: m } = await db
+        .from("memberships")
+        .select("membership_plans(name_uz, duration_days)")
+        .eq("id", pay.membership_id)
+        .maybeSingle();
+      // deno-lint-ignore no-explicit-any
+      planName = (m as any)?.membership_plans?.name_uz ?? null;
+      // deno-lint-ignore no-explicit-any
+      durationDays = (m as any)?.membership_plans?.duration_days ?? null;
+    }
+    return json({
+      found: true,
+      order_id: pay.id,
+      user_id: pay.user_id,
+      user_name: prof?.name ?? null,
+      amount_uzs: pay.amount_uzs,
+      provider: pay.provider,
+      status: pay.status,
+      plan_name: planName,
+      duration_days: durationDays,
+    });
+  }
+
+  if (action === "order_activate") {
+    const orderId = String(body.order_id ?? "").trim();
+    if (!orderId) return json({ error: "order_id required" }, 400);
+    const { data: pay } = await db
+      .from("payments")
+      .select("id, user_id, status, membership_id")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!pay) return json({ error: "Order not found" }, 404);
+    if (pay.status === "paid") return json({ error: "Bu buyurtma allaqachon faollashtirilgan" }, 400);
+    if (!pay.membership_id) return json({ error: "Order has no membership" }, 400);
+    const { data: m } = await db
+      .from("memberships")
+      .select("membership_plans(duration_days)")
+      .eq("id", pay.membership_id)
+      .maybeSingle();
+    // deno-lint-ignore no-explicit-any
+    const duration = (m as any)?.membership_plans?.duration_days as number | undefined;
+    if (!duration) return json({ error: "Plan not found" }, 404);
+    const start = today();
+    const end = new Date(start.getTime() + duration * 86_400_000);
+    const iso = (d: Date) => d.toISOString().slice(0, 10);
+    await db
+      .from("memberships")
+      .update({ status: "active", start_date: iso(start), end_date: iso(end) })
+      .eq("id", pay.membership_id);
+    await db
+      .from("payments")
+      .update({ status: "paid", paid_at: new Date().toISOString(), activated_by: auth.staffId })
+      .eq("id", pay.id);
+    await db.from("gym_checkins").insert({ user_id: pay.user_id, staff_id: auth.staffId, was_active: true });
+    return json({ ok: true, end_date: iso(end), days_left: duration });
+  }
+
   // ── admin-only actions ─────────────────────────────────────────────────
   if (auth.role !== "admin") return json({ error: "Admin only" }, 403);
 
