@@ -228,7 +228,7 @@ function CashOrderModal({
               <QRCode value={`order:${order.paymentId}`} size={180} />
             </View>
             <Text style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 16, textAlign: "center" }}>
-              {order.plan.name_uz} · {uzs(order.plan.price_app_uzs)} so'm
+              {order.plan.name_uz} · {uzs(order.plan.price_app_uzs)} so&apos;m
             </Text>
             <Text style={[typography.bodyMuted, { textAlign: "center", fontSize: 13 }]}>
               {t("membership.cashInstruction")}
