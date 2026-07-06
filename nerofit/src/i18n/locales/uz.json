@@ -417,6 +417,9 @@
     "cashTitle": "Naqd to'lov",
     "cashInstruction": "Bu QR kodni kassaga ko'rsating. Xodim naqdni qabul qilib, a'zoligingizni faollashtiradi.",
     "cashPending": "Xodim tasdig'ini kutmoqda…",
+    "statusFrozen": "Muzlatilgan",
+    "frozenDaysSaved": "{{n}} kun saqlangan",
+    "frozenBody": "A'zoligingiz vaqtincha to'xtatilgan. Zal xodimi uni qayta faollashtiradi.",
     "close": "Yopish"
   },
 
@@ -480,6 +483,10 @@
         "none": "Bugun streak boshlang — mashgʻulot yozing.",
         "active": "Siz {{count}} kunlik streak'dasiz. Bugun kechqurun uzmang!"
       }
+    },
+    "membership": {
+      "title": "Abonement tugayapti",
+      "body": "Abonementingiz {{days}} kundan keyin tugaydi. Uzaytirishni unutmang."
     }
   },
 

@@ -860,6 +860,11 @@ export type Membership = {
   start_date: string | null;
   end_date: string | null;
   created_at: string;
+  // Freeze bookkeeping (migration 0018) — only set server-side by admin-verify.
+  // frozen_at = date the current freeze began (null unless status = frozen);
+  // frozen_days_total = cumulative days ever frozen (audit / future limits).
+  frozen_at: string | null;
+  frozen_days_total: number;
 };
 
 export type Payment = {

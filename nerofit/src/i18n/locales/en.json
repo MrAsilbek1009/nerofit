@@ -417,6 +417,9 @@
     "cashTitle": "Cash payment",
     "cashInstruction": "Show this QR at the desk. Staff will take the cash and activate your membership.",
     "cashPending": "Waiting for staff to confirm…",
+    "statusFrozen": "Frozen",
+    "frozenDaysSaved": "{{n}} days saved",
+    "frozenBody": "Your membership is paused. Gym staff will resume it for you.",
     "close": "Close"
   },
 
@@ -480,6 +483,10 @@
         "none": "Start a streak today — log a workout.",
         "active": "You're on a {{count}}-day streak. Don't break it tonight!"
       }
+    },
+    "membership": {
+      "title": "Membership ending soon",
+      "body": "Your membership ends in {{days}} days. Don't forget to renew."
     }
   },
 

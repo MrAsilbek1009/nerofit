@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { computeDayStreak } from "@/features/progress/streak";
 import { useUserId } from "@/hooks/useUser";
 import { useStreakSessions } from "@/lib/queries/progress";
+import { useActiveMembership } from "@/lib/queries/membership";
 import {
   cancelReminders,
   hasNotificationPermission,
@@ -11,6 +12,7 @@ import {
   scheduleReminders,
 } from "@/lib/notifications";
 import { buildReminderTexts } from "./content";
+import { EXPIRY_LEAD_DAYS, membershipReminderFireDate } from "./membership";
 import { anyEnabled } from "./prefs";
 import { loadPrefs } from "./storage";
 
@@ -24,7 +26,11 @@ export function useReminderSync(): void {
   const { t } = useTranslation();
   const streakSessions = useStreakSessions(userId);
   const streak = computeDayStreak(streakSessions.data ?? []);
-  // Last state we scheduled for: the streak count, or "off" when nothing is on.
+  const membership = useActiveMembership(userId);
+  // When (if ever) to fire the one-off "membership expires soon" reminder. A
+  // number for a stable effect dependency; 0 = nothing to schedule.
+  const fireTime = membershipReminderFireDate(membership.data)?.getTime() ?? 0;
+  // Last state we scheduled for: streak + membership fire time, or "off".
   const lastKey = useRef<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +41,10 @@ export function useReminderSync(): void {
       const prefs = await loadPrefs();
       if (cancelled) return;
 
-      if (!anyEnabled(prefs)) {
+      const dailies = anyEnabled(prefs);
+      const wantMembership = fireTime > Date.now();
+
+      if (!dailies && !wantMembership) {
         if (lastKey.current !== "off") {
           await cancelReminders();
           lastKey.current = "off";
@@ -45,9 +54,21 @@ export function useReminderSync(): void {
 
       if (!(await hasNotificationPermission()) || cancelled) return;
 
-      const key = `on:${streak}`;
-      if (lastKey.current === key) return; // streak unchanged → nothing to do
-      await scheduleReminders(prefs, buildReminderTexts(t, { streak }));
+      const key = `on:${streak}:${wantMembership ? fireTime : "none"}`;
+      if (lastKey.current === key) return; // nothing relevant changed
+      await scheduleReminders(
+        prefs,
+        buildReminderTexts(t, { streak }),
+        wantMembership
+          ? {
+              content: {
+                title: t("reminders.membership.title"),
+                body: t("reminders.membership.body", { days: EXPIRY_LEAD_DAYS }),
+              },
+              date: new Date(fireTime),
+            }
+          : null,
+      );
       if (!cancelled) lastKey.current = key;
     }
 
@@ -59,5 +80,5 @@ export function useReminderSync(): void {
       cancelled = true;
       sub.remove();
     };
-  }, [userId, streak, t]);
+  }, [userId, streak, t, fireTime]);
 }

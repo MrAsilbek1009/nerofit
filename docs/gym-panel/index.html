@@ -18,6 +18,7 @@
   .card { background:var(--card); border-radius:16px; padding:18px; margin-top:16px; border:1px solid var(--line); }
   .badge { display:inline-block; padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase; }
   .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
+  .badge.warn { background:#333; color:#fff; }
   .muted { color:var(--lo); font-size:14px; } .big { font-size:26px; font-weight:800; margin:8px 0; }
   label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--lo); display:block; margin:14px 0 6px; }
 </style>
@@ -81,16 +82,47 @@
     out().innerHTML='';
     var c = el('div','card');
     if(!d.found){ c.appendChild(el('p','muted','Foydalanuvchi topilmadi')); out().appendChild(c); return; }
-    c.appendChild(el('span','badge '+(d.active?'ok':'bad'), d.active?'FAOL':'FAOL EMAS'));
+    var badgeCls = d.active ? 'ok' : (d.frozen ? 'warn' : 'bad');
+    var badgeTxt = d.active ? 'FAOL' : (d.frozen ? 'MUZLATILGAN' : 'FAOL EMAS');
+    c.appendChild(el('span','badge '+badgeCls, badgeTxt));
     if(d.name) c.appendChild(el('div','big', d.name));
     if(d.active){
       c.appendChild(el('div',null,(d.plan_name||'')));
       c.appendChild(el('div','muted','Tugaydi: '+fmt(d.end_date)+' · '+d.days_left+' kun qoldi'));
+      buildFreeze(c, userId);
+    } else if(d.frozen){
+      c.appendChild(el('div',null,(d.plan_name||'')));
+      c.appendChild(el('div','muted','Muzlatilgan · '+d.days_left+' kun saqlangan'));
+      buildUnfreeze(c, userId);
     } else {
       c.appendChild(el('div','muted','Holat: '+d.status));
       buildActivate(c, userId);
     }
     out().appendChild(c);
+  }
+
+  // Freeze an active membership (staff): pause the clock, preserve remaining days.
+  function buildFreeze(c, userId){
+    var btn = el('button',null,'Muzlatish');
+    btn.style.marginTop='12px'; btn.style.background='#333'; btn.style.color='#fff';
+    btn.onclick = async function(){
+      if(!confirm('A‘zolikni muzlatasizmi? Qolgan kunlar saqlanadi.')) return;
+      btn.disabled=true; btn.textContent='...';
+      var r = await api('freeze', { user_id:userId });
+      if(r.data && r.data.ok){ verify(userId); } else { alert((r.data && r.data.error) || 'Xato'); btn.disabled=false; btn.textContent='Muzlatish'; }
+    };
+    c.appendChild(btn);
+  }
+
+  // Unfreeze (staff): resume the clock and push end_date out by the frozen span.
+  function buildUnfreeze(c, userId){
+    var btn = el('button',null,'Muzlatishdan chiqarish');
+    btn.style.marginTop='12px';
+    btn.onclick = async function(){ btn.disabled=true; btn.textContent='...';
+      var r = await api('unfreeze', { user_id:userId });
+      if(r.data && r.data.ok){ verify(userId); } else { alert((r.data && r.data.error) || 'Xato'); btn.disabled=false; btn.textContent='Muzlatishdan chiqarish'; }
+    };
+    c.appendChild(btn);
   }
 
   async function buildActivate(c, userId){

@@ -3,11 +3,11 @@ import { ActivityIndicator, Alert, Animated, Modal, Pressable, ScrollView, Text,
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import * as Linking from "expo-linking";
-import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 import { useTranslation } from "react-i18next";
-import { CalendarClock, Check, CheckCircle2, ChevronDown, Copy, PartyPopper, XCircle } from "lucide-react-native";
+import { CalendarClock, Check, CheckCircle2, ChevronDown, Copy, PartyPopper, Snowflake, XCircle } from "lucide-react-native";
 import { Button, Chip } from "@/components/ui";
+import { copyToClipboard } from "@/lib/clipboard";
 import { useUserId } from "@/hooks/useUser";
 import type { PaymentProvider } from "@/lib/api/membership";
 import {
@@ -18,7 +18,7 @@ import {
   useStartCashOrder,
   useStartCheckout,
 } from "@/lib/queries/membership";
-import type { MembershipPlan } from "@/types/db";
+import type { Membership, MembershipPlan } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
 
 // 250000 → "250 000"
@@ -28,6 +28,12 @@ function uzs(n: number): string {
 function daysLeft(endDate: string): number {
   const ms = new Date(endDate).getTime() - Date.now();
   return Math.max(0, Math.ceil(ms / 86_400_000));
+}
+// Whole days between two ISO dates — a frozen membership's remaining days are
+// preserved as of the freeze date (the clock stopped), so measure from there.
+function daysBetween(fromIso: string, toIso: string): number {
+  const ms = new Date(toIso).getTime() - new Date(fromIso).getTime();
+  return Math.max(0, Math.round(ms / 86_400_000));
 }
 // "2026-08-01" → "01.08.2026"
 function fmtDate(iso: string): string {
@@ -122,6 +128,8 @@ export default function MembershipScreen() {
           </View>
         ) : active ? (
           <ActiveCard endDate={membership.data!.end_date!} userId={userId!} />
+        ) : membership.data?.status === "frozen" ? (
+          <FrozenCard membership={membership.data} />
         ) : (
           <InactiveBanner
             title={t("membership.inactiveTitle")}
@@ -250,7 +258,9 @@ function ActiveCard({ endDate, userId }: { endDate: string; userId: string }) {
   const [copied, setCopied] = useState(false);
 
   async function copyId() {
-    await Clipboard.setStringAsync(userId);
+    // The id Text is selectable, so if the native clipboard module is missing
+    // (older dev client) the user can still copy manually — just skip the badge.
+    if (!(await copyToClipboard(userId))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -329,6 +339,39 @@ function InactiveBanner({ title, body }: { title: string; body: string }) {
         <Text style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 15 }}>{title}</Text>
         <Text style={[typography.bodyMuted, { fontSize: 13 }]}>{body}</Text>
       </View>
+    </View>
+  );
+}
+
+// Frozen membership: the clock is paused (staff-initiated). Read-only in the app
+// — no QR (entry is denied while frozen); staff unfreeze it at the desk. Shows
+// the days that stay preserved for when it resumes.
+function FrozenCard({ membership }: { membership: Membership }) {
+  const { t } = useTranslation();
+  const saved =
+    membership.frozen_at && membership.end_date
+      ? daysBetween(membership.frozen_at, membership.end_date)
+      : null;
+  return (
+    <View
+      style={{
+        backgroundColor: colors.elevated,
+        borderRadius: radii.md,
+        padding: space[5],
+        gap: space[3],
+        alignItems: "center",
+      }}
+    >
+      <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
+        <Snowflake size={18} color={colors.textLo} />
+        <Text style={typography.labelCaps}>{t("membership.statusFrozen")}</Text>
+      </View>
+      {saved != null ? (
+        <Text style={typography.body}>{t("membership.frozenDaysSaved", { n: saved })}</Text>
+      ) : null}
+      <Text style={[typography.bodyMuted, { fontSize: 13, textAlign: "center" }]}>
+        {t("membership.frozenBody")}
+      </Text>
     </View>
   );
 }
