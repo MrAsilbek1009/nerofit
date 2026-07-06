@@ -20,17 +20,28 @@ Siz "boshla" deganingizda navbatdagi phase boshlanadi.
 > Asosiy funksiya endi = **zal abonementi (Phase 15)**. RevenueCat abonement uchun
 > KERAK EMAS (jismoniy xizmat → tashqi to'lov Payme/Click, 30% komissiyasiz).
 
+> ⏸️ **HOZIRGI HOLAT (2026-07-06):** Phase 15 (zal abonementi) TUGADI — Bosqich 1–3
+> qurildi va deploy qilindi (cash PR #24 · freeze/unfreeze + muddat eslatma + tarif
+> stacking PR #25 · admin/xodim panellar). Launch-prep (Phase 11) gym-first'ga
+> moslandi (PR #26) + legal `[TO FILL]` to'ldirildi (PR #27), **GitHub Pages jonli**
+> (privacy/terms). **RevenueCat tashlandi** (jismoniy xizmat). **KEYINGI QADAM:**
+> do'konga chiqarish — Play Console listing + data-safety (`store/`), skrinshot,
+> EAS build + submit (Android birinchi). ⚠️ 2026-07-06 Android EAS build gradle
+> xatosi bilan yiqildi — logdagi "What went wrong" ko'rilishi kerak (ehtimol OOM →
+> qayta urinish). Tafsilot: `project_launch_prep` + `project_phase15_membership_cash`
+> (Claude auto-memory, faqat shu kompyuterda).
+
 | Phase | Mavzu | Holat | Kim ishlayapti |
 |---|---|---|---|
 | 7 | Auth & Account | ✅ | Mirolim — merged (PR #1) + `delete-account` deployed |
 | 8 | Build & Backend hardening | ✅ | Mirolim — merged (PR #2): AI rate-limit, Sentry, EAS env; `ai-coach` deployed |
 | 9 | Workout Track — 🔴 **YASHIRIN (qaytadi)** | ✅→🔴 | Claude — to'liq qurilган (W1–W6, video infra, injury filtr) LEKIN **gym-first pivot bilan vaqtincha yashirilди** (`WORKOUT_DEFERRED.md`). Qaytариш: `href: null` + `ProgramsSection` olib tashlashни bekor qilish |
 | 10 | RevenueCat | 🟡 | Mirolim — kod (wrapper/paywall/entitlement); gate yo'q (qaror) · 🧑 RC akkaunt/mahsulot → `PHASE10_HANDOFF.md` |
-| 11 | Legal & Store | 🟡 | Mirolim — privacy/terms (docs/) + ilova havolalari + store listing/data-safety · 🧑 [TO FILL] + Pages + formalar → `PHASE11_HANDOFF.md` |
+| 11 | Legal & Store | 🟢 | Mirolim + Claude — privacy/terms + listing + data-safety **gym-first'ga moslandi** (PR #26); legal `[TO FILL]` to'ldirildi (PR #27); **GitHub Pages jonli**. 🧑 qolgani: Play/App Store formalari + skrinshot → `PHASE11_HANDOFF.md` |
 | 12 | iOS + Release | 🟡 | Claude — notifications plugin polish (Android ikonka/kanal) ✅ · 🧑 RevenueCat/Sentry dashboard + EAS env + Apple/Play + submit → `PHASE12_HANDOFF.md` |
 | 13 | Home redesign (Cal AI uslubi, gibrid) | ✅ | Mirolim — A (carousel) ✅ · B micros/health-score ✅ (PR #8) · C steps ✅ · D food-scan ✅ + water settings (serving size) ✅ (PR #9) — barchasi main'ga merged; `food-analysis` deployed, `food_scans`+`water_serving_ml` migrations applied |
 | 14 | Barqarorlik + native chuqurlik (post-MVP) | 🟡 | Claude — **14A ✅** (Jest test + ESLint/Prettier + CI + offline + Maestro) · **14B a11y ✅** (29 accessibilityLabel + role/state, en/uz/ru) · **14C HealthKit ✅** (custom Swift module, PR #17) · **14D** ⬜ boshlandi: bildirishnoma kontenti ✅ (PR #18) · food-scan barcode+ingredient qidiruv ✅ (OpenFoodFacts, zero handoff, 55 test) · food-scan (Fix-with-AI/tarix/rasm), gamifikatsiya, export ⬜. Batafsil ↓ |
-| 15 | 🔴 **Zal abonementi (Gym Membership) — ASOSIY** | 🟡 | Claude — **Bosqich 1 ✅** (migration 0015: plans/memberships/payments + RLS; a'zolik holati + **QR** + tariflar (app/zal narx) ekrani; **"A'zolik" tab** yashirin workout o'rniga; qo'lда faollashtirish). **Bosqich 2** 🟡 kod tayyor (scaffold): `payments-webhook` (Payme JSON-RPC + Click Prepare/Complete) + `membership-checkout` + ilova to'lov oqimi + migration 0016; 🧑 merchant akkaunt/secret/deploy/webhook URL → `PHASE15_STAGE2_HANDOFF.md`. **Bosqich 3** 🟡 admin QR paneli + **xodim akkauntлари** (`gym_staff`) + **admin paneli** (`docs/gym-admin` — xodim boshqaruvi, a'zolar, attendance `gym_checkins`) ✅ Vercel'да jonли (migration 0017); ⬜ eslatma/freeze. Reja: `GYM_MEMBERSHIP_PLAN.md` |
+| 15 | 🔴 **Zal abonementi (Gym Membership) — ASOSIY** | ✅ | Claude — **Bosqich 1 ✅** (migration 0015: plans/memberships/payments + RLS; a'zolik holati + **QR** + tariflar (app/zal narx) ekrani; **"A'zolik" tab** yashirin workout o'rniga; qo'lда faollashtirish). **Bosqich 2** 🟡 kod tayyor (scaffold): `payments-webhook` (Payme JSON-RPC + Click Prepare/Complete) + `membership-checkout` + ilova to'lov oqimi + migration 0016; 🧑 merchant akkaunt/secret/deploy/webhook URL → `PHASE15_STAGE2_HANDOFF.md`. **Bosqich 3** 🟡 admin QR paneli + **xodim akkauntлари** (`gym_staff`) + **admin paneli** (`docs/gym-admin` — xodim boshqaruvi, a'zolar, attendance `gym_checkins`) ✅ Vercel'да jonли (migration 0017); **freeze/unfreeze + muddat eslatma + tarif stacking ✅** (PR #24/#25, deployed) — Bosqich 3 TUGADI. Reja: `GYM_MEMBERSHIP_PLAN.md` |
 
 ---
 
