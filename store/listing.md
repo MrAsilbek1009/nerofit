@@ -8,37 +8,41 @@ Drop-in text for App Store Connect and Google Play Console. Three languages
 - **Suggested age rating:** 12+ (App Store) / Teen (Google) — general fitness,
   no objectionable content. Confirm via each store's questionnaire.
 
+> Nerofit is a **gym membership** app: buy and manage a physical gym membership,
+> enter with a QR code, and track fitness + nutrition. Payments are external
+> (Payme / Click / cash) — it is not an auto-renewing digital subscription.
+
 ---
 
 ## English
 
 **App name (30):** Nerofit
 
-**Subtitle — App Store (30):** Editorial AI fitness coach
+**Subtitle — App Store (30):** Gym membership + AI coach
 
 **Short description — Google Play (80):**
-Personalized video workouts, tracking, and an AI coach that knows your goals.
+Buy & manage your gym membership, enter by QR, track fitness & nutrition.
 
 **Keywords — App Store (100):**
-fitness,workout,gym,home workout,exercise,AI coach,training,strength,nutrition,progress,habit,health
+gym,gym membership,fitness,QR entry,membership,abonement,nutrition,AI coach,health,progress
 
 **Promotional text — App Store (170):**
-Train with a plan that adapts to you — guided video workouts, progress tracking,
-nutrition, and an AI coach in your pocket.
+Buy your gym membership in the app, skip the front-desk queue, and enter with a
+QR code. Track your progress and nutrition, with an AI coach on hand.
 
 **Description:**
-Nerofit is your personal training studio. Get a program matched to your level,
-goals and equipment, follow clean guided video workouts, and watch your progress
-add up.
+Nerofit is your gym in your pocket. Buy and manage your gym membership, enter the
+gym with a QR code, and keep your fitness on track.
 
-- Personalized workout programs that adapt as you get stronger
-- Guided video player with sets, reps and rest timing
-- Progress tracking: weight trend, streaks, volume and history
+- Buy a membership (monthly, 3-month or yearly) right in the app
+- Enter the gym with your personal QR code — no paperwork at the desk
+- See your membership status, end date and days left at a glance
+- Track your progress: weight trend, body metrics and history
 - Nutrition & hydration logging with daily macros
-- Forge, your AI coach — ask about your plan, form, recovery and meals
-- Optional Elite subscription for the full experience
+- Ask the AI coach about training, recovery and meals
 
-Clean, editorial design. No clutter, no noise — just your training.
+Pay by card (Payme / Click) or cash at the gym. Clean, editorial design — no
+clutter, no noise.
 
 ---
 
@@ -46,31 +50,30 @@ Clean, editorial design. No clutter, no noise — just your training.
 
 **Ilova nomi (30):** Nerofit
 
-**Subtitle — App Store (30):** AI fitnes murabbiyingiz
+**Subtitle — App Store (30):** Zal abonementi + AI murabbiy
 
 **Qisqa tavsif — Google Play (80):**
-Shaxsiy video mashgʻulotlar, kuzatuv va maqsadingizni biluvchi AI murabbiy.
+Zal abonementini oling, QR bilan kiring, natija va ovqatlanishni kuzating.
 
 **Kalit soʻzlar — App Store (100):**
-fitnes,mashq,sportzal,uy mashqi,AI murabbiy,kuch,ovqatlanish,natija,sogʻliq,trening
+zal,abonement,sportzal,fitnes,QR,aʼzolik,ovqatlanish,AI murabbiy,sogʻliq,natija
 
 **Promo matn — App Store (170):**
-Sizga moslashadigan reja bilan mashq qiling — video mashgʻulotlar, natija
-kuzatuvi, ovqatlanish va cho'ntagingizdagi AI murabbiy.
+Zal abonementini ilovada oling, navbatsiz — QR kod bilan kiring. Natija va
+ovqatlanishni kuzating, AI murabbiy yoningizda.
 
 **Tavsif:**
-Nerofit — shaxsiy mashgʻulot studiyangiz. Darajangiz, maqsadingiz va
-jihozingizga mos dastur oling, sodda video mashqlarni bajaring va natijangiz
-oʻsib borishini kuzating.
+Nerofit — choʻntagingizdagi zalingiz. Zal abonementini oling va boshqaring,
+zalga QR kod bilan kiring, formangizni kuzatib boring.
 
-- Siz kuchayganingiz sari moslashadigan shaxsiy dasturlar
-- Set, takror va dam vaqti bilan video pleer
-- Natija kuzatuvi: vazn dinamikasi, seriyalar, hajm va tarix
+- Abonement oling (oylik, 3 oylik yoki yillik) — toʻgʻridan-toʻgʻri ilovada
+- Zalga shaxsiy QR kodingiz bilan kiring — qogʻozbozliksiz
+- Abonement holati, tugash sanasi va qolgan kunlar bir qarashda
+- Natija kuzatuvi: vazn dinamikasi, tana oʻlchovlari va tarix
 - Ovqatlanish va suv kuzatuvi, kunlik makrolar
-- Forge — AI murabbiyingiz: reja, texnika, tiklanish va taom haqida soʻrang
-- Toʻliq imkoniyat uchun ixtiyoriy Elite obunasi
+- AI murabbiydan trening, tiklanish va taom haqida soʻrang
 
-Toza, editorial dizayn. Faqat mashgʻulotingiz.
+Karta (Payme / Click) yoki zalda naqd toʻlang. Toza, editorial dizayn.
 
 ---
 
@@ -78,28 +81,27 @@ Toza, editorial dizayn. Faqat mashgʻulotingiz.
 
 **Название (30):** Nerofit
 
-**Subtitle — App Store (30):** AI фитнес-тренер
+**Subtitle — App Store (30):** Абонемент в зал + ИИ-тренер
 
 **Краткое описание — Google Play (80):**
-Персональные видео-тренировки, трекинг и ИИ-тренер, знающий ваши цели.
+Купите абонемент, входите по QR, отслеживайте прогресс и питание.
 
 **Ключевые слова — App Store (100):**
-фитнес,тренировка,зал,дом,упражнения,ИИ тренер,сила,питание,прогресс,здоровье
+зал,абонемент,фитнес,QR,членство,спортзал,питание,ИИ тренер,здоровье,прогресс
 
 **Промо-текст — App Store (170):**
-Тренируйтесь по плану, который подстраивается под вас — видео-тренировки,
-трекинг прогресса, питание и ИИ-тренер в кармане.
+Купите абонемент в приложении и входите в зал по QR-коду — без очереди. Следите
+за прогрессом и питанием, ИИ-тренер под рукой.
 
 **Описание:**
-Nerofit — ваша личная тренировочная студия. Получите программу под ваш уровень,
-цели и оборудование, выполняйте чистые видео-тренировки и наблюдайте за
-прогрессом.
+Nerofit — ваш зал в кармане. Покупайте и управляйте абонементом, входите в зал
+по QR-коду и держите форму под контролем.
 
-- Персональные программы, адаптирующиеся по мере роста
-- Видео-плеер с подходами, повторами и таймером отдыха
-- Трекинг прогресса: динамика веса, серии, объём и история
+- Покупка абонемента (месяц, 3 месяца или год) прямо в приложении
+- Вход в зал по личному QR-коду — без бумаг на ресепшене
+- Статус абонемента, дата окончания и остаток дней с одного взгляда
+- Трекинг прогресса: динамика веса, замеры тела и история
 - Учёт питания и воды с дневными макросами
-- Forge — ваш ИИ-тренер: спросите о плане, технике, восстановлении и питании
-- Опциональная подписка Elite для полного опыта
+- Спросите ИИ-тренера о тренировках, восстановлении и питании
 
-Чистый редакторский дизайн. Только ваша тренировка.
+Оплата картой (Payme / Click) или наличными в зале. Чистый редакторский дизайн.
