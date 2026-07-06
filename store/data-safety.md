@@ -18,9 +18,9 @@ Re-verify before submission if SDKs change.
 |---|---|---|---|---|
 | Email address | Yes | Yes | Account creation & auth | Supabase |
 | Name | Yes (if entered) | Yes | App personalization | Supabase |
-| Health & fitness (workouts, body metrics, nutrition, water, optional HR/BP) | Yes | Yes | Core app function | Supabase |
+| Health & fitness (body metrics, nutrition, water, optional HR/BP) | Yes | Yes | Core app function | Supabase |
 | User messages to AI coach | Yes | Yes | Generate AI responses | Supabase, Anthropic |
-| Purchase history / subscription status | Yes | Yes | Provide & restore premium | RevenueCat, Apple/Google |
+| Membership & payment records (plan, dates, amount, provider, status) | Yes | Yes | Sell & manage gym membership | Supabase, Payme, Click |
 | App activity / in-app events | Yes | Pseudonymous | Analytics, app improvement | PostHog |
 | Crash logs & diagnostics | Yes | No (PII off) | Stability / bug fixing | Sentry |
 | App info & performance, device/OS | Yes | Pseudonymous | Diagnostics | Sentry, PostHog |
@@ -38,7 +38,7 @@ microphone/camera, browsing history, SMS/call logs, advertising ID.
 ## Google Play Data safety mapping
 - Personal info → Email, Name. (Collected, encrypted in transit, deletable.)
 - Health and fitness → fitness/health info. (Collected.)
-- Financial info → purchase history. (Collected.)
+- Financial info → membership payment history (amount, provider, status). (Collected.) Card details are entered on Payme/Click, not stored in the app.
 - App activity / App info and performance → analytics & diagnostics. (Collected.)
 - Messages → in-app AI chat content. (Collected, app functionality.)
 - Data sharing: with processors only (not for their independent use); not sold.
@@ -48,5 +48,5 @@ microphone/camera, browsing history, SMS/call logs, advertising ID.
   others' use".
 - Provide the privacy policy URL:
   `https://mrasilbek1009.github.io/nerofit/privacy-policy.html`.
-- If you later disable PostHog/Sentry/RevenueCat (no keys set), update the
-  declaration accordingly — without keys those SDKs collect nothing.
+- If you later disable PostHog/Sentry (no keys set), update the declaration
+  accordingly — without keys those SDKs collect nothing.
