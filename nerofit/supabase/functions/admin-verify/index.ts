@@ -40,6 +40,22 @@ function daysBetween(fromIso: string, toIso: string): number {
   return Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000));
 }
 
+// The date a new plan should stack onto: the member's current active membership
+// end_date if it's still in the future, else today. So changing plan / renewing
+// early adds the new duration on top of the remaining days instead of resetting.
+async function stackBase(db: SupabaseClient, userId: string): Promise<Date> {
+  const { data } = await db
+    .from("memberships")
+    .select("end_date")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .order("end_date", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  if (data?.end_date && new Date(data.end_date) >= today()) return new Date(data.end_date);
+  return today();
+}
+
 // SHA-256(pepper + ":" + password), hex. Pepper = service-role key (secret, not
 // in git). Deterministic so we can look a staff up by their password's hash.
 async function hashPw(pw: string): Promise<string> {
@@ -144,7 +160,10 @@ async function handlePost(req: Request): Promise<Response> {
     if (!plan) return json({ error: "Plan not found" }, 404);
 
     const start = today();
-    const end = new Date(start.getTime() + plan.duration_days * 86_400_000);
+    // Stack onto any remaining active time so an upgrade/renewal doesn't burn
+    // the days already paid for.
+    const base = await stackBase(db, userId);
+    const end = new Date(base.getTime() + plan.duration_days * 86_400_000);
     const iso = (d: Date) => d.toISOString().slice(0, 10);
     const { data: membership, error: mErr } = await db
       .from("memberships")
@@ -161,7 +180,7 @@ async function handlePost(req: Request): Promise<Response> {
       paid_at: new Date().toISOString(),
       activated_by: auth.staffId,
     });
-    return json({ ok: true, end_date: iso(end), days_left: plan.duration_days });
+    return json({ ok: true, end_date: iso(end), days_left: daysLeft(iso(end)) });
   }
 
   // ── cash order (Variant A): the app creates a pending order (payment id in a
@@ -222,7 +241,9 @@ async function handlePost(req: Request): Promise<Response> {
     const duration = (m as any)?.membership_plans?.duration_days as number | undefined;
     if (!duration) return json({ error: "Plan not found" }, 404);
     const start = today();
-    const end = new Date(start.getTime() + duration * 86_400_000);
+    // Stack onto any remaining active time (renewal / plan change before expiry).
+    const base = await stackBase(db, pay.user_id);
+    const end = new Date(base.getTime() + duration * 86_400_000);
     const iso = (d: Date) => d.toISOString().slice(0, 10);
     await db
       .from("memberships")
@@ -233,7 +254,7 @@ async function handlePost(req: Request): Promise<Response> {
       .update({ status: "paid", paid_at: new Date().toISOString(), activated_by: auth.staffId })
       .eq("id", pay.id);
     await db.from("gym_checkins").insert({ user_id: pay.user_id, staff_id: auth.staffId, was_active: true });
-    return json({ ok: true, end_date: iso(end), days_left: duration });
+    return json({ ok: true, end_date: iso(end), days_left: daysLeft(iso(end)) });
   }
 
   // ── freeze / unfreeze (staff + admin) ──────────────────────────────────

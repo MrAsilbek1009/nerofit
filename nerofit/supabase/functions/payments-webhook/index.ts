@@ -33,22 +33,37 @@ function admin(): SupabaseClient {
 async function activateMembership(db: SupabaseClient, membershipId: string): Promise<void> {
   const { data: m } = await db
     .from("memberships")
-    .select("id, plan_id")
+    .select("id, plan_id, user_id, status")
     .eq("id", membershipId)
     .maybeSingle();
   if (!m) return;
+  // Idempotent: a repeated webhook must not re-stack the duration onto an
+  // already-active membership.
+  if (m.status === "active") return;
   const { data: plan } = await db
     .from("membership_plans")
     .select("duration_days")
     .eq("id", m.plan_id)
     .maybeSingle();
   const days = plan?.duration_days ?? 30;
-  const start = new Date();
-  const end = new Date(start.getTime() + days * 86_400_000);
   const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const todayIso = iso(new Date());
+  // Stack onto the member's remaining active time (renewal / plan change before
+  // expiry) so paid days aren't lost. ISO date strings compare chronologically.
+  const { data: current } = await db
+    .from("memberships")
+    .select("end_date")
+    .eq("user_id", m.user_id)
+    .eq("status", "active")
+    .neq("id", membershipId)
+    .order("end_date", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  const baseIso = current?.end_date && current.end_date > todayIso ? current.end_date : todayIso;
+  const end = new Date(new Date(baseIso).getTime() + days * 86_400_000);
   await db
     .from("memberships")
-    .update({ status: "active", start_date: iso(start), end_date: iso(end) })
+    .update({ status: "active", start_date: todayIso, end_date: iso(end) })
     .eq("id", membershipId);
 }
 
