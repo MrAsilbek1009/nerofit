@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -32,7 +32,7 @@ export default function ScanHistoryScreen() {
   if (selected) {
     return (
       <ResultStage
-        previewUri={null}
+        previewUri={selected.photoUrl ?? null}
         result={selected.result}
         saving={logScanned.isPending}
         insetTop={insets.top + space[2]}
@@ -138,6 +138,12 @@ function ScanRow({
         accessibilityRole="button"
         style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: space[3] }}
       >
+        {record.photoUrl ? (
+          <Image
+            source={{ uri: record.photoUrl }}
+            style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: colors.elevated }}
+          />
+        ) : null}
         <View style={{ flex: 1 }}>
           <Text
             style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 15 }}

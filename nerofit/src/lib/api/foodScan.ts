@@ -31,13 +31,16 @@ export type FoodScanResult = {
 export async function analyzeFoodPhoto(
   imageBase64: string,
   mediaType: string,
+  photoPath?: string | null,
 ): Promise<FoodScanResult> {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
   if (!token) throw new Error("Not authenticated — please log in again.");
 
   const { data, error } = await supabase.functions.invoke("food-analysis", {
-    body: { image_base64: imageBase64, media_type: mediaType },
+    // `photo_path` is stored on the food_scans row by the Edge Function; an
+    // older (un-updated) function simply ignores the extra field.
+    body: { image_base64: imageBase64, media_type: mediaType, photo_path: photoPath ?? null },
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -60,6 +63,9 @@ export type FoodScanRecord = {
   photo_path: string | null;
   result: FoodScanResult;
   created_at: string;
+  // Short-lived signed URL, attached client-side when a photo exists (see
+  // signScanPhotos). Absent until the food-photos bucket is set up.
+  photoUrl?: string;
 };
 
 // Past scans (AI photo + recorded barcode/search), newest first.

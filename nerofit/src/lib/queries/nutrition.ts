@@ -18,6 +18,7 @@ import {
   recordFoodScan,
   type FoodScanResult,
 } from "@/lib/api/foodScan";
+import { signScanPhotos } from "@/lib/api/foodPhotos";
 import { lookupBarcode, searchFoods } from "@/lib/api/openFoodFacts";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
@@ -61,10 +62,12 @@ export function useAnalyzeFoodPhoto() {
     mutationFn: ({
       imageBase64,
       mediaType,
+      photoPath,
     }: {
       imageBase64: string;
       mediaType: string;
-    }) => analyzeFoodPhoto(imageBase64, mediaType),
+      photoPath?: string | null;
+    }) => analyzeFoodPhoto(imageBase64, mediaType, photoPath),
   });
 }
 
@@ -113,7 +116,8 @@ export function useFoodSearch(query: string) {
 export function useFoodScans(userId: string | undefined) {
   return useQuery({
     queryKey: userId ? ["food-scans", userId] : ["food-scans", "none"],
-    queryFn: () => listFoodScans(userId!),
+    // Sign photo URLs in the query layer so the api stays single-purpose.
+    queryFn: async () => signScanPhotos(await listFoodScans(userId!)),
     enabled: !!userId,
   });
 }

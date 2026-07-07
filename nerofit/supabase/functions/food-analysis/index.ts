@@ -53,10 +53,12 @@ Deno.serve(async (req) => {
       return json({ error: "Unauthorized", detail: userError?.message }, 401);
     }
 
-    const { image_base64, media_type } = await req.json();
+    const { image_base64, media_type, photo_path } = await req.json();
     if (!image_base64 || !media_type) {
       return json({ error: "image_base64 and media_type required" }, 400);
     }
+    // Optional Storage path (uploaded client-side to the food-photos bucket).
+    const photoPath = typeof photo_path === "string" ? photo_path : null;
 
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) {
@@ -118,7 +120,9 @@ Deno.serve(async (req) => {
 
     // Keep a record (also feeds the rate-limit counts above). The user can still
     // edit the estimate before logging it to meal_logs.
-    await supabase.from("food_scans").insert({ user_id: user.id, result });
+    await supabase
+      .from("food_scans")
+      .insert({ user_id: user.id, result, photo_path: photoPath });
 
     return json(result);
   } catch (e) {
