@@ -860,6 +860,11 @@ export type Membership = {
   start_date: string | null;
   end_date: string | null;
   created_at: string;
+  // Freeze bookkeeping (migration 0018) — only set server-side by admin-verify.
+  // frozen_at = date the current freeze began (null unless status = frozen);
+  // frozen_days_total = cumulative days ever frozen (audit / future limits).
+  frozen_at: string | null;
+  frozen_days_total: number;
 };
 
 export type Payment = {
@@ -872,4 +877,11 @@ export type Payment = {
   status: PaymentStatus;
   paid_at: string | null;
   created_at: string;
+  // Provider bookkeeping (migration 0016) — only set by the payments-webhook.
+  // Payme transaction state: 1 created, 2 performed, -1/-2 cancelled.
+  provider_state: number | null;
+  create_time: number | null;
+  perform_time: number | null;
+  cancel_time: number | null;
+  cancel_reason: number | null;
 };
