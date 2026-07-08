@@ -20,6 +20,9 @@ import {
 } from "@/lib/api/foodScan";
 import { signScanPhotos } from "@/lib/api/foodPhotos";
 import { lookupBarcode, searchFoods } from "@/lib/api/openFoodFacts";
+import { lookupLocalBarcode, searchLocalFoods, submitFood } from "@/lib/api/foods";
+import { mergeFoodHits } from "@/lib/nutrition/foodMerge";
+import type { FoodInput } from "@/lib/nutrition/foodInput";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 import type { Meal, MealSlot } from "@/types/db";
@@ -93,22 +96,50 @@ export function useLogScannedMeal(userId: string | undefined) {
   });
 }
 
-// ---- Barcode + ingredient search (OpenFoodFacts) ----
-// Returns null when the code is unknown / unusable (caller shows "not found").
+// ---- Barcode + ingredient search (local foods DB, then OpenFoodFacts) ----
+// Local DB is checked first (regional foods + local barcodes); OFF is the
+// fallback. Returns null when unknown everywhere (caller shows "not found").
 export function useBarcodeLookup() {
   return useMutation({
-    mutationFn: (code: string) => lookupBarcode(code),
+    mutationFn: async (code: string) => {
+      const local = await lookupLocalBarcode(code).catch(() => null);
+      return local ?? (await lookupBarcode(code));
+    },
   });
 }
 
 // Debounce the `query` string in the caller; this keys the cache on it.
+// Merges local DB hits (verified-first) ahead of OpenFoodFacts. Local is optional
+// (the foods table may not exist until the migration is applied) — OFF errors
+// still surface so the search error state works.
 export function useFoodSearch(query: string) {
   const q = query.trim();
   return useQuery({
     queryKey: ["food-search", q],
-    queryFn: () => searchFoods(q),
+    queryFn: async () => {
+      const [local, off] = await Promise.all([
+        searchLocalFoods(q).catch(() => []),
+        searchFoods(q),
+      ]);
+      return mergeFoodHits(local, off);
+    },
     enabled: q.length >= 2,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+// Crowdsource: submit a community food (usable immediately, public once moderated).
+export function useSubmitFood(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: FoodInput) => {
+      if (!userId) throw new Error("Not authenticated");
+      return submitFood(userId, input);
+    },
+    onSuccess: () => {
+      track("food_submitted");
+      void qc.invalidateQueries({ queryKey: ["food-search"] });
+    },
   });
 }
 

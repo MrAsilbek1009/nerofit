@@ -298,6 +298,17 @@
       "empty": "No scans yet. Scan a meal, a barcode, or search to get started.",
       "deleteA11y": "Delete scan"
     },
+    "foods": {
+      "addFood": "Add a food",
+      "verified": "Verified",
+      "addHint": "Add a food to the database. Usable by you now, public once reviewed.",
+      "servingPlaceholder": "e.g. 1 plate (300 g)",
+      "submit": "Submit food",
+      "submittedTitle": "Thanks!",
+      "submittedBody": "Your food was added. You can log it now; it goes public after review.",
+      "submitError": "Couldn't add the food. Try again.",
+      "fields": { "name": "Name", "brand": "Brand (optional)", "serving": "Serving", "grams": "Grams" }
+    },
     "scan": {
       "title": "Scan food",
       "hint": "Center your meal in the frame",

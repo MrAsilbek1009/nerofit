@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | "meal_logged"
   | "food_barcode_scanned"
   | "food_search_selected"
+  | "food_submitted"
   | "scan_relogged"
   | "supplement_toggled"
   | "water_logged"

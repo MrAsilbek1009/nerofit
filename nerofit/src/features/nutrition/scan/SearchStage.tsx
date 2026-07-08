@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Search as SearchIcon } from "lucide-react-native";
+import { Plus, Search as SearchIcon } from "lucide-react-native";
 import type { FoodScanResult } from "@/lib/api/foodScan";
 import { foodScanResultFromHit, type FoodSearchHit } from "@/lib/nutrition/offParse";
 import { useFoodSearch } from "@/lib/queries/nutrition";
 import { track } from "@/lib/analytics";
 import { colors, fonts, radii, space, typography } from "@/theme";
+import { VerifiedBadge } from "@/features/nutrition/components/VerifiedBadge";
 
 // Ingredient/product search via OpenFoodFacts. Picking a hit produces a
 // FoodScanResult that flows into the shared result editor.
 export function SearchStage({ onPick }: { onPick: (result: FoodScanResult) => void }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const [text, setText] = useState("");
   const [debounced, setDebounced] = useState("");
+
+  function addFood() {
+    router.push("/add-food");
+  }
 
   // Debounce the query string (UI state, not a fetch) so we don't hit OFF on
   // every keystroke. The fetch itself lives in useFoodSearch, keyed on this.
@@ -72,7 +79,12 @@ export function SearchStage({ onPick }: { onPick: (result: FoodScanResult) => vo
       ) : search.isError ? (
         <Centered text={t("nutrition.scan.errorBody")} />
       ) : hits.length === 0 ? (
-        <Centered text={t("nutrition.scan.search.empty")} />
+        <View style={{ paddingTop: space[6], alignItems: "center", gap: space[4] }}>
+          <Text style={[typography.bodyMuted, { textAlign: "center" }]}>
+            {t("nutrition.scan.search.empty")}
+          </Text>
+          <AddFoodLink onPress={addFood} />
+        </View>
       ) : (
         <FlatList
           data={hits}
@@ -80,14 +92,34 @@ export function SearchStage({ onPick }: { onPick: (result: FoodScanResult) => vo
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ gap: space[2], paddingBottom: space[6] }}
           ListFooterComponent={
-            <Text style={[typography.bodyMuted, { textAlign: "center", marginTop: space[4], fontSize: 11 }]}>
-              {t("nutrition.scan.search.poweredByOff")}
-            </Text>
+            <View style={{ marginTop: space[4], gap: space[3], alignItems: "center" }}>
+              <AddFoodLink onPress={addFood} />
+              <Text style={[typography.bodyMuted, { textAlign: "center", fontSize: 11 }]}>
+                {t("nutrition.scan.search.poweredByOff")}
+              </Text>
+            </View>
           }
           renderItem={({ item }) => <HitRow hit={item} onPress={() => pick(item)} />}
         />
       )}
     </View>
+  );
+}
+
+function AddFoodLink({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      hitSlop={8}
+      style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}
+    >
+      <Plus size={16} color={colors.accent} />
+      <Text style={[typography.labelCaps, { color: colors.accent }]}>
+        {t("nutrition.foods.addFood")}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -109,9 +141,15 @@ function HitRow({ hit, onPress }: { hit: FoodSearchHit; onPress: () => void }) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 15 }} numberOfLines={1}>
-          {hit.name}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
+          <Text
+            style={{ fontFamily: fonts.bodyMed, color: colors.textHi, fontSize: 15, flexShrink: 1 }}
+            numberOfLines={1}
+          >
+            {hit.name}
+          </Text>
+          {hit.verified ? <VerifiedBadge compact /> : null}
+        </View>
         {subtitle ? (
           <Text style={typography.bodyMuted} numberOfLines={1}>
             {subtitle}
