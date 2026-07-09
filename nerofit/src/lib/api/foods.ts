@@ -34,6 +34,7 @@ export function localFoodToHit(f: LocalFood): FoodSearchHit {
     brand: f.brand ?? "",
     portion:
       f.serving_label ?? (f.serving_grams != null ? `${f.serving_grams} g` : "1 serving"),
+    serving_g: f.serving_grams,
     kcal: f.kcal,
     protein_g: f.protein_g,
     carbs_g: f.carbs_g,

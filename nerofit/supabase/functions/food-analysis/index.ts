@@ -15,11 +15,15 @@ const BURST_LIMIT = Number(Deno.env.get("FOOD_SCAN_BURST_LIMIT") ?? "4"); // per
 const SYSTEM =
   `You are a nutrition vision assistant. Identify the foods in the image and ` +
   `estimate portion size and macros. If portion is ambiguous, assume a typical ` +
-  `serving and lower the confidence. Respond with ONLY valid JSON, no markdown ` +
+  `serving and lower the confidence. portion_g / total_g are the estimated ` +
+  `weights in grams. Respond with ONLY valid JSON, no markdown ` +
   `and no prose, matching exactly:\n` +
-  `{"items":[{"name":"","portion":"","kcal":0,"protein_g":0,"carbs_g":0,"fats_g":0}],` +
-  `"total":{"kcal":0,"protein_g":0,"carbs_g":0,"fats_g":0},` +
+  `{"items":[{"name":"","portion":"","portion_g":0,"kcal":0,"protein_g":0,"carbs_g":0,"fats_g":0}],` +
+  `"total":{"kcal":0,"protein_g":0,"carbs_g":0,"fats_g":0},"total_g":0,` +
   `"confidence":"high|medium|low","notes":""}`;
+
+// Max length of a "Fix with AI" correction (matches the client input cap).
+const HINT_MAX = 300;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,8 +57,16 @@ Deno.serve(async (req) => {
       return json({ error: "Unauthorized", detail: userError?.message }, 401);
     }
 
-    const { image_base64, media_type, photo_path } = await req.json();
-    if (!image_base64 || !media_type) {
+    const { image_base64, media_type, photo_path, hint, previous_result } = await req.json();
+    // "Fix with AI": a text correction to a previous estimate. With an image we
+    // re-run vision using the hint; without one (barcode/search) the previous
+    // estimate alone is corrected.
+    const fixHint =
+      typeof hint === "string" ? hint.trim().slice(0, HINT_MAX) : "";
+    const previous =
+      previous_result && typeof previous_result === "object" ? previous_result : null;
+    const hasImage = Boolean(image_base64 && media_type);
+    if (!hasImage && !(fixHint && previous)) {
       return json({ error: "image_base64 and media_type required" }, 400);
     }
     // Optional Storage path (uploaded client-side to the food-photos bucket).
@@ -83,6 +95,23 @@ Deno.serve(async (req) => {
       return json({ error: "rate_limited", scope: "daily" }, 429);
     }
 
+    let prompt = "Analyze this meal.";
+    if (fixHint && previous) {
+      prompt =
+        `A previous estimate was: ${JSON.stringify(previous)}\n` +
+        `The user corrected it: "${fixHint}"\n` +
+        (hasImage
+          ? `Re-analyze the image applying the correction (renamed foods, hidden ingredients like oil or sauce, portion changes). Return the full updated JSON.`
+          : `Apply the correction to the estimate (renamed foods, hidden ingredients like oil or sauce, portion changes) and return the full updated JSON.`);
+    }
+
+    const content = hasImage
+      ? [
+        { type: "image", source: { type: "base64", media_type, data: image_base64 } },
+        { type: "text", text: prompt },
+      ]
+      : [{ type: "text", text: prompt }];
+
     const upstream = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: {
@@ -94,13 +123,7 @@ Deno.serve(async (req) => {
         model: MODEL,
         max_tokens: 700,
         system: SYSTEM,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image", source: { type: "base64", media_type, data: image_base64 } },
-            { type: "text", text: "Analyze this meal." },
-          ],
-        }],
+        messages: [{ role: "user", content }],
       }),
     });
 

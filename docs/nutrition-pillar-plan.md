@@ -45,9 +45,10 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
 - 🧑 Handoff: migration apply + seed; admin verify oqimi.
 
 ### 🟨 Bosqich N2 — Tez log + aqlli scan tahriri (Cal AI/Foodvisor/Lose It)
-- **Natija-muharrir yangilanishi**: **gram/miqdor slider** + birlik almashtirish (porsiya/gram/dona);
-  **"Fix with AI"** — matn bilan tuzatish → qayta baholash (food-analysis Edge'ga hint);
-  yashirin ingredient qo'shish (yog'/sous).
+- **Natija-muharrir yangilanishi ✅** (branch `phase-16-n2-scan-editor`): **gram/miqdor slider** +
+  birlik almashtirish (porsiya/gram) ✅; **"Fix with AI"** — matn bilan tuzatish → qayta
+  baholash (food-analysis Edge'ga hint; rasmli va rasmsiz) ✅; yashirin ingredient (yog'/sous)
+  hint orqali qayta baholanadi ✅. "Dona" birligi keyinga qoldi.
 - **Tez log**: recent/tez-tez ishlatilgan + **favoritlar** + "quick add kkal". Maqsad: 2-3 tap.
 - **Meal builder**: bir nechta taomni "meal"ga birlashtirib saqlash (Cal AI "Creating a meal").
 - 🧑 Handoff: "Fix with AI" uchun food-analysis Edge yangilanishi + deploy.

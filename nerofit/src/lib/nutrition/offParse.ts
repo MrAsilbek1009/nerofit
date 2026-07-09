@@ -16,6 +16,9 @@ export type FoodSearchHit = FoodScanMacros & {
   name: string;
   brand: string;
   portion: string;
+  // Portion weight in grams when known (serving_quantity / parsed serving_size /
+  // per-100g fallback). Feeds the gram slider in the result editor.
+  serving_g?: number | null;
   confidence: FoodScanConfidence;
   verified?: boolean;
   origin?: "local" | "off";
@@ -35,6 +38,7 @@ type NormalizedFood = {
   productName: string;
   brand: string;
   portion: string;
+  servingG: number | null;
   confidence: FoodScanConfidence;
   macros: FoodScanMacros;
 };
@@ -68,6 +72,20 @@ function servingLabel(product: OffProduct): string {
   return qty != null ? `${Math.round(qty)} g` : "1 serving";
 }
 
+// Portion weight in grams for a per-serving product: prefer the numeric
+// serving_quantity, else parse a leading "30 g" / "250ml" from serving_size
+// (ml ≈ g is close enough for an estimate). Null when OFF has neither.
+export function servingGrams(product: unknown): number | null {
+  if (!product || typeof product !== "object") return null;
+  const p = product as OffProduct;
+  const qty = num(p.serving_quantity);
+  if (qty != null && qty > 0) return Math.round(qty);
+  const m = str(p.serving_size).match(/([\d.,]+)\s*(g|gr|ml)\b/i);
+  if (!m?.[1]) return null;
+  const parsed = parseFloat(m[1].replace(",", "."));
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : null;
+}
+
 // Normalise one OFF product into the fields we care about, or null when it lacks
 // a name or calories (both required to be useful). Prefers per-serving values;
 // falls back to per-100g (lower confidence).
@@ -96,6 +114,7 @@ export function normalizeOffProduct(product: unknown): NormalizedFood | null {
     productName,
     brand,
     portion: useServing ? servingLabel(p) : "100 g",
+    servingG: useServing ? servingGrams(p) : 100,
     confidence: useServing ? "high" : "medium",
     macros: {
       kcal: Math.round(kcal),
@@ -112,8 +131,16 @@ export function parseOffProduct(product: unknown): FoodScanResult | null {
   const n = normalizeOffProduct(product);
   if (!n) return null;
   return {
-    items: [{ name: mergeName(n.productName, n.brand), portion: n.portion, ...n.macros }],
+    items: [
+      {
+        name: mergeName(n.productName, n.brand),
+        portion: n.portion,
+        portion_g: n.servingG,
+        ...n.macros,
+      },
+    ],
     total: n.macros,
+    total_g: n.servingG,
     confidence: n.confidence,
     notes: "",
   };
@@ -136,6 +163,7 @@ export function parseOffSearch(json: unknown, limit = 20): FoodSearchHit[] {
       name: n.productName || n.brand,
       brand: n.brand,
       portion: n.portion,
+      serving_g: n.servingG,
       confidence: n.confidence,
       ...n.macros,
     });
@@ -154,8 +182,16 @@ export function foodScanResultFromHit(hit: FoodSearchHit): FoodScanResult {
     fats_g: hit.fats_g,
   };
   return {
-    items: [{ name: mergeName(hit.name, hit.brand), portion: hit.portion, ...macros }],
+    items: [
+      {
+        name: mergeName(hit.name, hit.brand),
+        portion: hit.portion,
+        portion_g: hit.serving_g ?? null,
+        ...macros,
+      },
+    ],
     total: macros,
+    total_g: hit.serving_g ?? null,
     confidence: hit.confidence,
     notes: "",
   };

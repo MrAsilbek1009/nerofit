@@ -15,6 +15,7 @@ import { useUserId } from "@/hooks/useUser";
 import {
   useAnalyzeFoodPhoto,
   useBarcodeLookup,
+  useFixFoodEstimate,
   useLogScannedMeal,
   useRecordFoodScan,
 } from "@/lib/queries/nutrition";
@@ -50,7 +51,11 @@ function normalize(r: FoodScanResult): FoodScanResult {
   const confidence = (["high", "medium", "low"] as const).includes(r?.confidence)
     ? r.confidence
     : "low";
-  return { items, total, confidence, notes: r?.notes ?? "" };
+  const totalG =
+    typeof r?.total_g === "number" && Number.isFinite(r.total_g) && r.total_g > 0
+      ? Math.round(r.total_g)
+      : null;
+  return { items, total, total_g: totalG, confidence, notes: r?.notes ?? "" };
 }
 
 export function FoodScanFlow() {
@@ -65,6 +70,7 @@ export function FoodScanFlow() {
   const scanLock = useRef(false);
 
   const analyze = useAnalyzeFoodPhoto();
+  const fix = useFixFoodEstimate();
   const barcode = useBarcodeLookup();
   const logScanned = useLogScannedMeal(userId);
   const record = useRecordFoodScan(userId);
@@ -165,6 +171,28 @@ export function FoodScanFlow() {
     if (res.canceled || !res.assets?.[0]) return;
     const asset = res.assets[0];
     await startAnalysis(asset.uri, asset.width, asset.height);
+  }
+
+  // ---- Fix with AI (text correction → re-estimate) ----
+  function onFix(hint: string) {
+    if (!result) return;
+    const before = result;
+    setStage("analyzing");
+    fix.mutate(
+      // `prepared` exists only for photo scans — barcode/search fixes go text-only.
+      { previous: before, hint, image: prepared },
+      {
+        onSuccess: (r) => {
+          track("food_scan_fixed", { had_image: !!prepared });
+          setResult(normalize(r));
+          setStage("result");
+        },
+        onError: (e) => {
+          setErrorMsg(errorText(e));
+          setStage("error");
+        },
+      },
+    );
   }
 
   // ---- Barcode (OpenFoodFacts) ----
@@ -420,6 +448,7 @@ export function FoodScanFlow() {
       onClose={close}
       onRetake={retake}
       onAdd={(entry) => logScanned.mutate(entry, { onSuccess: close })}
+      onFix={onFix}
     />
   );
 }

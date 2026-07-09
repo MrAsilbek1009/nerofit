@@ -23,6 +23,7 @@ export type AnalyticsEvent =
   | "exercise_logged"
   | "meal_logged"
   | "food_barcode_scanned"
+  | "food_scan_fixed"
   | "food_search_selected"
   | "food_submitted"
   | "scan_relogged"

@@ -14,6 +14,7 @@ import {
 import {
   analyzeFoodPhoto,
   deleteFoodScan,
+  fixFoodEstimate,
   listFoodScans,
   recordFoodScan,
   type FoodScanResult,
@@ -71,6 +72,22 @@ export function useAnalyzeFoodPhoto() {
       mediaType: string;
       photoPath?: string | null;
     }) => analyzeFoodPhoto(imageBase64, mediaType, photoPath),
+  });
+}
+
+// "Fix with AI": text correction → re-estimate via the same Edge Function.
+// Image is optional (photo scans pass it; barcode/search fixes are text-only).
+export function useFixFoodEstimate() {
+  return useMutation({
+    mutationFn: ({
+      previous,
+      hint,
+      image,
+    }: {
+      previous: FoodScanResult;
+      hint: string;
+      image?: { base64: string; mediaType: string; photoPath: string | null } | null;
+    }) => fixFoodEstimate(previous, hint, image),
   });
 }
 
