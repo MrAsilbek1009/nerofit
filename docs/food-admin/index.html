@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Nerofit — Food admin</title>
+<style>
+  :root { --bg:#000; --card:#141414; --line:#262626; --hi:#fff; --lo:#8a8a8a; --acc:#D4E924; --ok:#D4E924; --bad:#ff5a5a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--hi); font-family:-apple-system,Segoe UI,Roboto,sans-serif; padding:16px; max-width:640px; margin:0 auto; }
+  h1 { font-size:18px; letter-spacing:.14em; text-transform:uppercase; color:var(--lo); font-weight:700; }
+  h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--lo); margin:22px 0 8px; }
+  input, button { font-size:16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--hi); padding:11px 13px; width:100%; }
+  button { background:var(--acc); color:#000; border:none; font-weight:700; letter-spacing:.03em; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--hi); border:1px solid var(--line); }
+  button.mini { width:auto; padding:7px 11px; font-size:13px; }
+  button.danger { background:var(--bad); }
+  .row { display:flex; gap:8px; margin-top:8px; }
+  .row > * { flex:1; }
+  .card { background:var(--card); border-radius:14px; padding:14px; margin-top:10px; border:1px solid var(--line); }
+  .between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .muted { color:var(--lo); font-size:13px; }
+  .name { font-weight:700; font-size:16px; }
+  .macros { color:var(--lo); font-size:13px; margin-top:3px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+  <h1>Nerofit · Food admin</h1>
+
+  <div id="login">
+    <label class="muted">Admin/xodim parol</label>
+    <div class="row">
+      <input id="pwd" type="password" placeholder="parol" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
+      <button style="flex:0 0 110px" onclick="login()">Kirish</button>
+    </div>
+    <p id="loginMsg" class="muted"></p>
+  </div>
+
+  <div id="dash" class="hidden">
+    <div class="between">
+      <h2 style="margin:14px 0 0">Kutilayotgan taomlar</h2>
+      <button class="ghost mini" onclick="load()">Yangilash</button>
+    </div>
+    <div id="list"></div>
+    <button class="ghost" style="margin-top:24px" onclick="logout()">Chiqish</button>
+  </div>
+
+<script>
+  const API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-foods";
+  let PWD = "";
+  const $ = (id) => document.getElementById(id);
+  const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+  const btn = (text, cls, on) => { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; };
+
+  async function api(action, extra) {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(Object.assign({ action, password: PWD }, extra || {})),
+    });
+    let data = {}; try { data = await res.json(); } catch (e) {}
+    return { status: res.status, data };
+  }
+
+  async function login() {
+    PWD = $("pwd").value;
+    $("loginMsg").textContent = "Tekshirilmoqda…";
+    const r = await api("session");
+    if (r.status !== 200) { $("loginMsg").textContent = "Parol noto'g'ri"; return; }
+    try { localStorage.setItem("nf_food_pwd", PWD); } catch (e) {}
+    $("loginMsg").textContent = "";
+    $("login").classList.add("hidden");
+    $("dash").classList.remove("hidden");
+    load();
+  }
+  function logout() {
+    PWD = ""; try { localStorage.removeItem("nf_food_pwd"); } catch (e) {}
+    $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
+  }
+
+  async function load() {
+    const box = $("list"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const r = await api("list_pending");
+    const foods = (r.data && r.data.foods) || [];
+    box.innerHTML = "";
+    if (foods.length === 0) { box.innerHTML = '<p class="muted">Kutilayotgan taom yo’q.</p>'; return; }
+    foods.forEach((f) => {
+      const c = el("div", "card");
+      const top = el("div");
+      top.appendChild(el("div", "name", f.name + (f.brand ? " · " + f.brand : "")));
+      top.appendChild(el("div", "macros",
+        (f.kcal || 0) + " kcal · P " + (f.protein_g || 0) + " · C " + (f.carbs_g || 0) + " · F " + (f.fats_g || 0) +
+        (f.serving_label ? " · " + f.serving_label : "")));
+      c.appendChild(top);
+      const row = el("div", "row"); row.style.marginTop = "10px";
+      row.appendChild(btn("Tasdiqlash ✓", "", async () => {
+        const rr = await api("verify", { food_id: f.id });
+        if (rr.data && rr.data.ok) load(); else alert((rr.data && rr.data.error) || "Xato");
+      }));
+      row.appendChild(btn("O’chirish", "danger", async () => {
+        if (!confirm("'" + f.name + "' o’chirilsinmi?")) return;
+        const rr = await api("reject", { food_id: f.id });
+        if (rr.data && rr.data.ok) load(); else alert((rr.data && rr.data.error) || "Xato");
+      }));
+      c.appendChild(row);
+      box.appendChild(c);
+    });
+  }
+
+  (function () {
+    let saved = ""; try { saved = localStorage.getItem("nf_food_pwd") || ""; } catch (e) {}
+    if (saved) { $("pwd").value = saved; login(); }
+  })();
+</script>
+</body>
+</html>

@@ -9,13 +9,16 @@ import type {
 // without the RN/native environment.
 
 // A single search result row — lighter than a full FoodScanResult, plus the
-// brand kept separate for a two-line list item.
+// brand kept separate for a two-line list item. `verified`/`origin` mark local
+// database hits (regional foods) vs OpenFoodFacts; absent = OFF, unverified.
 export type FoodSearchHit = FoodScanMacros & {
   code: string;
   name: string;
   brand: string;
   portion: string;
   confidence: FoodScanConfidence;
+  verified?: boolean;
+  origin?: "local" | "off";
 };
 
 type OffNutriments = Record<string, unknown>;

@@ -298,6 +298,17 @@
       "empty": "Hali skan yoʻq. Ovqat, shtrix-kod yoki qidiruvdan boshlang.",
       "deleteA11y": "Skanni oʻchirish"
     },
+    "foods": {
+      "addFood": "Taom qoʻshish",
+      "verified": "Tasdiqlangan",
+      "addHint": "Bazaga taom qoʻshing. Hozir oʻzingiz ishlatasiz, tekshiruvdan soʻng hammaga ochiladi.",
+      "servingPlaceholder": "masalan 1 tovoq (300 g)",
+      "submit": "Taomni yuborish",
+      "submittedTitle": "Rahmat!",
+      "submittedBody": "Taom qoʻshildi. Hozir log qila olasiz; tekshiruvdan soʻng hammaga ochiladi.",
+      "submitError": "Taomni qoʻshib boʻlmadi. Qayta urinib koʻring.",
+      "fields": { "name": "Nomi", "brand": "Brend (ixtiyoriy)", "serving": "Porsiya", "grams": "Gramm" }
+    },
     "scan": {
       "title": "Taomni skanlash",
       "hint": "Taomni ramka markaziga joylang",
