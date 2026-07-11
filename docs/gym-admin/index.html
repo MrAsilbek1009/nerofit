@@ -52,6 +52,7 @@
     <div class="nav">
       <button id="tab-staff" class="on" onclick="show('staff')">Xodimlar</button>
       <button id="tab-members" class="off" onclick="show('members')">A'zolar</button>
+      <button id="tab-audit" class="off" onclick="show('audit')">Audit</button>
     </div>
 
     <!-- Staff -->
@@ -97,11 +98,17 @@
       </div>
       <div id="feed"></div>
     </section>
+
+    <!-- Audit log -->
+    <section id="sec-audit" class="hidden">
+      <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" onclick="loadAudit()">Yangilash</button></div>
+      <div id="auditList"></div>
+    </section>
   </div>
 
 <script>
   const API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
-  let PWD = "";
+  let TOKEN = "";
   let staffCache = [];
   const expandedStaff = new Set();
   const $ = (id) => document.getElementById(id);
@@ -113,9 +120,15 @@
     const res = await fetch(API, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(Object.assign({ action, password: PWD }, extra || {})),
+      body: JSON.stringify(Object.assign({ action, token: TOKEN }, extra || {})),
     });
     let data = {}; try { data = await res.json(); } catch (e) {}
+    // Session expired mid-use → drop back to login (avoid recursing via logout()).
+    if (res.status === 401 && TOKEN && action !== "session") {
+      TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {}
+      $("dash").classList.add("hidden"); $("login").classList.remove("hidden");
+      $("loginMsg").textContent = "Sessiya tugadi — qayta kiring.";
+    }
     return { status: res.status, data };
   }
   // kun.oy.yil — date-only "2026-10-03" → "03.10.2026"; datetime keeps HH:MM.
@@ -134,38 +147,56 @@
 
   // ── Auth ──────────────────────────────────────────────────────────────
   async function login() {
-    PWD = $("pwd").value;
+    const pwd = $("pwd").value;
     $("loginMsg").textContent = "Tekshirilmoqda…";
-    const r = await api("session");
-    if (r.status !== 200) { $("loginMsg").textContent = "Parol noto'g'ri"; return; }
-    if (r.data.role !== "admin") { $("loginMsg").textContent = "Bu parol admin emas (xodim). Admin parol kerak."; return; }
-    try { localStorage.setItem("na_pwd", PWD); } catch (e) {}
+    const res = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "login", password: pwd }) });
+    let d = {}; try { d = await res.json(); } catch (e) {}
+    if (res.status !== 200 || !d.token) { $("loginMsg").textContent = (d && d.error) || "Parol noto'g'ri"; return; }
+    if (d.role !== "admin" && d.role !== "owner") { $("loginMsg").textContent = "Bu parol admin emas (xodim). Admin parol kerak."; return; }
+    TOKEN = d.token; try { localStorage.setItem("na_token", TOKEN); } catch (e) {}
     $("loginMsg").textContent = "";
     $("login").classList.add("hidden");
     $("dash").classList.remove("hidden");
     loadStaff();
   }
   function logout() {
-    PWD = ""; try { localStorage.removeItem("na_pwd"); } catch (e) {}
+    try { api("logout"); } catch (e) {}
+    TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {}
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["staff", "members"].forEach((t) => {
+    ["staff", "members", "audit"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
     if (tab === "members") loadFeed();
+    if (tab === "audit") loadAudit();
   }
   async function changeAdminPw() {
-    const cur = $("ap-cur").value.trim(), nw = $("ap-new").value.trim();
-    if (!cur || !nw) { $("ap-msg").textContent = "Ikkala maydon kerak"; return; }
-    const r = await api("admin_set_password", { password: cur, new_password: nw });
+    const nw = $("ap-new").value.trim();
+    if (!nw) { $("ap-msg").textContent = "Yangi parol kerak"; return; }
+    const r = await api("admin_set_password", { new_password: nw });
     if (r.data && r.data.ok) {
-      PWD = nw; try { localStorage.setItem("na_pwd", nw); } catch (e) {}
       $("ap-cur").value = ""; $("ap-new").value = ""; $("ap-msg").textContent = "Parol yangilandi ✓";
     } else {
-      $("ap-msg").textContent = r.status === 401 ? "Hozirgi parol noto'g'ri" : ((r.data && r.data.error) || "Xato");
+      $("ap-msg").textContent = (r.data && r.data.error) || "Xato";
     }
+  }
+  async function loadAudit() {
+    const box = $("auditList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const r = await api("audit_list");
+    const list = (r.data && r.data.audit) || [];
+    box.innerHTML = "";
+    if (list.length === 0) { box.innerHTML = '<p class="muted">Hali yozuv yo’q.</p>'; return; }
+    const c = el("div", "card");
+    list.forEach((a) => {
+      const it = el("div", "item");
+      const ip = a.meta && a.meta.ip ? " · " + a.meta.ip : "";
+      it.innerHTML = '<div class="between"><div style="font-weight:700">' + escapeHtml(a.action) + '</div><span class="muted">' + fmt(a.created_at) + '</span></div>'
+        + '<div class="muted">' + escapeHtml(a.actor_name || "-") + ' (' + escapeHtml(a.actor_role || "-") + ')' + (a.target ? " → " + escapeHtml(String(a.target)) : "") + ip + '</div>';
+      c.appendChild(it);
+    });
+    box.appendChild(c);
   }
 
   // ── Staff management ────────────────────────────────────────────────────
@@ -302,10 +333,16 @@
     box.appendChild(c);
   }
 
-  // Auto-login if a password is remembered on this device.
+  // Restore the session token remembered on this device (verify it's still valid).
   (function () {
-    let saved = ""; try { saved = localStorage.getItem("na_pwd") || ""; } catch (e) {}
-    if (saved) { $("pwd").value = saved; login(); }
+    let saved = ""; try { saved = localStorage.getItem("na_token") || ""; } catch (e) {}
+    if (!saved) return;
+    TOKEN = saved;
+    api("session").then((r) => {
+      if (r.status === 200 && (r.data.role === "admin" || r.data.role === "owner")) {
+        $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); loadStaff();
+      } else { TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {} }
+    });
   })();
 </script>
 </body>
