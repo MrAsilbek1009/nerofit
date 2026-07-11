@@ -32,6 +32,16 @@
   .item:last-child { border-bottom:none; }
   .detail { margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
   label { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--lo); display:block; margin:12px 0 5px; }
+  .kpis { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:14px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 14px; }
+  .kpi .n { font-size:24px; font-weight:800; letter-spacing:-.02em; }
+  .kpi .n.acc { color:var(--acc); }
+  .kpi .l { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--lo); margin-top:3px; }
+  .bars { display:flex; align-items:flex-end; gap:3px; height:110px; margin-top:4px; }
+  .bars .bar { flex:1; background:var(--acc); border-radius:3px 3px 0 0; min-height:2px; }
+  .bars .bar.dim { background:var(--line); }
+  .bars .bar.hi { background:#fff; }
+  .barlabels { display:flex; justify-content:space-between; font-size:9px; color:var(--lo); margin-top:5px; }
 </style>
 </head>
 <body>
@@ -50,13 +60,24 @@
   <!-- Dashboard -->
   <div id="dash" class="hidden">
     <div class="nav">
-      <button id="tab-staff" class="on" onclick="show('staff')">Xodimlar</button>
+      <button id="tab-dash" class="on" onclick="show('dash')">Dashboard</button>
+      <button id="tab-staff" class="off" onclick="show('staff')">Xodimlar</button>
       <button id="tab-members" class="off" onclick="show('members')">A'zolar</button>
       <button id="tab-audit" class="off" onclick="show('audit')">Audit</button>
     </div>
 
+    <!-- Dashboard -->
+    <section id="sec-dash">
+      <div class="between"><h2 style="margin:14px 0 0">Bugungi holat</h2><button class="ghost mini" onclick="loadDash()">Yangilash</button></div>
+      <div id="kpis" class="kpis"></div>
+      <h2>Daromad · 14 kun</h2>
+      <div class="card"><div id="revChart"></div></div>
+      <h2>Kelishlar · soat bo'yicha (14 kun)</h2>
+      <div class="card"><div id="hourChart"></div></div>
+    </section>
+
     <!-- Staff -->
-    <section id="sec-staff">
+    <section id="sec-staff" class="hidden">
       <h2>Yangi xodim</h2>
       <div class="card">
         <label>Ism</label>
@@ -157,7 +178,7 @@
     $("loginMsg").textContent = "";
     $("login").classList.add("hidden");
     $("dash").classList.remove("hidden");
-    loadStaff();
+    show("dash");
   }
   function logout() {
     try { api("logout"); } catch (e) {}
@@ -165,10 +186,12 @@
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["staff", "members", "audit"].forEach((t) => {
+    ["dash", "staff", "members", "audit"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
+    if (tab === "dash") loadDash();
+    if (tab === "staff") loadStaff();
     if (tab === "members") loadFeed();
     if (tab === "audit") loadAudit();
   }
@@ -197,6 +220,53 @@
       c.appendChild(it);
     });
     box.appendChild(c);
+  }
+
+  // ── Dashboard ───────────────────────────────────────────────────────────
+  async function loadDash() {
+    const r = await api("dashboard_stats");
+    const d = r.data || {};
+    renderKpis(d);
+    const rev = d.revDaily || [];
+    renderBars($("revChart"), rev.map((x) => x.v), rev.map((x) => x.d), -1, uzs);
+    const hours = d.checkinsByHour || [];
+    renderBars($("hourChart"), hours, hours.map((_, h) => h), d.peakHour == null ? -1 : d.peakHour, null);
+  }
+  function kpi(box, n, l, acc) {
+    const c = el("div", "kpi");
+    c.innerHTML = '<div class="n' + (acc ? " acc" : "") + '">' + escapeHtml(String(n)) + '</div><div class="l">' + escapeHtml(l) + '</div>';
+    box.appendChild(c);
+  }
+  function renderKpis(d) {
+    const box = $("kpis"); box.innerHTML = "";
+    kpi(box, d.active || 0, "Faol a'zo", true);
+    kpi(box, d.expiring7 || 0, "7 kunda tugaydi");
+    kpi(box, d.frozen || 0, "Muzlatilgan");
+    kpi(box, d.checkinsToday || 0, "Bugungi kelish");
+    kpi(box, uzs(d.revenueToday || 0), "Bugun daromad", true);
+    kpi(box, uzs(d.revenueWeek || 0), "7 kun daromad");
+    kpi(box, uzs(d.revenueMonth || 0), "30 kun daromad");
+    kpi(box, d.peakHour == null ? "-" : (String(d.peakHour).padStart(2, "0") + ":00"), "Peak soat");
+  }
+  // Minimal CSS bar chart. values[], labels[], hi = highlight index (-1 none), fmt for tooltip.
+  function renderBars(box, values, labels, hi, fmt) {
+    box.innerHTML = "";
+    const max = Math.max(1, ...values);
+    const bars = el("div", "bars");
+    values.forEach((v, i) => {
+      const b = el("div", "bar" + (i === hi ? " hi" : "") + (v <= 0 ? " dim" : ""));
+      b.style.height = Math.max(2, Math.round((v / max) * 100)) + "%";
+      b.title = (labels[i] != null ? labels[i] + ": " : "") + (fmt ? fmt(v) : v);
+      bars.appendChild(b);
+    });
+    box.appendChild(bars);
+    if (values.length) {
+      const lab = el("div", "barlabels");
+      lab.appendChild(el("span", null, String(labels[0])));
+      lab.appendChild(el("span", null, String(labels[Math.floor(values.length / 2)])));
+      lab.appendChild(el("span", null, String(labels[values.length - 1])));
+      box.appendChild(lab);
+    }
   }
 
   // ── Staff management ────────────────────────────────────────────────────
@@ -340,7 +410,7 @@
     TOKEN = saved;
     api("session").then((r) => {
       if (r.status === 200 && (r.data.role === "admin" || r.data.role === "owner")) {
-        $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); loadStaff();
+        $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); show("dash");
       } else { TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {} }
     });
   })();
