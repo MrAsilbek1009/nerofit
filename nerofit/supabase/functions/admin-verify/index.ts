@@ -521,6 +521,84 @@ async function handlePost(req: Request): Promise<Response> {
     });
   }
 
+  // ── dashboard KPIs + trend charts (admin/owner) ────────────────────────
+  if (action === "dashboard_stats") {
+    const TZ = 5; // Uzbekistan = UTC+5 (no DST)
+    const day = 86_400_000;
+    const todayStart = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00.000Z");
+    const weekStart = new Date(todayStart.getTime() - 6 * day);
+    const monthStart = new Date(todayStart.getTime() - 29 * day);
+    const chartStart = new Date(todayStart.getTime() - 13 * day);
+    const todayIso = todayStart.toISOString().slice(0, 10);
+    const in7Iso = new Date(todayStart.getTime() + 7 * day).toISOString().slice(0, 10);
+
+    // Members (active + frozen only — bounded by active membership count).
+    const { data: mems } = await db
+      .from("memberships")
+      .select("user_id, status, end_date")
+      .in("status", ["active", "frozen"]);
+    const active = new Set<string>(), frozen = new Set<string>(), expiring = new Set<string>();
+    for (const m of mems ?? []) {
+      if (m.status === "active" && m.end_date && m.end_date >= todayIso) {
+        active.add(m.user_id);
+        if (m.end_date <= in7Iso) expiring.add(m.user_id);
+      } else if (m.status === "frozen") frozen.add(m.user_id);
+    }
+
+    // Paid payments, last 30 days.
+    const { data: pays } = await db
+      .from("payments")
+      .select("amount_uzs, paid_at")
+      .eq("status", "paid")
+      .gte("paid_at", monthStart.toISOString());
+    let revToday = 0, revWeek = 0, revMonth = 0, salesToday = 0;
+    const revByDay: Record<string, number> = {};
+    for (const p of pays ?? []) {
+      if (!p.paid_at) continue;
+      const amt = p.amount_uzs || 0;
+      const t = new Date(p.paid_at);
+      revMonth += amt;
+      if (t >= weekStart) revWeek += amt;
+      if (t >= todayStart) { revToday += amt; salesToday++; }
+      if (t >= chartStart) { const k = p.paid_at.slice(5, 10); revByDay[k] = (revByDay[k] || 0) + amt; }
+    }
+    const revDaily: { d: string; v: number }[] = [];
+    for (let i = 13; i >= 0; i--) {
+      const k = new Date(todayStart.getTime() - i * day).toISOString().slice(5, 10);
+      revDaily.push({ d: k, v: revByDay[k] || 0 });
+    }
+
+    // Check-ins, last 14 days → today count + by-hour distribution (local time).
+    const { data: checks } = await db
+      .from("gym_checkins")
+      .select("checked_at")
+      .gte("checked_at", chartStart.toISOString());
+    let checkinsToday = 0;
+    const byHour = new Array(24).fill(0);
+    for (const c of checks ?? []) {
+      if (!c.checked_at) continue;
+      const t = new Date(c.checked_at);
+      if (t >= todayStart) checkinsToday++;
+      byHour[(t.getUTCHours() + TZ) % 24]++;
+    }
+    let peakHour: number | null = null, peakVal = 0;
+    byHour.forEach((v, h) => { if (v > peakVal) { peakVal = v; peakHour = h; } });
+
+    return json({
+      active: active.size,
+      expiring7: expiring.size,
+      frozen: frozen.size,
+      checkinsToday,
+      salesToday,
+      revenueToday: revToday,
+      revenueWeek: revWeek,
+      revenueMonth: revMonth,
+      peakHour,
+      revDaily,
+      checkinsByHour: byHour,
+    });
+  }
+
   // ── audit log viewer (admin/owner) ─────────────────────────────────────
   if (action === "audit_list") {
     const { data } = await db

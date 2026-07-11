@@ -171,5 +171,15 @@ Keyin A3 (moliya) → A4 → A5.
 **Deploy tartibi (MUHIM):** 1) migration 0020 → 2) `admin-verify` → 3) Vercel panellar.
 **Sinash:** ↓ (keyingi xabarda batafsil).
 
-### ⬜ A1 — Dashboard & KPI — keyingi
+### ✅ A1 — Dashboard & KPI (2026-07, `admin-a1-dashboard` branch)
+**Nima o'zgardi:**
+- **`admin-verify`** — yangi `dashboard_stats` action (admin/owner): faol a'zo ·
+  7 kunda tugaydigan · muzlatilgan · bugungi kelish · bugun/7 kun/30 kun daromad ·
+  peak soat (UTC+5) · 14 kunlik daromad seriyasi · soat bo'yicha kelishlar. Bitta
+  so'rovda, memberships/payments/gym_checkins agregatsiyasi.
+- **`gym-admin`** — yangi **"Dashboard" tab** (kirishda default): 8 KPI karta +
+  2 minimal bar-chart (daromad 14 kun · kelishlar soat bo'yicha), Kinetic Editorial.
+**Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration kerak emas).
+
+### ⬜ A2 — A'zolar boshqaruvi (pro) — keyingi
 
