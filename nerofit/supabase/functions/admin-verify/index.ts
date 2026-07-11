@@ -1,15 +1,20 @@
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Admin / staff membership API (Stage 3+).
+// Admin / staff membership API.
 //
-// Two roles, both authenticate by password only:
-//   • admin  — the ADMIN_PANEL_PASSWORD env secret (master). Can do everything.
-//   • staff  — a row in gym_staff (password hashed). Can verify / activate.
+// Auth (A0 security foundation):
+//   • `login { password }` → issues a short-lived session TOKEN (12h). The token
+//     is what panels send on every subsequent request — the password travels
+//     only once, at login. Brute-force rate-limited per IP.
+//   • Every other action accepts `{ token }`. For backward compatibility it also
+//     still accepts `{ password }` on each request (legacy panels) — remove once
+//     all panels are on tokens.
+//   Roles: owner (master ADMIN_PANEL_PASSWORD) · admin · staff.
+//   Every mutating action is written to `admin_audit` (who/what/when).
+//
 // Passwords are SHA-256-hashed with the service-role key as a pepper — never
-// stored plaintext. gym_staff / gym_checkins are service-role-only (RLS locked).
-//
-// Panels (static, hosted on Vercel) call this JSON API with { password, action }.
-// Deploy with `--no-verify-jwt` (public; password is the boundary). CORS open.
+// stored plaintext. admin_sessions/admin_audit/gym_staff are service-role-only.
+// Deploy with `--no-verify-jwt` (public; the token/password is the boundary).
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -34,15 +39,22 @@ function daysLeft(endDate: string): number {
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
-// Whole days from one ISO date to another (clamped at 0). Used for a frozen
-// membership's preserved remaining days and for the freeze duration on unfreeze.
 function daysBetween(fromIso: string, toIso: string): number {
   return Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000));
 }
+function getIp(req: Request): string {
+  return (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+}
+async function sha256Hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function newToken(): string {
+  const b = new Uint8Array(32);
+  crypto.getRandomValues(b);
+  return Array.from(b).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
 
-// The date a new plan should stack onto: the member's current active membership
-// end_date if it's still in the future, else today. So changing plan / renewing
-// early adds the new duration on top of the remaining days instead of resetting.
 async function stackBase(db: SupabaseClient, userId: string): Promise<Date> {
   const { data } = await db
     .from("memberships")
@@ -56,18 +68,18 @@ async function stackBase(db: SupabaseClient, userId: string): Promise<Date> {
   return today();
 }
 
-// SHA-256(pepper + ":" + password), hex. Pepper = service-role key (secret, not
-// in git). Deterministic so we can look a staff up by their password's hash.
+// SHA-256(pepper + ":" + password), hex. Pepper = service-role key (secret).
 async function hashPw(pw: string): Promise<string> {
   const pepper = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pepper + ":" + pw));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return await sha256Hex(pepper + ":" + pw);
 }
 
-type Auth = { role: "admin" | "staff"; staffId: string | null; name: string };
+type Auth = { role: "owner" | "admin" | "staff"; staffId: string | null; name: string };
+const isAdmin = (a: Auth) => a.role === "owner" || a.role === "admin";
+
 async function authenticate(db: SupabaseClient, password: string): Promise<Auth | null> {
   const master = Deno.env.get("ADMIN_PANEL_PASSWORD");
-  if (master && password === master) return { role: "admin", staffId: null, name: "admin" };
+  if (master && password === master) return { role: "owner", staffId: null, name: "owner" };
   if (!password) return null;
   const { data } = await db
     .from("gym_staff")
@@ -79,7 +91,44 @@ async function authenticate(db: SupabaseClient, password: string): Promise<Auth 
   return { role: data.role as "admin" | "staff", staffId: data.id, name: data.name };
 }
 
-// Map a set of gym_staff ids → names (for reports).
+// Resolve a session token → Auth, or null if unknown/expired.
+async function authByToken(db: SupabaseClient, token: string): Promise<Auth | null> {
+  if (!token) return null;
+  const th = await sha256Hex(token);
+  const { data } = await db
+    .from("admin_sessions")
+    .select("staff_id, role, name, expires_at")
+    .eq("token_hash", th)
+    .maybeSingle();
+  if (!data) return null;
+  if (new Date(data.expires_at) < new Date()) {
+    await db.from("admin_sessions").delete().eq("token_hash", th);
+    return null;
+  }
+  await db.from("admin_sessions").update({ last_seen: new Date().toISOString() }).eq("token_hash", th);
+  return { role: data.role as Auth["role"], staffId: data.staff_id, name: data.name };
+}
+
+// Record a mutating action. Non-throwing — audit failure must never break the op.
+async function audit(
+  db: SupabaseClient,
+  auth: Auth | null,
+  action: string,
+  target: string | null,
+  meta: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await db.from("admin_audit").insert({
+      actor_role: auth?.role ?? null,
+      actor_name: auth?.name ?? null,
+      actor_staff_id: auth?.staffId ?? null,
+      action,
+      target,
+      meta,
+    });
+  } catch (_e) { /* ignore */ }
+}
+
 async function staffNames(db: SupabaseClient, ids: string[]): Promise<Record<string, string>> {
   const uniq = [...new Set(ids.filter(Boolean))];
   if (uniq.length === 0) return {};
@@ -90,9 +139,52 @@ async function staffNames(db: SupabaseClient, ids: string[]): Promise<Record<str
 async function handlePost(req: Request): Promise<Response> {
   const body = await req.json().catch(() => ({}));
   const db = admin();
-  const auth = await authenticate(db, String(body.password ?? ""));
-  if (!auth) return json({ error: "Wrong password" }, 401);
   const action = body.action as string;
+
+  // ── login: password → token (rate-limited per IP) ──────────────────────
+  if (action === "login") {
+    const ip = getIp(req);
+    const since = new Date(Date.now() - 15 * 60_000).toISOString();
+    const { data: fails } = await db
+      .from("admin_audit")
+      .select("meta")
+      .eq("action", "login_failed")
+      .gte("created_at", since);
+    // deno-lint-ignore no-explicit-any
+    const recent = (fails ?? []).filter((r) => (r.meta as any)?.ip === ip).length;
+    if (recent >= 8) return json({ error: "Juda ko'p urinish. 15 daqiqadan so'ng qayta urining." }, 429);
+
+    const a = await authenticate(db, String(body.password ?? ""));
+    if (!a) {
+      await audit(db, null, "login_failed", null, { ip });
+      return json({ error: "Parol noto'g'ri" }, 401);
+    }
+    const token = newToken();
+    const { error: sErr } = await db.from("admin_sessions").insert({
+      token_hash: await sha256Hex(token),
+      staff_id: a.staffId,
+      role: a.role,
+      name: a.name,
+      expires_at: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+    });
+    // Don't hand back a token we couldn't store (e.g. migration 0020 not applied).
+    if (sErr) return json({ error: "Sessiya saqlanmadi — migration 0020 qo'llanganmi?" }, 500);
+    await audit(db, a, "login", null, { ip });
+    return json({ ok: true, token, role: a.role, name: a.name });
+  }
+
+  // ── logout: drop the token (no auth needed) ────────────────────────────
+  if (action === "logout") {
+    const token = String(body.token ?? "");
+    if (token) await db.from("admin_sessions").delete().eq("token_hash", await sha256Hex(token));
+    return json({ ok: true });
+  }
+
+  // Resolve auth: token first, else legacy password (backward compat).
+  const auth = body.token
+    ? await authByToken(db, String(body.token))
+    : await authenticate(db, String(body.password ?? ""));
+  if (!auth) return json({ error: body.token ? "Sessiya tugagan — qayta kiring" : "Wrong password" }, 401);
 
   // ── session / staff + admin actions ────────────────────────────────────
   if (action === "session") return json({ role: auth.role, name: auth.name });
@@ -121,16 +213,9 @@ async function handlePost(req: Request): Promise<Response> {
 
     const active = !!m && m.status === "active" && !!m.end_date && new Date(m.end_date) >= today();
     const frozen = !!m && m.status === "frozen";
-    // Log the door check (attendance) — only for a real profile (FK).
     if (prof) {
-      await db.from("gym_checkins").insert({
-        user_id: userId,
-        staff_id: auth.staffId,
-        was_active: active,
-      });
+      await db.from("gym_checkins").insert({ user_id: userId, staff_id: auth.staffId, was_active: active });
     }
-    // A frozen membership's remaining days are preserved as of the freeze date
-    // (the clock stopped), so measure end_date from frozen_at, not from now.
     const daysRemaining = frozen && m?.frozen_at && m?.end_date
       ? daysBetween(m.frozen_at, m.end_date)
       : m?.end_date ? daysLeft(m.end_date) : 0;
@@ -160,8 +245,6 @@ async function handlePost(req: Request): Promise<Response> {
     if (!plan) return json({ error: "Plan not found" }, 404);
 
     const start = today();
-    // Stack onto any remaining active time so an upgrade/renewal doesn't burn
-    // the days already paid for.
     const base = await stackBase(db, userId);
     const end = new Date(base.getTime() + plan.duration_days * 86_400_000);
     const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -180,11 +263,11 @@ async function handlePost(req: Request): Promise<Response> {
       paid_at: new Date().toISOString(),
       activated_by: auth.staffId,
     });
+    await audit(db, auth, "activate", userId, { plan_id: planId, end_date: iso(end) });
     return json({ ok: true, end_date: iso(end), days_left: daysLeft(iso(end)) });
   }
 
-  // ── cash order (Variant A): the app creates a pending order (payment id in a
-  // QR); staff scan it, take cash, and confirm here. ──────────────────────
+  // ── cash order (Variant A) ─────────────────────────────────────────────
   if (action === "order_detail") {
     const orderId = String(body.order_id ?? "").trim();
     if (!orderId) return json({ found: false });
@@ -241,7 +324,6 @@ async function handlePost(req: Request): Promise<Response> {
     const duration = (m as any)?.membership_plans?.duration_days as number | undefined;
     if (!duration) return json({ error: "Plan not found" }, 404);
     const start = today();
-    // Stack onto any remaining active time (renewal / plan change before expiry).
     const base = await stackBase(db, pay.user_id);
     const end = new Date(base.getTime() + duration * 86_400_000);
     const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -254,12 +336,11 @@ async function handlePost(req: Request): Promise<Response> {
       .update({ status: "paid", paid_at: new Date().toISOString(), activated_by: auth.staffId })
       .eq("id", pay.id);
     await db.from("gym_checkins").insert({ user_id: pay.user_id, staff_id: auth.staffId, was_active: true });
+    await audit(db, auth, "order_activate", pay.user_id, { order_id: orderId, end_date: iso(end) });
     return json({ ok: true, end_date: iso(end), days_left: daysLeft(iso(end)) });
   }
 
   // ── freeze / unfreeze (staff + admin) ──────────────────────────────────
-  // Pause the membership clock. Freeze records the date; unfreeze pushes the
-  // end_date forward by however long it was frozen, so no paid days are lost.
   if (action === "freeze") {
     const userId = String(body.user_id ?? "").trim();
     if (!userId) return json({ error: "user_id required" }, 400);
@@ -279,6 +360,7 @@ async function handlePost(req: Request): Promise<Response> {
       .update({ status: "frozen", frozen_at: isoDate(today()) })
       .eq("id", m.id);
     if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "freeze", userId, {});
     return json({ ok: true, status: "frozen", days_left: daysLeft(m.end_date) });
   }
 
@@ -308,11 +390,12 @@ async function handlePost(req: Request): Promise<Response> {
       })
       .eq("id", m.id);
     if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "unfreeze", userId, { frozen_days: frozenDays });
     return json({ ok: true, status: "active", end_date: newEnd, days_left: daysLeft(newEnd), frozen_days: frozenDays });
   }
 
-  // ── admin-only actions ─────────────────────────────────────────────────
-  if (auth.role !== "admin") return json({ error: "Admin only" }, 403);
+  // ── admin/owner-only actions ───────────────────────────────────────────
+  if (!isAdmin(auth)) return json({ error: "Admin only" }, 403);
 
   if (action === "staff_list") {
     const { data } = await db
@@ -323,8 +406,6 @@ async function handlePost(req: Request): Promise<Response> {
   }
 
   if (action === "staff_add" || action === "staff_set_password") {
-    // NB: the new staff password is `new_password` — `password` is the admin's
-    // own auth password (used by authenticate() above), so they must not collide.
     const pw = String(body.new_password ?? "").trim();
     if (!pw) return json({ error: "new_password required" }, 400);
     const hash = await hashPw(pw);
@@ -333,11 +414,13 @@ async function handlePost(req: Request): Promise<Response> {
       if (!name) return json({ error: "name required" }, 400);
       const { error } = await db.from("gym_staff").insert({ name, password_hash: hash, role: "staff" });
       if (error) return json({ error: error.code === "23505" ? "Bu parol band — boshqasini tanlang" : error.message }, 400);
+      await audit(db, auth, "staff_add", name, {});
     } else {
       const staffId = String(body.staff_id ?? "").trim();
       if (!staffId) return json({ error: "staff_id required" }, 400);
       const { error } = await db.from("gym_staff").update({ password_hash: hash }).eq("id", staffId);
       if (error) return json({ error: error.code === "23505" ? "Bu parol band — boshqasini tanlang" : error.message }, 400);
+      await audit(db, auth, "staff_set_password", staffId, {});
     }
     return json({ ok: true });
   }
@@ -345,18 +428,17 @@ async function handlePost(req: Request): Promise<Response> {
   if (action === "staff_set_active") {
     const staffId = String(body.staff_id ?? "").trim();
     await db.from("gym_staff").update({ is_active: !!body.is_active }).eq("id", staffId);
+    await audit(db, auth, "staff_set_active", staffId, { is_active: !!body.is_active });
     return json({ ok: true });
   }
 
   if (action === "staff_delete") {
     const staffId = String(body.staff_id ?? "").trim();
     await db.from("gym_staff").delete().eq("id", staffId);
+    await audit(db, auth, "staff_delete", staffId, {});
     return json({ ok: true });
   }
 
-  // Admin changes their OWN password. `password` (verified admin above) is the
-  // current password; the new one is stored as a gym_staff role='admin' row.
-  // The env ADMIN_PANEL_PASSWORD stays as a permanent recovery key.
   if (action === "admin_set_password") {
     const pw = String(body.new_password ?? "").trim();
     if (!pw) return json({ error: "new_password required" }, 400);
@@ -366,6 +448,7 @@ async function handlePost(req: Request): Promise<Response> {
       ? await db.from("gym_staff").update({ password_hash: hash, is_active: true }).eq("id", existing.id)
       : await db.from("gym_staff").insert({ name: "admin", role: "admin", password_hash: hash });
     if (res.error) return json({ error: res.error.code === "23505" ? "Bu parol band — boshqasini tanlang" : res.error.message }, 400);
+    await audit(db, auth, "admin_set_password", null, {});
     return json({ ok: true });
   }
 
@@ -438,6 +521,16 @@ async function handlePost(req: Request): Promise<Response> {
     });
   }
 
+  // ── audit log viewer (admin/owner) ─────────────────────────────────────
+  if (action === "audit_list") {
+    const { data } = await db
+      .from("admin_audit")
+      .select("id, actor_role, actor_name, action, target, meta, created_at")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    return json({ audit: data ?? [] });
+  }
+
   return json({ error: "Unknown action" }, 400);
 }
 
@@ -450,5 +543,5 @@ Deno.serve(async (req) => {
       return json({ error: String(e instanceof Error ? e.message : e) }, 500);
     }
   }
-  return json({ ok: true, api: "admin-verify", note: "POST { password, action }" });
+  return json({ ok: true, api: "admin-verify", note: "POST { action, token|password }" });
 });

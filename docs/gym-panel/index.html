@@ -41,10 +41,11 @@
 <script>
   var API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
   var scanner = null, scanning = false, plans = null;
+  var TOKEN = "", TOKEN_PW = "";
 
   // Remember the panel password on this device (gym desk / staff phone).
   var pwdEl = document.getElementById('pwd');
-  try { pwdEl.value = localStorage.getItem('np_pwd') || ''; } catch (e) {}
+  try { pwdEl.value = localStorage.getItem('np_pwd') || ''; TOKEN = localStorage.getItem('np_token') || ''; TOKEN_PW = pwdEl.value; } catch (e) {}
   pwdEl.addEventListener('input', function () {
     try { localStorage.setItem('np_pwd', pwdEl.value); } catch (e) {}
   });
@@ -53,10 +54,26 @@
   // "2026-10-03" → "03.10.2026" (date part only).
   function fmt(s){ if(!s) return '-'; var p=String(s).slice(0,10).split('-'); return p.length===3 ? p[2]+'.'+p[1]+'.'+p[0] : String(s); }
 
+  // Exchange the panel password for a short-lived session token (once), then send
+  // the token on every request. Re-logins if the password changes.
+  async function ensureToken(){
+    var pw = document.getElementById('pwd').value;
+    if (TOKEN && TOKEN_PW === pw) return TOKEN;
+    var res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ action:'login', password: pw }) });
+    var d = {}; try { d = await res.json(); } catch(e){}
+    if (res.status === 200 && d.token) { TOKEN = d.token; TOKEN_PW = pw; try { localStorage.setItem('np_token', TOKEN); } catch(e){} return TOKEN; }
+    TOKEN = ""; return "";
+  }
   async function api(action, extra){
-    var b = Object.assign({ action:action, password: document.getElementById('pwd').value }, extra||{});
+    var tok = await ensureToken();
+    if (!tok) return { status:401, data:{ error:"Parol noto'g'ri" } };
+    var b = Object.assign({ action:action, token: tok }, extra||{});
     var res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(b) });
     var data = {}; try { data = await res.json(); } catch(e){}
+    if (res.status === 401) { // token expired → re-login once and retry
+      TOKEN = ""; var tok2 = await ensureToken();
+      if (tok2) { b.token = tok2; res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(b) }); data = {}; try { data = await res.json(); } catch(e){} }
+    }
     return { status: res.status, data: data };
   }
 
