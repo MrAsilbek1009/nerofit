@@ -5,9 +5,11 @@ import { useTranslation } from "react-i18next";
 import { Droplet, Plus } from "lucide-react-native";
 import { Button, ProgressRing } from "@/components/ui";
 import { MacroBar } from "@/features/nutrition/components/MacroBar";
+import { PlanUpdatedCard } from "@/features/nutrition/components/PlanUpdatedCard";
 import { SectionLabel } from "@/features/nutrition/components/SectionLabel";
 import { SupplementRow } from "@/features/nutrition/components/SupplementRow";
 import { useUserId } from "@/hooks/useUser";
+import { useAdaptiveGoals } from "@/lib/queries/adaptiveGoals";
 import { useProfile } from "@/lib/queries/profile";
 import {
   useMeals,
@@ -34,6 +36,11 @@ export default function NutritionScreen() {
   const supplements = useSupplements();
   const supplementLogs = useTodaySupplementLogs(userId);
   const toggleSupp = useToggleSupplement(userId);
+  const adaptive = useAdaptiveGoals(userId);
+
+  // The query layer decides freshness (pure render, React-compiler friendly).
+  const adaptiveTarget = adaptive.data?.target ?? null;
+  const showPlanUpdated = adaptive.data?.showNotice ?? false;
 
   const logs = mealLogs.data ?? [];
   const macros = logs.reduce(
@@ -96,6 +103,11 @@ export default function NutritionScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {/* Adaptive plan update (weekly, adherence-neutral) */}
+        {showPlanUpdated && adaptiveTarget ? (
+          <PlanUpdatedCard target={adaptiveTarget} />
+        ) : null}
 
         {/* Macros */}
         <View style={{ gap: space[4] }}>

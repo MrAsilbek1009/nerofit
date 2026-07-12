@@ -293,6 +293,12 @@
     "dayPart": { "morning": "Утро", "midday": "День", "evening": "Вечер" },
     "emptyMeals": "Блюд пока нет.",
     "recentScans": "Недавние сканы →",
+    "adaptive": {
+      "updated": "План обновлён",
+      "kcalPerDay": "ккал / день",
+      "tdee": "Расход ~{{kcal}} ккал",
+      "keepGoing": "Цели каждую неделю подстраиваются под тренд веса. Продолжайте."
+    },
     "fastLog": {
       "tabs": { "fast": "Быстро", "catalog": "Каталог", "myMeals": "Мои блюда" },
       "quickAdd": "Быстрое добавление",
