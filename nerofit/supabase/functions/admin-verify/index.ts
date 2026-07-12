@@ -42,6 +42,14 @@ function isoDate(d: Date): string {
 function daysBetween(fromIso: string, toIso: string): number {
   return Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000));
 }
+// Local-day (Uzbekistan, UTC+5) boundaries as UTC ISO — for finance day/range
+// filters so "today's cash" matches the gym's wall clock, not UTC midnight.
+function dayStartUtc(d: string): string {
+  return new Date(d + "T00:00:00+05:00").toISOString();
+}
+function dayEndUtc(d: string): string { // exclusive upper bound (start of next local day)
+  return new Date(new Date(d + "T00:00:00+05:00").getTime() + 86_400_000).toISOString();
+}
 function getIp(req: Request): string {
   return (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
 }
@@ -732,6 +740,174 @@ async function handlePost(req: Request): Promise<Response> {
       .order("created_at", { ascending: false })
       .limit(60);
     return json({ audit: data ?? [] });
+  }
+
+  // ── A3 finance: payments journal (admin/owner) ─────────────────────────
+  // Paginated payment journal with provider/status/date filters + name search,
+  // plus the filtered total sum (over the whole filter, not just the page).
+  if (action === "payments_list") {
+    const provider = String(body.provider ?? "all");
+    const statusF = String(body.status ?? "all");
+    const fromDate = String(body.from ?? "").trim();
+    const toDate = String(body.to ?? "").trim();
+    const q = String(body.q ?? "").trim();
+    const limit = Math.min(200, Math.max(1, Math.floor(Number(body.limit) || 25)));
+    const offset = Math.max(0, Math.floor(Number(body.offset) || 0));
+
+    // Name search → resolve to user_ids first (empty list = match nothing).
+    let uidFilter: string[] | null = null;
+    if (q) {
+      const { data: profs } = await db.from("profiles").select("id").ilike("name", `%${q}%`).limit(500);
+      uidFilter = (profs ?? []).map((p) => p.id);
+      if (uidFilter.length === 0) uidFilter = [q]; // fall back to raw id (exact) — or nothing
+    }
+
+    // deno-lint-ignore no-explicit-any
+    const applyFilters = (query: any) => {
+      if (provider !== "all") query = query.eq("provider", provider);
+      if (statusF !== "all") query = query.eq("status", statusF);
+      if (fromDate) query = query.gte("created_at", dayStartUtc(fromDate));
+      if (toDate) query = query.lt("created_at", dayEndUtc(toDate));
+      if (uidFilter) query = query.in("user_id", uidFilter);
+      return query;
+    };
+
+    const { data: pays, count } = await applyFilters(
+      db.from("payments").select(
+        "id, user_id, membership_id, amount_uzs, provider, status, paid_at, created_at, activated_by",
+        { count: "exact" },
+      ),
+    ).order("created_at", { ascending: false }).range(offset, offset + limit - 1);
+
+    const { data: sumRows } = await applyFilters(db.from("payments").select("amount_uzs"));
+    const sum = (sumRows ?? []).reduce((a: number, r: { amount_uzs: number }) => a + (r.amount_uzs || 0), 0);
+
+    const uids = [...new Set((pays ?? []).map((p) => p.user_id))];
+    const nameMap: Record<string, string | null> = {};
+    if (uids.length) {
+      const { data: profs } = await db.from("profiles").select("id, name").in("id", uids);
+      for (const p of profs ?? []) nameMap[p.id] = p.name;
+    }
+    const staff = await staffNames(db, (pays ?? []).map((p) => p.activated_by as string));
+
+    return json({
+      payments: (pays ?? []).map((p) => ({
+        ...p,
+        member_name: nameMap[p.user_id] ?? null,
+        staff_name: p.activated_by ? staff[p.activated_by] ?? null : null,
+      })),
+      total: count ?? 0,
+      sum_uzs: sum,
+      limit,
+      offset,
+    });
+  }
+
+  // ── A3 finance: daily cash reconciliation per staff (admin/owner) ──────
+  // Cash = manual (in-gym) paid activations. Grouped by who took the money, for
+  // the given local day, so the register can be closed out.
+  if (action === "cash_report") {
+    const date = String(body.date ?? "").trim() || new Date().toISOString().slice(0, 10);
+    const { data: pays } = await db
+      .from("payments")
+      .select("amount_uzs, activated_by")
+      .eq("provider", "manual")
+      .eq("status", "paid")
+      .gte("paid_at", dayStartUtc(date))
+      .lt("paid_at", dayEndUtc(date));
+    const byStaff = new Map<string, { count: number; sum: number }>();
+    let totalSum = 0, totalCount = 0;
+    for (const p of pays ?? []) {
+      const key = p.activated_by ?? "__owner__";
+      const cur = byStaff.get(key) ?? { count: 0, sum: 0 };
+      cur.count++; cur.sum += p.amount_uzs || 0;
+      byStaff.set(key, cur);
+      totalSum += p.amount_uzs || 0; totalCount++;
+    }
+    const names = await staffNames(db, [...byStaff.keys()].filter((k) => k !== "__owner__"));
+    const staff = [...byStaff.entries()].map(([k, v]) => ({
+      staff_id: k === "__owner__" ? null : k,
+      staff_name: k === "__owner__" ? "admin/owner" : (names[k] ?? "(o'chirilgan)"),
+      count: v.count,
+      sum_uzs: v.sum,
+    })).sort((a, b) => b.sum_uzs - a.sum_uzs);
+    return json({ date, staff, total_uzs: totalSum, total_count: totalCount });
+  }
+
+  // ── A3 finance: revenue report by provider + plan for a range (admin) ──
+  if (action === "revenue_report") {
+    const to = String(body.to ?? "").trim() || new Date().toISOString().slice(0, 10);
+    const from = String(body.from ?? "").trim() || new Date(Date.now() - 29 * 86_400_000).toISOString().slice(0, 10);
+    const { data: pays } = await db
+      .from("payments")
+      .select("amount_uzs, provider, membership_id")
+      .eq("status", "paid")
+      .gte("paid_at", dayStartUtc(from))
+      .lt("paid_at", dayEndUtc(to));
+
+    const byProv = new Map<string, { count: number; sum: number }>();
+    const memIds = new Set<string>();
+    let total = 0, cnt = 0;
+    for (const p of pays ?? []) {
+      const pr = p.provider || "—";
+      const c = byProv.get(pr) ?? { count: 0, sum: 0 };
+      c.count++; c.sum += p.amount_uzs || 0; byProv.set(pr, c);
+      if (p.membership_id) memIds.add(p.membership_id);
+      total += p.amount_uzs || 0; cnt++;
+    }
+
+    // membership_id → plan_id → name_uz
+    const memToPlan: Record<string, string> = {};
+    const memArr = [...memIds];
+    for (let i = 0; i < memArr.length; i += 300) {
+      const { data: ms } = await db.from("memberships").select("id, plan_id").in("id", memArr.slice(i, i + 300));
+      for (const m of ms ?? []) memToPlan[m.id] = m.plan_id;
+    }
+    const { data: plans } = await db.from("membership_plans").select("id, name_uz");
+    const planName: Record<string, string> = Object.fromEntries((plans ?? []).map((p) => [p.id, p.name_uz]));
+    const byPlan = new Map<string, { count: number; sum: number }>();
+    for (const p of pays ?? []) {
+      const nm = p.membership_id && memToPlan[p.membership_id] ? (planName[memToPlan[p.membership_id]] ?? "—") : "—";
+      const c = byPlan.get(nm) ?? { count: 0, sum: 0 };
+      c.count++; c.sum += p.amount_uzs || 0; byPlan.set(nm, c);
+    }
+
+    const asRows = (m: Map<string, { count: number; sum: number }>) =>
+      [...m.entries()].map(([k, v]) => ({ label: k, count: v.count, sum_uzs: v.sum })).sort((a, b) => b.sum_uzs - a.sum_uzs);
+    return json({ from, to, total_uzs: total, total_count: cnt, by_provider: asRows(byProv), by_plan: asRows(byPlan) });
+  }
+
+  // ── A3 finance: refund / cancel a payment (admin/owner) ────────────────
+  // Cancels the payment and, if it granted a currently active/frozen membership,
+  // cancels that membership too (revokes access). 2-step confirm on the panel.
+  // Note: display picks the membership with the latest end_date, so refunding a
+  // superseded older payment may not restore an earlier row — refunds target the
+  // purchase in question (the common case: the latest one).
+  if (action === "payment_refund") {
+    const paymentId = String(body.payment_id ?? "").trim();
+    if (!paymentId) return json({ error: "payment_id required" }, 400);
+    const { data: pay } = await db
+      .from("payments")
+      .select("id, user_id, status, membership_id, amount_uzs")
+      .eq("id", paymentId)
+      .maybeSingle();
+    if (!pay) return json({ error: "To'lov topilmadi" }, 404);
+    if (pay.status !== "paid") return json({ error: "Faqat to'langan to'lovni qaytarish mumkin" }, 400);
+    await db.from("payments").update({ status: "cancelled" }).eq("id", pay.id);
+    let membershipCancelled = false;
+    if (pay.membership_id) {
+      const { data: m } = await db.from("memberships").select("id, status").eq("id", pay.membership_id).maybeSingle();
+      if (m && (m.status === "active" || m.status === "frozen")) {
+        await db.from("memberships").update({ status: "cancelled" }).eq("id", m.id);
+        membershipCancelled = true;
+      }
+    }
+    await audit(db, auth, "payment_refund", pay.user_id, {
+      payment_id: pay.id,
+      amount_uzs: pay.amount_uzs,
+      membership_cancelled: membershipCancelled,
+    });
+    return json({ ok: true, membership_cancelled: membershipCancelled });
   }
 
   return json({ error: "Unknown action" }, 400);

@@ -201,5 +201,26 @@ Keyin A3 (moliya) → A4 → A5.
 - Eski `members_search` action backendda qoldi (ishlatilmaydi; orqaga moslik).
 **Deploy:** 1) migration `0021` → 2) `admin-verify` qayta deploy → 3) `gym-admin` Vercel.
 
-### ⬜ A3 — Moliya & to'lovlar — keyingi
+### ✅ A3 — Moliya & to'lovlar (2026-07, `admin-a3-finance` branch)
+**Nima o'zgardi (migration kerak emas — mavjud `payments`/`memberships`):**
+- **`admin-verify`** — 4 yangi action (admin/owner):
+  - `payments_list` — **to'lov jurnali**: filtr (provider · status · sana Dan/Gacha) +
+    qidiruv (a'zo ismi) + **pagination** (limit/offset/total) + **filtrlangan jami**
+    summa (butun filtr bo'yicha, faqat sahifa emas).
+  - `cash_report` — **kunlik kassa**: naqd (`manual`+`paid`) to'lovlar xodim bo'yicha
+    guruhlanadi (kassa yopish). Kun **UTC+5 lokal** chegarasi bilan.
+  - `revenue_report` — **daromad**: davr (Dan/Gacha) bo'yicha provider + tarif kesimida
+    jami. Lokal-kun chegarasi.
+  - `payment_refund` — to'lovni bekor qilish + bog'langan faol/muzlagan a'zolikni
+    bekor qilish (audit'ga; panelda **2 qadamli tasdiq**).
+- **`gym-admin` yangi "Moliya" tab** (sub-nav: **Jurnal · Kassa · Daromad**):
+  jurnal filtr-chiplar + sana + qidiruv + sahifalash + jami; har to'lovda **Qaytarish**
+  (paid uchun, 2x tasdiq); kunlik kassa xodim kesimida; daromad provider/tarif jadvali.
+  Nav 5 tab bo'ldi (wrap).
+- **Eslatma:** ko'rsatuv eng katta `end_date`li a'zolikni oladi, shuning uchun eski
+  (stacked) to'lovni qaytarish avvalgi qatorni tiklamasligi mumkin — refund odatda
+  oxirgi xaridга qaratilgan.
+**Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
+
+### ⬜ A4 — Tariflar & narx boshqaruvi — keyingi
 
