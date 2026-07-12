@@ -43,12 +43,14 @@
   var scanner = null, scanning = false, plans = null;
   var TOKEN = "", TOKEN_PW = "";
 
-  // Remember the panel password on this device (gym desk / staff phone).
+  // Remember only the short-lived TOKEN on this device — NEVER the password (S1).
+  // On reload we reuse the token; once it expires the staff re-enters the password.
+  // Also wipe any password persisted by an older build.
   var pwdEl = document.getElementById('pwd');
-  try { pwdEl.value = localStorage.getItem('np_pwd') || ''; TOKEN = localStorage.getItem('np_token') || ''; TOKEN_PW = pwdEl.value; } catch (e) {}
-  pwdEl.addEventListener('input', function () {
-    try { localStorage.setItem('np_pwd', pwdEl.value); } catch (e) {}
-  });
+  try {
+    localStorage.removeItem('np_pwd');
+    TOKEN = localStorage.getItem('np_token') || '';
+  } catch (e) {}
   function el(t,c,txt){ var e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; }
   function out(){ return document.getElementById('out'); }
   // "2026-10-03" → "03.10.2026" (date part only).
