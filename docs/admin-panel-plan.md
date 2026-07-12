@@ -222,5 +222,37 @@ Keyin A3 (moliya) → A4 → A5.
   oxirgi xaridга qaratilgan.
 **Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
 
-### ⬜ A4 — Tariflar & narx boshqaruvi — keyingi
+---
+
+## 10/10 yo'l xaritasi (xavfsizlik-birinchi) — 2026-07
+
+Egasi panelni **dizayndan xavfsizlikkacha 10/10** qilishни so'radi (xavfsizlik #1).
+Gymove/FitNexus shablonlari ko'rildi — faqat frontend UI, xavfsizlik yo'q, dep-risk
+katta → shablon olinmaydi; vanilla saqlanadi va **qattiqlashtiriladi**. Yangi tartib:
+**S1 (xavfsizlik) → S2 (CI+testlar+umumiy modul) → A4 (tariflar) → C1 (kontent) →
+T1 (trenerlar, admin-only) → P1 (push+retention) → D1 (dizayn 10/10) → Z (yakun+audit).**
+To'liq reja: `~/.claude/plans/delegated-percolating-barto.md`.
+
+### ✅ S1 — Xavfsizlik qattiqlashtirish (2026-07, `admin-s1-security` branch, migration yo'q)
+**Nima o'zgardi (`admin-verify` + `gym-panel`):**
+- **Eski `{password}` per-request yo'li olib tashlandi** — endi faqat `login` parol
+  qabul qiladi, qolgan har action **token** talab qiladi (ikkala panel token'да).
+- **CORS qulflandi** — `*` o'chirildi; ruxsat berilgan origin (`.vercel.app` + localhost)
+  `Deno.serve`да aks ettiriladi; begona sayt javobni o'qiy olmaydi.
+- **Token qattiqlashtirish** — TTL 12h→**8h**, har faol so'rovда **sliding refresh**;
+  yangi **`logout_all`** (barcha qurilmadan chiqish).
+- **Per-actor rate-limit** — `payment_refund` (20/10daq), `staff_delete` (10/10daq),
+  `admin_set_password` (5/10daq); o'g'irlangan token mass-abuse qila olmaydi.
+- **UUID validatsiya** — `payment_refund`/`staff_delete` (+ boshqalari keyin).
+- **Dependency pin** — `@supabase/supabase-js@2` → **`@2.45.4`** (supply-chain).
+- **`gym-panel`** — ochiq parolни localStorage'да saqlash **olib tashlandi** (faqat
+  token; eski `np_pwd` tozalanadi). `gym-admin` allaqachon token-only edi.
+- **A3 latent type-xato tuzatildi** (`payments_list`) — `deno check` endi toza (exit 0).
+  (A3 hech qachon deno-check qilinmagan edi — S2 buni CI'ga qo'shadi.)
+**Verify:** `deno check` toza; panel JS `node --check` toza.
+**Deploy:** `admin-verify` qayta deploy + `gym-panel` Vercel (migration yo'q).
+⚠️ CORS: panellar `.vercel.app`да bo'lsa ishlaydi; custom domen bo'lsa `allowedOrigin`ga qo'shish kerak.
+
+### ⬜ S2 — CI xavfsizlik shlyuzi + testlar + umumiy modul — keyingi
+### ⬜ A4 — Tariflar & narx boshqaruvi
 
