@@ -5,6 +5,7 @@ import {
   normalizeOffProduct,
   parseOffProduct,
   parseOffSearch,
+  servingGrams,
 } from "./offParse";
 
 const perServing = {
@@ -65,6 +66,25 @@ describe("normalizeOffProduct", () => {
   });
 });
 
+describe("servingGrams", () => {
+  it("prefers the numeric serving_quantity", () => {
+    expect(servingGrams(perServing)).toBe(150);
+  });
+
+  it("parses grams out of serving_size text", () => {
+    expect(servingGrams({ serving_size: "30 g" })).toBe(30);
+    expect(servingGrams({ serving_size: "2 cookies (28g)" })).toBe(28);
+    expect(servingGrams({ serving_size: "250ml" })).toBe(250);
+    expect(servingGrams({ serving_size: "12,5 g" })).toBe(13);
+  });
+
+  it("returns null when nothing usable exists", () => {
+    expect(servingGrams({ serving_size: "1 bar" })).toBeNull();
+    expect(servingGrams({})).toBeNull();
+    expect(servingGrams(null)).toBeNull();
+  });
+});
+
 describe("mergeName", () => {
   it("joins name and brand", () => {
     expect(mergeName("Greek Yogurt", "Chobani")).toBe("Greek Yogurt · Chobani");
@@ -84,7 +104,12 @@ describe("parseOffProduct", () => {
     expect(r.items).toHaveLength(1);
     expect(r.items[0]!.name).toBe("Greek Yogurt · Chobani");
     expect(r.total).toEqual({ kcal: 120, protein_g: 15, carbs_g: 6, fats_g: 0 });
+    expect(r.total_g).toBe(150);
     expect(r.confidence).toBe("high");
+  });
+
+  it("uses 100g as the weight for per-100g fallbacks", () => {
+    expect(parseOffProduct(only100g)!.total_g).toBe(100);
   });
 
   it("returns null for unusable products", () => {
@@ -120,6 +145,7 @@ describe("foodScanResultFromHit", () => {
     const r = foodScanResultFromHit(hit);
     expect(r.items[0]!.name).toBe("Greek Yogurt · Chobani");
     expect(r.total).toEqual({ kcal: 120, protein_g: 15, carbs_g: 6, fats_g: 0 });
+    expect(r.total_g).toBe(150);
     expect(r.confidence).toBe("high");
   });
 });

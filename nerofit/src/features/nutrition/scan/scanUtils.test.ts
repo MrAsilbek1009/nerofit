@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import type { FoodScanResult } from "@/lib/api/foodScan";
-import { scanTitle } from "./scanUtils";
+import { amountFactor, gramRange, scanTitle } from "./scanUtils";
 
 function result(names: string[]): FoodScanResult {
   return {
@@ -33,5 +33,35 @@ describe("scanTitle", () => {
 
   it("falls back when the first name is blank", () => {
     expect(scanTitle(result(["   "]), "Scanned meal")).toBe("Scanned meal");
+  });
+});
+
+describe("amountFactor", () => {
+  it("scales by servings in serving mode", () => {
+    expect(amountFactor("serving", 2, 999, 300)).toBe(2);
+  });
+
+  it("scales grams against the estimated weight in gram mode", () => {
+    expect(amountFactor("gram", 1, 150, 300)).toBe(0.5);
+    expect(amountFactor("gram", 1, 600, 300)).toBe(2);
+  });
+
+  it("guards gram mode against a missing/zero weight", () => {
+    expect(amountFactor("gram", 1, 150, null)).toBe(1);
+    expect(amountFactor("gram", 1, 150, 0)).toBe(1);
+  });
+});
+
+describe("gramRange", () => {
+  it("spans one step to ~3x the estimate in 5g steps", () => {
+    expect(gramRange(300)).toEqual({ min: 5, max: 900, step: 5 });
+  });
+
+  it("rounds the max up to a step boundary", () => {
+    expect(gramRange(101)).toEqual({ min: 5, max: 305, step: 5 });
+  });
+
+  it("keeps a usable range for tiny estimates", () => {
+    expect(gramRange(2)).toEqual({ min: 5, max: 10, step: 5 });
   });
 });

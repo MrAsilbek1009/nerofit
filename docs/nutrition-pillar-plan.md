@@ -45,12 +45,17 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
 - 🧑 Handoff: migration apply + seed; admin verify oqimi.
 
 ### 🟨 Bosqich N2 — Tez log + aqlli scan tahriri (Cal AI/Foodvisor/Lose It)
-- **Natija-muharrir yangilanishi**: **gram/miqdor slider** + birlik almashtirish (porsiya/gram/dona);
-  **"Fix with AI"** — matn bilan tuzatish → qayta baholash (food-analysis Edge'ga hint);
-  yashirin ingredient qo'shish (yog'/sous).
-- **Tez log**: recent/tez-tez ishlatilgan + **favoritlar** + "quick add kkal". Maqsad: 2-3 tap.
-- **Meal builder**: bir nechta taomni "meal"ga birlashtirib saqlash (Cal AI "Creating a meal").
-- 🧑 Handoff: "Fix with AI" uchun food-analysis Edge yangilanishi + deploy.
+- **Natija-muharrir yangilanishi ✅** (branch `phase-16-n2-scan-editor`): **gram/miqdor slider** +
+  birlik almashtirish (porsiya/gram) ✅; **"Fix with AI"** — matn bilan tuzatish → qayta
+  baholash (food-analysis Edge'ga hint; rasmli va rasmsiz) ✅; yashirin ingredient (yog'/sous)
+  hint orqali qayta baholanadi ✅. "Dona" birligi keyinga qoldi.
+- **Tez log ✅**: meal-picker → "Log food hub" (Tezkor/Katalog/Taomlarim tablari):
+  recent (meal_logs'dan 14 kun) + favoritlar (yulduzcha, `favorite_foods`) + quick-add
+  (faqat kkal majburiy — Cal AI qoidasi) + to'la slotlarda ham "+". Maqsad: 2-3 tap ✅.
+- **Meal builder ✅**: `app/meal-builder` — nom + jonli yig'indi + qidiruvdan (lokal+OFF)
+  yoki recent'dan item qo'shish → `user_meals`; picker'dan bir tap log (source=manual).
+- 🧑 Handoff: "Fix with AI" food-analysis Edge deploy ✅ (2026-07-12) · migration
+  `0020-mirolim_fast_log.sql` apply qilinishi kerak (favorite_foods + user_meals).
 
 ### 🟧 Bosqich N3 — Adaptiv goals ("adherence-neutral") — RETENTION
 - Vazn logi (`body_metrics` bor) → **rolling weight trend**.

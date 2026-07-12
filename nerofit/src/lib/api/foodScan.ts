@@ -12,6 +12,9 @@ export type FoodScanMacros = {
 export type FoodScanItem = FoodScanMacros & {
   name: string;
   portion: string;
+  // Estimated weight of the portion in grams — powers the gram slider in the
+  // result editor. Optional: older Edge deploys / sparse OFF data omit it.
+  portion_g?: number | null;
 };
 
 export type FoodScanConfidence = "high" | "medium" | "low";
@@ -19,28 +22,20 @@ export type FoodScanConfidence = "high" | "medium" | "low";
 export type FoodScanResult = {
   items: FoodScanItem[];
   total: FoodScanMacros;
+  // Estimated total weight in grams (see portion_g). Null/absent → the editor
+  // hides the gram unit and offers servings only.
+  total_g?: number | null;
   confidence: FoodScanConfidence;
   notes: string;
 };
 
-/**
- * Send a resized base64 JPEG to the `food-analysis` Edge Function and get back
- * Claude's macro estimate. Mirrors `sendChatMessage` (chat.ts): the JWT is
- * attached explicitly because `functions.invoke` does not reliably forward it.
- */
-export async function analyzeFoodPhoto(
-  imageBase64: string,
-  mediaType: string,
-  photoPath?: string | null,
-): Promise<FoodScanResult> {
+async function invokeFoodAnalysis(body: Record<string, unknown>): Promise<FoodScanResult> {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
   if (!token) throw new Error("Not authenticated — please log in again.");
 
   const { data, error } = await supabase.functions.invoke("food-analysis", {
-    // `photo_path` is stored on the food_scans row by the Edge Function; an
-    // older (un-updated) function simply ignores the extra field.
-    body: { image_base64: imageBase64, media_type: mediaType, photo_path: photoPath ?? null },
+    body,
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -54,6 +49,45 @@ export async function analyzeFoodPhoto(
     throw error;
   }
   return data as FoodScanResult;
+}
+
+/**
+ * Send a resized base64 JPEG to the `food-analysis` Edge Function and get back
+ * Claude's macro estimate. Mirrors `sendChatMessage` (chat.ts): the JWT is
+ * attached explicitly because `functions.invoke` does not reliably forward it.
+ */
+export async function analyzeFoodPhoto(
+  imageBase64: string,
+  mediaType: string,
+  photoPath?: string | null,
+): Promise<FoodScanResult> {
+  // `photo_path` is stored on the food_scans row by the Edge Function; an
+  // older (un-updated) function simply ignores the extra field.
+  return invokeFoodAnalysis({
+    image_base64: imageBase64,
+    media_type: mediaType,
+    photo_path: photoPath ?? null,
+  });
+}
+
+/**
+ * "Fix with AI": the user describes what's wrong with an estimate ("it's lamb,
+ * not beef; cooked in oil") and the Edge Function re-estimates. Works with the
+ * original photo when there is one (photo scans) or from the previous estimate
+ * alone (barcode/search). Requires the updated food-analysis deploy.
+ */
+export async function fixFoodEstimate(
+  previous: FoodScanResult,
+  hint: string,
+  image?: { base64: string; mediaType: string; photoPath: string | null } | null,
+): Promise<FoodScanResult> {
+  return invokeFoodAnalysis({
+    image_base64: image?.base64 ?? null,
+    media_type: image?.mediaType ?? null,
+    photo_path: image?.photoPath ?? null,
+    hint,
+    previous_result: previous,
+  });
 }
 
 // One stored scan (history). `food_scans` isn't in the generated db.ts yet, so —

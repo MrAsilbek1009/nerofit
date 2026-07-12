@@ -2,10 +2,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteMealLog,
   listMeals,
+  listRecentMealLogs,
   listTodayMealLogs,
   logMeal,
+  logManualMeal,
   logScannedMeal,
 } from "@/lib/api/meals";
+import {
+  addFavorite,
+  createUserMeal,
+  deleteUserMeal,
+  listFavorites,
+  listUserMeals,
+  removeFavorite,
+  type FavoriteInput,
+  type UserMealItem,
+} from "@/lib/api/userFoods";
+import { recentFoodsFromLogs } from "@/lib/nutrition/fastLog";
 import {
   listSupplements,
   listTodaySupplementLogs,
@@ -14,6 +27,7 @@ import {
 import {
   analyzeFoodPhoto,
   deleteFoodScan,
+  fixFoodEstimate,
   listFoodScans,
   recordFoodScan,
   type FoodScanResult,
@@ -53,8 +67,113 @@ export function useLogMeal(userId: string | undefined) {
     },
     onSuccess: (_data, { meal, slot }) => {
       track("meal_logged", { meal_id: meal.id, slot });
-      if (userId)
+      if (userId) {
         void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
+        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
+      }
+    },
+  });
+}
+
+// ---- Fast log (recents + favorites + quick add + saved meals) ----
+
+// Recent distinct foods derived from the last two weeks of meal_logs — the
+// Cal AI "Suggestions" list. Invalidated alongside mealLogsToday on every log.
+export function useRecentFoods(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["recent-foods", userId] : ["recent-foods", "none"],
+    queryFn: async () => recentFoodsFromLogs(await listRecentMealLogs(userId!)),
+    enabled: !!userId,
+    staleTime: 1000 * 60,
+  });
+}
+
+// Quick add + logging favorites/recents/saved meals — denormalized entry,
+// stored with source="manual".
+export function useLogManualMeal(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (entry: {
+      name: string;
+      kcal: number;
+      protein_g: number;
+      carbs_g: number;
+      fats_g: number;
+      slot: MealSlot;
+    }) => {
+      if (!userId) throw new Error("Not authenticated");
+      return logManualMeal(userId, entry);
+    },
+    onSuccess: (_data, entry) => {
+      track("meal_logged", { source: "manual", slot: entry.slot });
+      if (userId) {
+        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
+        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
+      }
+    },
+  });
+}
+
+export function useFavorites(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["favorite-foods", userId] : ["favorite-foods", "none"],
+    queryFn: () => listFavorites(userId!),
+    enabled: !!userId,
+  });
+}
+
+export function useAddFavorite(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: FavoriteInput) => {
+      if (!userId) throw new Error("Not authenticated");
+      return addFavorite(userId, input);
+    },
+    onSuccess: () => {
+      track("food_favorited");
+      if (userId) void qc.invalidateQueries({ queryKey: ["favorite-foods", userId] });
+    },
+  });
+}
+
+export function useRemoveFavorite(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => removeFavorite(id),
+    onSuccess: () => {
+      if (userId) void qc.invalidateQueries({ queryKey: ["favorite-foods", userId] });
+    },
+  });
+}
+
+export function useUserMeals(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["user-meals", userId] : ["user-meals", "none"],
+    queryFn: () => listUserMeals(userId!),
+    enabled: !!userId,
+  });
+}
+
+export function useCreateUserMeal(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ name, items }: { name: string; items: UserMealItem[] }) => {
+      if (!userId) throw new Error("Not authenticated");
+      return createUserMeal(userId, name, items);
+    },
+    onSuccess: () => {
+      track("user_meal_created");
+      if (userId) void qc.invalidateQueries({ queryKey: ["user-meals", userId] });
+    },
+  });
+}
+
+export function useDeleteUserMeal(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteUserMeal(id),
+    onSuccess: () => {
+      if (userId) void qc.invalidateQueries({ queryKey: ["user-meals", userId] });
     },
   });
 }
@@ -74,6 +193,22 @@ export function useAnalyzeFoodPhoto() {
   });
 }
 
+// "Fix with AI": text correction → re-estimate via the same Edge Function.
+// Image is optional (photo scans pass it; barcode/search fixes are text-only).
+export function useFixFoodEstimate() {
+  return useMutation({
+    mutationFn: ({
+      previous,
+      hint,
+      image,
+    }: {
+      previous: FoodScanResult;
+      hint: string;
+      image?: { base64: string; mediaType: string; photoPath: string | null } | null;
+    }) => fixFoodEstimate(previous, hint, image),
+  });
+}
+
 export function useLogScannedMeal(userId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
@@ -90,8 +225,10 @@ export function useLogScannedMeal(userId: string | undefined) {
     },
     onSuccess: (_data, entry) => {
       track("meal_logged", { source: "scan", slot: entry.slot });
-      if (userId)
+      if (userId) {
         void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
+        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
+      }
     },
   });
 }
