@@ -1,11 +1,14 @@
 import { supabase } from "@/lib/supabase";
 import type { Meal, MealLog, MealSlot } from "@/types/db";
 
-function todayDate(): string {
-  const d = new Date();
+function localDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate(),
   ).padStart(2, "0")}`;
+}
+
+function todayDate(): string {
+  return localDate(new Date());
 }
 
 export async function listMeals(): Promise<Meal[]> {
@@ -88,6 +91,60 @@ export async function logScannedMeal(
       carbs_g: entry.carbs_g,
       fats_g: entry.fats_g,
       source: "scan",
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Recent logs across the last `days` days (newest first) — the raw feed for
+// the fast-log "Recents" list (deduped client-side by recentFoodsFromLogs).
+export async function listRecentMealLogs(
+  userId: string,
+  days = 14,
+  limit = 100,
+): Promise<MealLog[]> {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("log_date", localDate(since))
+    .order("logged_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Log a manual fast-log entry (recents / favorites / saved meals). Same
+ * denormalized shape as `logScannedMeal`, but `source` is `manual`.
+ */
+export async function logManualMeal(
+  userId: string,
+  entry: {
+    name: string;
+    kcal: number;
+    protein_g: number;
+    carbs_g: number;
+    fats_g: number;
+    slot: MealSlot;
+  },
+): Promise<MealLog> {
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .insert({
+      user_id: userId,
+      meal_id: null,
+      slot: entry.slot,
+      name: entry.name,
+      kcal: entry.kcal,
+      protein_g: entry.protein_g,
+      carbs_g: entry.carbs_g,
+      fats_g: entry.fats_g,
+      source: "manual",
     })
     .select("*")
     .single();

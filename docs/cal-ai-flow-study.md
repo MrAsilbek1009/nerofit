@@ -79,6 +79,38 @@ Kuzatilgan qadamlar (tartibda): Gender (Male/Female/Other) → Workouts/week (0-
 4. **Food detail** ekрани (ingredient qo'shish, nomni o'zgartirish, saqlash) — Nerofit natija-muharririni kengaytirish.
 5. **Daily breakdown** alohida ekрани (Nerofit'да makrolar Nutrition'да; alohida "kunlik xulosa" ekрани foydali).
 
-## 5. Havolalar
+## 5. Tez log + meal builder (N2 referens — 2026-07-12 Mobbin'dan batafsil)
+
+### Log Food hub
+Tepada tabs: **All | My foods | My meals | Saved foods**. Qidiruv ("Describe what
+you ate"). **Suggestions** ro'yxati = so'nggi/tez-tez ishlatilganlar, har qatorda
+nom + "94 cal · tbsp" subtitle + o'ngda **bir-tap "+"** (darhol log). Pastda
+**Manual Add** va Voice Log tugmalari. → Nerofit: meal-picker'ni shu hub'ga
+aylantirish (Recent + Favorites + katalog + quick-add), 2-3 tap maqsadi.
+
+### Creating a meal (8 ekran)
+My meals tab bo'sh holati: illyustratsiya + "Quickly log your go-to meal
+combinations." + **Create meal** CTA. Create Meal ekrani: **"Tap to Name"**
+input → **jonli yig'indi** kartalar (Calories + Protein/Carbs/Fats, boshida 0)
+→ **Meal Items** bo'limi "+ Add items to this meal" → food-qidiruv ochiladi
+(qatorda "+", tanlangach "✓") → qaytganda item ro'yxatda 🗑 bilan, yig'indilar
+yangilangan (184 kcal, 5/7/15g) → pastda **Create Meal** (≥1 item bo'lганда
+faol). Saqlangan meal My meals tabda turadi, bir tap bilan loglanadi.
+
+### Adding a custom food (8 ekran)
+My foods tab bo'sh holati + **Add food** CTA. Forma 2 qadam: (1) Brand name /
+Description* / Serving size* / Servings per container* → Next; (2) makrolar —
+**faqat Calories majburiy**, Protein/Carbs/Total fat/Saturated fat/vitaminlar
+ixtiyoriy → **Save food**. Yaʼni "quick add kkal" = shu formaning minimal yo'li.
+→ Nerofit: quick-add'da faqat kkal majburiy qilamiz.
+
+### Saved foods
+Log Food'dagi 4-tab: xatcho'p qilingan taomlar (Suggestions bilan bir xil qator
+naqshi). Saqlash food-detail'дагi bookmark orqali. → Nerofit V1: recent qatorida
+yulduzcha bilan favoritga olish yetarli.
+
+## 6. Havolalar
 - App: https://mobbin.com/apps/cal-ai-ios-c343d59e-c5b7-4fd8-ad3a-673d2ce563b0/542e2577-5f5f-4843-907e-4bec8b404108/flows
 - Onboarding flow: https://mobbin.com/flows/579da5dd-453a-4e7c-9c11-d20708a4db82
+- Creating a meal: https://mobbin.com/flows/617e2879-2d57-465a-8973-1fffb1c8427f
+- Adding a custom food: https://mobbin.com/flows/de58f36b-5c49-4884-8679-bc1c792bb43e

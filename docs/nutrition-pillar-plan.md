@@ -49,9 +49,13 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
   birlik almashtirish (porsiya/gram) ✅; **"Fix with AI"** — matn bilan tuzatish → qayta
   baholash (food-analysis Edge'ga hint; rasmli va rasmsiz) ✅; yashirin ingredient (yog'/sous)
   hint orqali qayta baholanadi ✅. "Dona" birligi keyinga qoldi.
-- **Tez log**: recent/tez-tez ishlatilgan + **favoritlar** + "quick add kkal". Maqsad: 2-3 tap.
-- **Meal builder**: bir nechta taomni "meal"ga birlashtirib saqlash (Cal AI "Creating a meal").
-- 🧑 Handoff: "Fix with AI" uchun food-analysis Edge yangilanishi + deploy.
+- **Tez log ✅**: meal-picker → "Log food hub" (Tezkor/Katalog/Taomlarim tablari):
+  recent (meal_logs'dan 14 kun) + favoritlar (yulduzcha, `favorite_foods`) + quick-add
+  (faqat kkal majburiy — Cal AI qoidasi) + to'la slotlarda ham "+". Maqsad: 2-3 tap ✅.
+- **Meal builder ✅**: `app/meal-builder` — nom + jonli yig'indi + qidiruvdan (lokal+OFF)
+  yoki recent'dan item qo'shish → `user_meals`; picker'dan bir tap log (source=manual).
+- 🧑 Handoff: "Fix with AI" food-analysis Edge deploy ✅ (2026-07-12) · migration
+  `0020-mirolim_fast_log.sql` apply qilinishi kerak (favorite_foods + user_meals).
 
 ### 🟧 Bosqich N3 — Adaptiv goals ("adherence-neutral") — RETENTION
 - Vazn logi (`body_metrics` bor) → **rolling weight trend**.

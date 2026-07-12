@@ -293,6 +293,33 @@
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
     "emptyMeals": "No catalog meals yet.",
     "recentScans": "Recent scans →",
+    "fastLog": {
+      "tabs": { "fast": "Quick", "catalog": "Catalog", "myMeals": "My meals" },
+      "quickAdd": "Quick add",
+      "quickAddHint": "Calories only — details optional",
+      "quickAddName": "Quick add",
+      "namePlaceholder": "Name (optional)",
+      "add": "Add to log",
+      "favorites": "Favorites",
+      "recent": "Recent",
+      "emptyFast": "Log a few meals and they'll show up here for one-tap logging.",
+      "saveFavoriteA11y": "Save to favorites",
+      "removeFavoriteA11y": "Remove from favorites",
+      "myMealsEmpty": "Save your go-to combos and log them in one tap.",
+      "createMeal": "Create meal",
+      "itemCount": "{{count}} items",
+      "deleteMealA11y": "Delete meal",
+      "builder": {
+        "title": "Create meal",
+        "namePlaceholder": "Name this meal",
+        "items": "Items",
+        "empty": "No items yet — search below and add.",
+        "addItems": "Add items",
+        "searchPlaceholder": "Search foods, e.g. rice",
+        "removeItemA11y": "Remove item",
+        "save": "Save meal"
+      }
+    },
     "scanHistory": {
       "title": "Scan history",
       "empty": "No scans yet. Scan a meal, a barcode, or search to get started.",

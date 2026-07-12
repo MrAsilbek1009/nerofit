@@ -213,6 +213,18 @@ function MealSlotBlock({
 
   return (
     <View style={{ gap: space[3] }}>
+      {/* Slot header keeps an add affordance even once the slot has logs. */}
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <Text style={typography.labelCaps}>{slotLabel}</Text>
+        <Pressable
+          onPress={onAdd}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={t("a11y.addMeal")}
+        >
+          <Plus size={18} color={colors.textHi} />
+        </Pressable>
+      </View>
       {logs.map((log) => {
         const img = log.meal_id ? imageById.get(log.meal_id) : null;
         return (
@@ -220,8 +232,7 @@ function MealSlotBlock({
           <View style={{ width: 56, height: 56, borderRadius: radii.sm, overflow: "hidden", backgroundColor: colors.elevated }}>
             {img ? <Image source={{ uri: img }} style={{ width: "100%", height: "100%" }} /> : null}
           </View>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={typography.labelCaps}>{slotLabel}</Text>
+          <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 18 }} numberOfLines={2}>
               {log.name}
             </Text>

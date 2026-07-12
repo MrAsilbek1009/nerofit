@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "expo-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "nerofit", "run", "web"],
+      "port": 8081
+    },
+    {
+      "name": "expo-metro",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "nerofit", "run", "start"],
+      "port": 8081
+    },
+    {
+      "name": "admin-panels",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "docs"],
+      "port": 8000
+    }
+  ]
+}
