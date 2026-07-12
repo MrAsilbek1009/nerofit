@@ -57,14 +57,20 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
 - 🧑 Handoff: "Fix with AI" food-analysis Edge deploy ✅ (2026-07-12) · migration
   `0020-mirolim_fast_log.sql` apply qilinishi kerak (favorite_foods + user_meals).
 
-### 🟧 Bosqich N3 — Adaptiv goals ("adherence-neutral") — RETENTION
-- Vazn logi (`body_metrics` bor) → **rolling weight trend**.
-- **Adaptiv TDEE**: haftalik — intake (`meal_logs`) vs vazn-trend → kunlik kaloriya/makro
-  maqsadni qayta hisoblaydi (konservativ 2-qadamli; 2-4 hafta data kerak).
-- `nutrition_targets` tarix jadvali (yoki profil goals dinamik).
-- **UX:** qizil/stress YO'Q; "rejang yangilandi, davom et" ohangi. Aybdorlik emas — yordamchi.
-- Backend: haftalik qayta-hisob (Edge/scheduled yoki client). Algoritm — eng qiyin qism.
-- 🧑 Handoff: migration + (ehtimol) scheduled Edge Function.
+### 🟧 Bosqich N3 — Adaptiv goals ("adherence-neutral") — RETENTION ✅ (asosiy qism)
+- **Rolling weight trend ✅**: EWMA (α=0.3) kunlik vazn ustidan — `src/lib/nutrition/adaptive.ts`.
+- **Adaptiv TDEE ✅**: haftalik client-trigger (Nutrition tab ochilganda, scheduler yo'q —
+  atayin): 14 kunlik to'liq intake o'rtachasi − trend×7700/7 → TDEE; focus bo'yicha
+  (lose_fat −0.5%BW/hafta, build_muscle +0.25%, stay_fit 0) yangi kkal; **±150 kkal
+  qadam-cheklov** (konservativ); makrolar: protein 1.8g/kg trend, yog' 25% kkal, qolgani carbs.
+  **Data gate**: ≥8 to'liq kun (≥1000 kkal)/14 kun + ≥4 tortilish/21 kun (≥10 kun oralig'i) —
+  yetmasa maqsadlar TEGILMAYDI (adherence-neutral).
+- **`nutrition_targets` tarix ✅** (`0021-mirolim_adaptive_goals.sql`); profiles makro goals
+  jonli manba bo'lib qoladi (Home ring + MacroBar avtomatik yangilanadi — birinchi marta
+  onboarding'dan keyin yozuvchi paydo bo'ldi, avval statik 200/300/80 edi!).
+- **UX ✅**: "Rejang yangilandi" kartasi (3 kun ko'rinadi, oq/kulrang, qizil yo'q).
+- 🧑 Handoff: migration `0021` apply. Qolgan (N3.1): progress ekranida smoothed trend-line,
+  vazn kiritish eslatmasi, adaptiv on/off toggle.
 
 ### 🟦 Bosqich N4 — Nutrition hub + insights + intizomli gamification
 - **Daily Breakdown** ekrani (Cal AI) — alohida kunlik xulosa (kaloriya ring + makro + edit goals).

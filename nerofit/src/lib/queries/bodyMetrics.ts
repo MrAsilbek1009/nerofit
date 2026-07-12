@@ -21,8 +21,12 @@ export function useAddBodyMetric(userId: string | undefined) {
       return addBodyMetric({ ...input, user_id: userId });
     },
     onSuccess: () => {
-      if (userId)
+      if (userId) {
         void qc.invalidateQueries({ queryKey: qk.latestBodyMetric(userId) });
+        // Weight feeds the progress chart and the adaptive-goals trend.
+        void qc.invalidateQueries({ queryKey: ["weight-series", userId] });
+        void qc.invalidateQueries({ queryKey: ["adaptive-goals", userId] });
+      }
     },
   });
 }

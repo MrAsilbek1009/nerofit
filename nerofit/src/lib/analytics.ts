@@ -18,6 +18,7 @@ export type AnalyticsProps = Record<string, string | number | boolean | null>;
 // All analytics events live here so call sites stay typo-free and consistent.
 // Add new events to this union before tracking them.
 export type AnalyticsEvent =
+  | "adaptive_goals_updated"
   | "onboarding_completed"
   | "workout_completed"
   | "exercise_logged"

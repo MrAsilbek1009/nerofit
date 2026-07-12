@@ -293,6 +293,12 @@
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
     "emptyMeals": "No catalog meals yet.",
     "recentScans": "Recent scans →",
+    "adaptive": {
+      "updated": "Plan updated",
+      "kcalPerDay": "kcal / day",
+      "tdee": "Burn ~{{kcal}} kcal",
+      "keepGoing": "Your goals adapt to your weight trend every week. Keep going."
+    },
     "fastLog": {
       "tabs": { "fast": "Quick", "catalog": "Catalog", "myMeals": "My meals" },
       "quickAdd": "Quick add",

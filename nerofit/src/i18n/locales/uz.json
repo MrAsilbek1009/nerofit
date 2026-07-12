@@ -293,6 +293,12 @@
     "dayPart": { "morning": "Ertalab", "midday": "Kunduzi", "evening": "Kechqurun" },
     "emptyMeals": "Hozircha taomlar yoʻq.",
     "recentScans": "Soʻnggi skanlar →",
+    "adaptive": {
+      "updated": "Rejang yangilandi",
+      "kcalPerDay": "kkal / kun",
+      "tdee": "Sarf ~{{kcal}} kkal",
+      "keepGoing": "Maqsadlaring har hafta vazn trendingga moslashadi. Davom et."
+    },
     "fastLog": {
       "tabs": { "fast": "Tezkor", "catalog": "Katalog", "myMeals": "Taomlarim" },
       "quickAdd": "Tez qoʻshish",
