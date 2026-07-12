@@ -10,7 +10,8 @@
   body { margin:0; background:var(--bg); color:var(--hi); font-family:-apple-system,Segoe UI,Roboto,sans-serif; padding:16px; max-width:640px; margin:0 auto; }
   h1 { font-size:18px; letter-spacing:.14em; text-transform:uppercase; color:var(--lo); font-weight:700; }
   h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--lo); margin:22px 0 8px; }
-  input, select, button { font-size:16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--hi); padding:11px 13px; width:100%; }
+  input, select, textarea, button { font-size:16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--hi); padding:11px 13px; width:100%; font-family:inherit; }
+  textarea { resize:vertical; }
   button { background:var(--acc); color:#000; border:none; font-weight:700; letter-spacing:.03em; cursor:pointer; }
   button.ghost { background:transparent; color:var(--hi); border:1px solid var(--line); }
   button.mini { width:auto; padding:7px 11px; font-size:13px; }
@@ -22,6 +23,10 @@
   .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
   .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
   .badge.warn { background:#333; color:#fff; }
+  .badge.soon { background:#2a2a12; color:var(--acc); } .badge.info { background:#2a2a2a; color:#fff; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .chip { padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--lo); font-size:12px; font-weight:700; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
+  .chip.on { background:var(--acc); color:#000; border-color:var(--acc); }
   .muted { color:var(--lo); font-size:13px; }
   .big { font-size:22px; font-weight:800; margin:4px 0; }
   .nav { display:flex; gap:8px; margin-top:14px; }
@@ -104,16 +109,29 @@
       <button class="ghost" style="margin-top:24px" onclick="logout()">Chiqish</button>
     </section>
 
-    <!-- Members + activity (merged) -->
+    <!-- Members list (paginated + filtered) + activity -->
     <section id="sec-members" class="hidden">
-      <h2>A'zoni qidirish (ism bo'yicha)</h2>
-      <div class="row">
-        <input id="mq" placeholder="Ism..." autocomplete="off" onkeydown="if(event.key==='Enter')searchMembers()" />
-        <button style="flex:0 0 110px" onclick="searchMembers()">Qidirish</button>
-      </div>
-      <div id="memberResults"></div>
+      <div class="between"><h2 style="margin:14px 0 0">A'zolar</h2><button class="ghost mini" onclick="exportMembersCsv()">Eksport ⤓</button></div>
 
-      <div class="between" style="margin-top:20px">
+      <div id="mFilters" class="chips"></div>
+
+      <div class="row" style="margin-top:10px">
+        <input id="mq" placeholder="Ism yoki ID..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')applyMemberFilter()" />
+        <button style="flex:0 0 96px" onclick="applyMemberFilter()">Qidirish</button>
+      </div>
+      <div class="row">
+        <select id="mPlan" onchange="applyMemberFilter()"><option value="">Barcha tarif</option></select>
+        <select id="mSort" onchange="applyMemberFilter()">
+          <option value="asc">Tugash: yaqin → uzoq</option>
+          <option value="desc">Tugash: uzoq → yaqin</option>
+        </select>
+      </div>
+
+      <p id="mCount" class="muted" style="margin-top:12px"></p>
+      <div id="membersList"></div>
+      <button id="mMore" class="ghost hidden" style="margin-top:12px" onclick="loadMembers(true)">Ko'proq yuklash</button>
+
+      <div class="between" style="margin-top:24px">
         <h2 style="margin:0">So'nggi kelishlar</h2>
         <button class="ghost mini" onclick="loadFeed()">Yangilash</button>
       </div>
@@ -192,7 +210,7 @@
     });
     if (tab === "dash") loadDash();
     if (tab === "staff") loadStaff();
-    if (tab === "members") loadFeed();
+    if (tab === "members") { renderFilters(); loadMemberPlans(); loadMembers(false); loadFeed(); }
     if (tab === "audit") loadAudit();
   }
   async function changeAdminPw() {
@@ -348,6 +366,10 @@
       '<div class="item"><div class="between"><span>' + fmt(c.checked_at) + '</span><span class="badge ' + (c.was_active ? "ok" : "bad") + '">' + (c.was_active ? "faol" : "emas") + '</span></div>' +
       '<div class="muted">' + escapeHtml(c.staff_name || "-") + '</div></div>'
     ).join("") : '<p class="muted">Hali kelmagan</p>';
+    h += '<h2>Ichki izohlar (faqat xodimlar)</h2>';
+    h += (d.notes && d.notes.length) ? d.notes.map((n) =>
+      '<div class="item"><div>' + escapeHtml(n.body) + '</div><div class="muted">' + escapeHtml(n.author_name || "-") + ' · ' + fmt(n.created_at) + '</div></div>'
+    ).join("") : '<p class="muted">Izoh yo’q</p>';
     return h;
   }
   // A "Ko'rish ▾" button + an inline detail div that opens IN PLACE.
@@ -356,29 +378,154 @@
     let open = false;
     const b = btn("Ko‘rish ▾", "ghost mini", async () => {
       open = !open;
-      if (open) { detail.style.display = "block"; b.textContent = "Yopish ▴"; detail.innerHTML = '<p class="muted">Yuklanmoqda…</p>'; const r = await api("member_detail", { user_id: userId }); detail.innerHTML = memberDetailHtml(r.data); }
+      if (open) { detail.style.display = "block"; b.textContent = "Yopish ▴"; detail.innerHTML = '<p class="muted">Yuklanmoqda…</p>'; await refreshMemberDetail(detail, userId); }
       else { detail.style.display = "none"; detail.innerHTML = ""; b.textContent = "Ko‘rish ▾"; }
     });
     return { button: b, detail };
   }
-  async function searchMembers() {
-    const q = $("mq").value.trim(); if (!q) return;
-    const box = $("memberResults"); box.innerHTML = '<p class="muted">Qidirilmoqda…</p>';
-    const r = await api("members_search", { q });
-    const list = (r.data && r.data.members) || [];
-    box.innerHTML = "";
-    if (list.length === 0) { box.innerHTML = '<p class="muted">Topilmadi.</p>'; return; }
-    const c = el("div", "card");
-    list.forEach((m) => {
-      const it = el("div", "item");
-      const b = el("div", "between");
-      b.appendChild(el("div", null, m.name || "(ismsiz) " + m.id.slice(0, 8)));
-      const vt = makeViewToggle(m.id);
-      b.appendChild(vt.button);
-      it.appendChild(b); it.appendChild(vt.detail);
-      c.appendChild(it);
+  // (Re)load a member's detail into its accordion, read-only info + live actions.
+  async function refreshMemberDetail(detail, userId) {
+    const r = await api("member_detail", { user_id: userId });
+    detail.innerHTML = memberDetailHtml(r.data);
+    detail.appendChild(memberActions(userId, r.data, detail));
+  }
+  // Inline actions inside a member's accordion: extend · freeze/unfreeze · note.
+  function memberActions(userId, d, detail) {
+    const wrap = el("div", "detail");
+    const frozen = !!(d.membership && d.membership.status === "frozen");
+    const hasM = !!d.membership;
+
+    // Extend by N days
+    wrap.appendChild(el("label", null, "Muddatni uzaytirish (kun)"));
+    const exRow = el("div", "row");
+    const exInput = el("input"); exInput.type = "number"; exInput.min = "1"; exInput.max = "365";
+    exInput.placeholder = "masalan 7"; exInput.setAttribute("inputmode", "numeric");
+    const exBtn = btn("Uzaytirish", "mini", async () => {
+      const days = parseInt(exInput.value, 10);
+      if (!days || days < 1) { alert("Kun kiriting"); return; }
+      if (!confirm("Muddat " + days + " kunga uzaytirilsinmi?")) return;
+      exBtn.disabled = true;
+      const rr = await api("membership_extend", { user_id: userId, days });
+      exBtn.disabled = false;
+      if (rr.data && rr.data.ok) { exInput.value = ""; await refreshMemberDetail(detail, userId); }
+      else alert((rr.data && rr.data.error) || "Xato");
     });
-    box.appendChild(c);
+    exBtn.style.flex = "0 0 120px";
+    exRow.appendChild(exInput); exRow.appendChild(exBtn);
+    wrap.appendChild(exRow);
+
+    // Freeze / Unfreeze
+    if (hasM) {
+      const fBtn = btn(frozen ? "Muzlatishdan chiqarish" : "Muzlatish", "ghost mini", async () => {
+        if (!confirm(frozen ? "Muzlatishdan chiqarilsinmi?" : "A'zolik muzlatilsinmi?")) return;
+        fBtn.disabled = true;
+        const rr = await api(frozen ? "unfreeze" : "freeze", { user_id: userId });
+        fBtn.disabled = false;
+        if (rr.data && rr.data.ok) await refreshMemberDetail(detail, userId);
+        else alert((rr.data && rr.data.error) || "Xato");
+      });
+      fBtn.style.marginTop = "10px";
+      wrap.appendChild(fBtn);
+    }
+
+    // Add internal note
+    wrap.appendChild(el("label", null, "Ichki izoh qo‘shish"));
+    const nInput = el("textarea"); nInput.placeholder = "Izoh (faqat xodimlar ko‘radi)"; nInput.rows = 2;
+    const nBtn = btn("Izoh qo‘shish", "mini", async () => {
+      const t = nInput.value.trim(); if (!t) return;
+      nBtn.disabled = true;
+      const rr = await api("member_note_add", { user_id: userId, body: t });
+      nBtn.disabled = false;
+      if (rr.data && rr.data.ok) { nInput.value = ""; await refreshMemberDetail(detail, userId); }
+      else alert((rr.data && rr.data.error) || "Xato");
+    });
+    nBtn.style.marginTop = "8px";
+    wrap.appendChild(nInput); wrap.appendChild(nBtn);
+    return wrap;
+  }
+
+  // ── Members list (paginated + filtered) ─────────────────────────────────
+  const PAGE = 25;
+  const membersState = { status: "all", plan_id: "", q: "", sort: "asc", offset: 0, total: 0, loading: false };
+  let plansCache = [];
+  const MEMBER_FILTERS = [["all", "Hammasi"], ["active", "Faol"], ["expiring", "Tugayapti"], ["frozen", "Muzlatilgan"], ["expired", "Tugagan"], ["pending", "Kutilmoqda"]];
+  const STATUS_BADGE = { active: "ok", expiring: "soon", frozen: "warn", expired: "bad", pending: "info" };
+  const STATUS_LABEL = { active: "FAOL", expiring: "TUGAYAPTI", frozen: "MUZLATILGAN", expired: "TUGAGAN", pending: "KUTILMOQDA" };
+
+  function renderFilters() {
+    const box = $("mFilters"); box.innerHTML = "";
+    MEMBER_FILTERS.forEach(([val, label]) => {
+      const c = el("div", "chip" + (membersState.status === val ? " on" : ""), label);
+      c.onclick = () => { membersState.status = val; renderFilters(); applyMemberFilter(); };
+      box.appendChild(c);
+    });
+  }
+  async function loadMemberPlans() {
+    if (plansCache.length) return;
+    const r = await api("plans");
+    plansCache = (r.data && r.data.plans) || [];
+    const sel = $("mPlan");
+    plansCache.forEach((p) => { const o = el("option", null, p.name_uz); o.value = p.id; sel.appendChild(o); });
+  }
+  function applyMemberFilter() {
+    membersState.q = $("mq").value.trim();
+    membersState.plan_id = $("mPlan").value;
+    membersState.sort = $("mSort").value;
+    loadMembers(false);
+  }
+  async function loadMembers(append) {
+    if (membersState.loading) return;
+    membersState.loading = true;
+    if (!append) { membersState.offset = 0; $("membersList").innerHTML = '<p class="muted">Yuklanmoqda…</p>'; }
+    const r = await api("members_list", {
+      status: membersState.status, plan_id: membersState.plan_id, q: membersState.q,
+      sort: membersState.sort, limit: PAGE, offset: membersState.offset,
+    });
+    membersState.loading = false;
+    const d = r.data || {};
+    membersState.total = d.total || 0;
+    renderMembersList(d.members || [], append);
+    membersState.offset += (d.members || []).length;
+    $("mCount").textContent = membersState.total ? ("Jami: " + membersState.total) : "";
+    $("mMore").classList.toggle("hidden", membersState.offset >= membersState.total);
+  }
+  function renderMembersList(members, append) {
+    const box = $("membersList");
+    let card = append ? box.querySelector(".card") : null;
+    if (!card) {
+      box.innerHTML = "";
+      if (members.length === 0) { box.innerHTML = '<p class="muted">A’zo topilmadi.</p>'; return; }
+      card = el("div", "card"); box.appendChild(card);
+    }
+    members.forEach((m) => card.appendChild(memberItem(m)));
+  }
+  function memberItem(m) {
+    const it = el("div", "item");
+    const top = el("div", "between");
+    const left = el("div");
+    left.innerHTML = '<div style="font-weight:700">' + escapeHtml(m.name || "(ismsiz) " + m.user_id.slice(0, 8)) + '</div>'
+      + '<div class="muted">' + escapeHtml(m.plan_name || "—") + (m.end_date ? ' · ' + fmt(m.end_date) : '') + '</div>';
+    const right = el("div"); right.style.display = "flex"; right.style.gap = "8px"; right.style.alignItems = "center";
+    right.appendChild(el("span", "badge " + (STATUS_BADGE[m.status] || "info"), STATUS_LABEL[m.status] || m.status));
+    const vt = makeViewToggle(m.user_id);
+    right.appendChild(vt.button);
+    top.appendChild(left); top.appendChild(right);
+    it.appendChild(top); it.appendChild(vt.detail);
+    return it;
+  }
+  const csvCell = (v) => { const s = String(v == null ? "" : v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  async function exportMembersCsv() {
+    const r = await api("members_list", { status: membersState.status, plan_id: membersState.plan_id, q: membersState.q, sort: membersState.sort, limit: 10000, offset: 0 });
+    const list = (r.data && r.data.members) || [];
+    if (!list.length) { alert("Eksport uchun a’zo yo‘q"); return; }
+    const head = ["Ism", "Holat", "Tarif", "Tugaydi", "ID"];
+    const rows = list.map((m) => [m.name || "", STATUS_LABEL[m.status] || m.status, m.plan_name || "", m.end_date || "", m.user_id]);
+    const csv = [head, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "nerofit-azolar-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   async function loadFeed() {
     const box = $("feed"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';

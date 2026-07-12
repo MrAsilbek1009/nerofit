@@ -482,6 +482,12 @@ async function handlePost(req: Request): Promise<Response> {
       .eq("user_id", userId)
       .order("checked_at", { ascending: false })
       .limit(50);
+    const { data: notes } = await db
+      .from("member_notes")
+      .select("body, author_name, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50);
     if (!prof && !m) return json({ found: false });
 
     const names = await staffNames(db, [
@@ -497,7 +503,126 @@ async function handlePost(req: Request): Promise<Response> {
       membership: m ? { status: m.status, start_date: m.start_date, end_date: m.end_date, frozen_at: m.frozen_at, plan_name: (m as any).membership_plans?.name_uz ?? null } : null,
       payments: (pays ?? []).map((p) => ({ ...p, staff_name: p.activated_by ? names[p.activated_by] ?? null : null })),
       checkins: (checks ?? []).map((c) => ({ ...c, staff_name: c.staff_id ? names[c.staff_id] ?? null : "admin" })),
+      notes: notes ?? [],
     });
+  }
+
+  // ── members list: paginated + filtered (admin/owner) ───────────────────
+  // Reduces the memberships table to the CURRENT membership per user, derives a
+  // display status, then filters/sorts/paginates. Single-gym scale — if the
+  // memberships table ever grows huge, move this to a DB view / RPC.
+  if (action === "members_list") {
+    const statusFilter = String(body.status ?? "all");
+    const planId = String(body.plan_id ?? "").trim();
+    const q = String(body.q ?? "").trim().toLowerCase();
+    const sort = String(body.sort ?? "asc") === "desc" ? "desc" : "asc"; // by end_date
+    const limit = Math.min(200, Math.max(1, Math.floor(Number(body.limit) || 25)));
+    const offset = Math.max(0, Math.floor(Number(body.offset) || 0));
+
+    const day = 86_400_000;
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const in7Iso = new Date(Date.now() + 7 * day).toISOString().slice(0, 10);
+
+    const { data: rows } = await db
+      .from("memberships")
+      .select("id, user_id, plan_id, status, end_date, frozen_at, created_at, membership_plans(name_uz)")
+      .order("end_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    // deno-lint-ignore no-explicit-any
+    const current = new Map<string, any>();
+    for (const r of rows ?? []) if (!current.has(r.user_id)) current.set(r.user_id, r);
+
+    const userIds = [...current.keys()];
+    const nameMap: Record<string, string | null> = {};
+    for (let i = 0; i < userIds.length; i += 300) {
+      const { data: profs } = await db.from("profiles").select("id, name").in("id", userIds.slice(i, i + 300));
+      for (const p of profs ?? []) nameMap[p.id] = p.name;
+    }
+
+    // deno-lint-ignore no-explicit-any
+    const derive = (m: any): string => {
+      if (m.status === "frozen") return "frozen";
+      if (m.status === "pending") return "pending";
+      if (m.status === "active" && m.end_date && m.end_date >= todayIso) {
+        return m.end_date <= in7Iso ? "expiring" : "active";
+      }
+      return "expired";
+    };
+
+    let list = userIds.map((uid) => {
+      const m = current.get(uid);
+      return {
+        user_id: uid,
+        name: nameMap[uid] ?? null,
+        status: derive(m),
+        plan_id: m.plan_id,
+        // deno-lint-ignore no-explicit-any
+        plan_name: (m as any).membership_plans?.name_uz ?? null,
+        end_date: m.end_date,
+        frozen_at: m.frozen_at,
+      };
+    });
+
+    if (statusFilter !== "all") list = list.filter((m) => m.status === statusFilter);
+    if (planId) list = list.filter((m) => m.plan_id === planId);
+    if (q) list = list.filter((m) => (m.name ?? "").toLowerCase().includes(q) || m.user_id.toLowerCase().startsWith(q));
+
+    list.sort((a, b) => {
+      const ea = a.end_date ?? "", eb = b.end_date ?? "";
+      if (ea !== eb) {
+        if (!ea) return 1;
+        if (!eb) return -1;
+        return sort === "desc" ? (ea < eb ? 1 : -1) : (ea < eb ? -1 : 1);
+      }
+      return (a.name ?? "").localeCompare(b.name ?? "");
+    });
+
+    return json({ members: list.slice(offset, offset + limit), total: list.length, limit, offset });
+  }
+
+  // ── add an internal note to a member (admin/owner) ─────────────────────
+  if (action === "member_note_add") {
+    const userId = String(body.user_id ?? "").trim();
+    const noteBody = String(body.body ?? "").trim();
+    if (!userId || !noteBody) return json({ error: "user_id va izoh kerak" }, 400);
+    if (noteBody.length > 1000) return json({ error: "Izoh juda uzun (max 1000)" }, 400);
+    const { error } = await db.from("member_notes").insert({
+      user_id: userId,
+      author_staff_id: auth.staffId,
+      author_name: auth.name,
+      body: noteBody,
+    });
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "member_note_add", userId, {});
+    return json({ ok: true });
+  }
+
+  // ── extend a member's current period by N days (admin/owner) ───────────
+  // Manual comp / correction (no payment). Base = later of current end and today
+  // so we never extend from the past. Reactivates an expired period; frozen stays
+  // frozen (the extra days apply once it thaws).
+  if (action === "membership_extend") {
+    const userId = String(body.user_id ?? "").trim();
+    const days = Math.floor(Number(body.days));
+    if (!userId) return json({ error: "user_id required" }, 400);
+    if (!Number.isFinite(days) || days < 1 || days > 365) return json({ error: "Kun 1..365 bo'lishi kerak" }, 400);
+    const { data: m } = await db
+      .from("memberships")
+      .select("id, status, end_date")
+      .eq("user_id", userId)
+      .order("end_date", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    if (!m) return json({ error: "A'zolik topilmadi" }, 404);
+    const base = m.end_date && new Date(m.end_date) >= today() ? new Date(m.end_date) : today();
+    const newEnd = isoDate(new Date(base.getTime() + days * 86_400_000));
+    const patch: Record<string, unknown> = { end_date: newEnd };
+    if (m.status !== "frozen") patch.status = "active";
+    const { error } = await db.from("memberships").update(patch).eq("id", m.id);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "membership_extend", userId, { days, end_date: newEnd });
+    return json({ ok: true, end_date: newEnd, days_left: daysLeft(newEnd) });
   }
 
   if (action === "checkins_recent") {

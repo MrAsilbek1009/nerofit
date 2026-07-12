@@ -181,5 +181,25 @@ Keyin A3 (moliya) → A4 → A5.
   2 minimal bar-chart (daromad 14 kun · kelishlar soat bo'yicha), Kinetic Editorial.
 **Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration kerak emas).
 
-### ⬜ A2 — A'zolar boshqaruvi (pro) — keyingi
+### ✅ A2 — A'zolar boshqaruvi (pro) (2026-07, `admin-a2-members` branch)
+**Nima o'zgardi:**
+- **Migration `0021_member_notes.sql`** — `member_notes` (a'zoga ichki xodim izohi).
+  RLS-locked (faqat service-role) — a'zo o'z izohini ko'rmaydi.
+- **`admin-verify`** — 3 yangi action (admin/owner):
+  - `members_list` — **to'liq ro'yxat**: har foydalanuvchining **joriy** a'zoligiga
+    keltiriladi, holat hosil qilinadi (active/expiring/frozen/expired/pending),
+    keyin filtr (status · tarif · qidiruv ism/ID) + sort (tugash sanasi) +
+    **pagination** (limit/offset, total). Bitta so'rovda.
+  - `member_note_add` — ichki izoh qo'shish (max 1000).
+  - `membership_extend` — muddatni N kunga uzaytirish (1..365, to'lovsiz; o'tgan
+    sanadan emas, `max(end_date, bugun)`dan; muzlagan holat saqlanadi). Audit'ga.
+  - `member_detail` endi `notes` ham qaytaradi.
+- **`gym-admin` "A'zolar" tab** qayta qurildi: holat **filtr-chiplar** · qidiruv
+  (ism/ID) · tarif filtri · sort · **CSV eksport** · sahifalangan ro'yxat
+  ("Ko'proq yuklash"). Har a'zo akkordeoni ichida **inline amallar**: uzaytirish ·
+  muzlatish/chiqarish · izoh qo'shish. So'nggi kelishlar feedi saqlangan.
+- Eski `members_search` action backendda qoldi (ishlatilmaydi; orqaga moslik).
+**Deploy:** 1) migration `0021` → 2) `admin-verify` qayta deploy → 3) `gym-admin` Vercel.
+
+### ⬜ A3 — Moliya & to'lovlar — keyingi
 
