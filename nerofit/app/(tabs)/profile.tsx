@@ -15,11 +15,13 @@ import {
   Trash2,
 } from "lucide-react-native";
 import { Avatar, Chip } from "@/components/ui";
+import { AchievementsRow } from "@/features/nutrition/components/AchievementsRow";
 import { useUserId } from "@/hooks/useUser";
 import { useIsElite } from "@/hooks/useEntitlement";
 import { useProfile } from "@/lib/queries/profile";
 import { useGoals } from "@/lib/queries/goals";
 import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
+import { useNutritionBadges } from "@/lib/queries/nutrition";
 import { useWorkoutStats } from "@/lib/queries/progress";
 import { useAuthStore } from "@/store/auth";
 import { anyEnabled } from "@/features/notifications/prefs";
@@ -38,6 +40,7 @@ export default function ProfileScreen() {
   const goals = useGoals(userId);
   const latestBody = useLatestBodyMetric(userId);
   const stats = useWorkoutStats(userId);
+  const badges = useNutritionBadges(userId);
 
   // Any reminder enabled? Local device setting (not server state). Reload on
   // focus so it reflects changes made in the notification-settings modal.
@@ -121,6 +124,13 @@ export default function ProfileScreen() {
           <Divider />
           <Stat value={`${stats.data?.count ?? 0}`} label={t("profile.workouts")} accent />
         </View>
+
+        {/* Nutrition achievements (derived, quiet — nothing while loading) */}
+        {badges.data && badges.data.length > 0 ? (
+          <View style={{ marginTop: space[6], paddingHorizontal: space[5] }}>
+            <AchievementsRow badges={badges.data} />
+          </View>
+        ) : null}
 
         {/* Settings */}
         <View style={{ marginTop: space[6], paddingHorizontal: space[5] }}>

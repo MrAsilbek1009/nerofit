@@ -20,6 +20,8 @@ import {
 } from "@/lib/api/userFoods";
 import { recentFoodsFromLogs } from "@/lib/nutrition/fastLog";
 import { dailyIntake } from "@/lib/nutrition/adaptive";
+import { getNutritionStats } from "@/lib/api/nutritionStats";
+import { computeBadges, type BadgeState } from "@/lib/nutrition/badges";
 import {
   computeLogStreak,
   trailingKcal,
@@ -58,6 +60,7 @@ function invalidateMealData(
   void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
   void qc.invalidateQueries({ queryKey: ["kcal-week", userId] });
   void qc.invalidateQueries({ queryKey: ["nutrition-streak", userId] });
+  void qc.invalidateQueries({ queryKey: ["nutrition-badges", userId] });
 }
 
 // ---- Meals ----
@@ -113,14 +116,39 @@ export function useWeeklyKcal(userId: string | undefined) {
   });
 }
 
+// Derived nutrition badges (no badges table — see lib/nutrition/badges.ts).
+export function useNutritionBadges(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["nutrition-badges", userId] : ["nutrition-badges", "none"],
+    queryFn: async (): Promise<BadgeState[]> => {
+      const today = localToday();
+      const [stats, logs] = await Promise.all([
+        getNutritionStats(userId!),
+        listRecentMealLogs(userId!, 60, 1200),
+      ]);
+      const days = logs.map((l) => l.log_date);
+      return computeBadges({
+        streak: computeLogStreak(days, today),
+        weekLoggedDays: weekDots(days, today).filter((d) => d.logged).length,
+        totalLogs: stats.totalLogs,
+        totalScans: stats.totalScans,
+        foodsSubmitted: stats.foodsSubmitted,
+      });
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 export type NutritionStreak = { streak: number; dots: WeekDot[] };
 
 // Consecutive-day logging streak + current-week dots (celebration modal).
+// 60-day window so streaks past a month still read correctly (streak30 badge).
 export function useNutritionStreak(userId: string | undefined) {
   return useQuery({
     queryKey: userId ? ["nutrition-streak", userId] : ["nutrition-streak", "none"],
     queryFn: async (): Promise<NutritionStreak> => {
-      const logs = await listRecentMealLogs(userId!, 28, 600);
+      const logs = await listRecentMealLogs(userId!, 60, 1200);
       const days = logs.map((l) => l.log_date);
       const today = localToday();
       return { streak: computeLogStreak(days, today), dots: weekDots(days, today) };

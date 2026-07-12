@@ -301,7 +301,24 @@
       "avgPerDay": "Avg {{kcal}} kcal per logged day",
       "emptyWeek": "No logs this week yet.",
       "trend": "Trend {{delta}} kg/wk",
-      "editGoals": "Edit goals"
+      "editGoals": "Edit goals",
+      "weeklyGoal": "Weekly goal: log your days",
+      "weeklyGoalCount": "{{logged}}/{{target}} days",
+      "quality": "Quality"
+    },
+    "badges": {
+      "title": "Achievements",
+      "achieved": "Done",
+      "achievedA11y": "achieved",
+      "progress": "{{current}}/{{target}}",
+      "names": {
+        "streak7": "7-day streak",
+        "streak30": "30-day streak",
+        "logs100": "100 logs",
+        "scans10": "10 scans",
+        "foodAdded": "Food added",
+        "weekPerfect": "Perfect week"
+      }
     },
     "editGoals": {
       "title": "Edit goals",

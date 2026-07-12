@@ -3,14 +3,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react-native";
-import { Button, ProgressRing } from "@/components/ui";
+import { Button, ProgressLine, ProgressRing } from "@/components/ui";
 import { MacroBar } from "@/features/nutrition/components/MacroBar";
 import { SectionLabel } from "@/features/nutrition/components/SectionLabel";
 import { TrendChart } from "@/features/progress/components/TrendChart";
-import { deriveCalorieGoal, sumMealLogs } from "@/features/home/summary";
+import {
+  computeHealthScore,
+  deriveCalorieGoal,
+  healthBand,
+  sumMealLogs,
+  sumMicros,
+} from "@/features/home/summary";
 import { useUserId } from "@/hooks/useUser";
+import { weeklyGoalProgress } from "@/lib/nutrition/badges";
 import { useAdaptiveGoals } from "@/lib/queries/adaptiveGoals";
-import { useTodayMealLogs, useWeeklyKcal } from "@/lib/queries/nutrition";
+import {
+  useNutritionStreak,
+  useTodayMealLogs,
+  useWeeklyKcal,
+} from "@/lib/queries/nutrition";
 import { useProfile } from "@/lib/queries/profile";
 import { colors, fonts, space, typography } from "@/theme";
 
@@ -28,12 +39,20 @@ export default function DailyBreakdownScreen() {
   const mealLogs = useTodayMealLogs(userId);
   const week = useWeeklyKcal(userId);
   const adaptive = useAdaptiveGoals(userId);
+  const streak = useNutritionStreak(userId);
 
   const loading = profile.isLoading || mealLogs.isLoading;
   const totals = sumMealLogs(mealLogs.data ?? []);
   const goal = profile.data ? deriveCalorieGoal(profile.data) : 0;
   const fraction = goal > 0 ? Math.min(1, totals.kcal / goal) : 0;
   const target = adaptive.data?.target ?? null;
+
+  // Quality score (fiber/sugar/sodium) — same math as the Home MicrosCard.
+  const score = computeHealthScore(sumMicros(mealLogs.data ?? []));
+
+  const weekGoal = weeklyGoalProgress(
+    (streak.data?.dots ?? []).filter((d) => d.logged).length,
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -116,6 +135,38 @@ export default function DailyBreakdownScreen() {
                   : ""}
               </Text>
             ) : null}
+
+            {/* Weekly logging goal (quiet gamification) */}
+            <View style={{ gap: space[2] }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Text style={typography.bodyMuted}>{t("nutrition.breakdown.weeklyGoal")}</Text>
+                <Text style={{ fontFamily: fonts.label, color: colors.textHi, fontSize: 13 }}>
+                  {t("nutrition.breakdown.weeklyGoalCount", {
+                    logged: weekGoal.logged,
+                    target: weekGoal.target,
+                  })}
+                </Text>
+              </View>
+              <ProgressLine progress={weekGoal.ratio} height={4} />
+            </View>
+          </View>
+
+          {/* Quality (health score, reused from Home) */}
+          <View style={{ gap: space[4] }}>
+            <SectionLabel label={t("nutrition.breakdown.quality")} />
+            {score != null ? (
+              <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between" }}>
+                <Text style={{ fontFamily: fonts.display, color: colors.textHi, fontSize: 28 }}>
+                  {score}
+                  <Text style={{ fontSize: 15, color: colors.textLo }}> / 10</Text>
+                </Text>
+                <Text style={typography.labelCaps}>{t(`home.bands.${healthBand(score)}`)}</Text>
+              </View>
+            ) : (
+              <Text style={[typography.bodyMuted, { fontStyle: "italic" }]}>
+                {t("home.healthEmpty")}
+              </Text>
+            )}
           </View>
 
           <Button

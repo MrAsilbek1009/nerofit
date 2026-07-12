@@ -301,7 +301,24 @@
       "avgPerDay": "Logʻlangan kuniga oʻrtacha {{kcal}} kkal",
       "emptyWeek": "Bu hafta hali log yoʻq.",
       "trend": "Trend {{delta}} kg/hafta",
-      "editGoals": "Maqsadlarni tahrirlash"
+      "editGoals": "Maqsadlarni tahrirlash",
+      "weeklyGoal": "Haftalik maqsad: kunlaringni logʻla",
+      "weeklyGoalCount": "{{logged}}/{{target}} kun",
+      "quality": "Sifat"
+    },
+    "badges": {
+      "title": "Yutuqlar",
+      "achieved": "Bajarildi",
+      "achievedA11y": "erishilgan",
+      "progress": "{{current}}/{{target}}",
+      "names": {
+        "streak7": "7 kunlik streak",
+        "streak30": "30 kunlik streak",
+        "logs100": "100 ta log",
+        "scans10": "10 ta skan",
+        "foodAdded": "Taom qoʻshildi",
+        "weekPerfect": "Mukammal hafta"
+      }
     },
     "editGoals": {
       "title": "Maqsadlarni tahrirlash",

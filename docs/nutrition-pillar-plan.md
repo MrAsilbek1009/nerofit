@@ -82,7 +82,11 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
 - **Streak celebration modal ✅**: ovqat-log streak (ketma-ket kunlar, insights.ts sof
   mantiq + 17 test), kuniga bir marta birinchi logdan keyin (AsyncStorage flag), olov +
   raqam + hafta nuqtalari (chartreuse — plan ruxsati), "zanjirni uzma" ohangi.
-- Qolgan (N4.1): badge/haftalik maqsad gamification, health-score integratsiyasi.
+- **N4.1 ✅** (branch `phase-16-n4-1-gamification`): **6 ta derived badge** (7/30-kun streak,
+  100 log, 10 skan, taom qo'shish, 7/7 hafta) — jadvalsiz/enginesiz, o'qish payti hisoblanadi
+  (`lib/nutrition/badges.ts` sof + `nutritionStats` head-count api), Profile'da "Yutuqlar"
+  bo'limi; **haftalik maqsad** (5 kun log, ProgressLine) va **health-score** (Home formulasi
+  qayta ishlatildi) Daily Breakdown'da. Migration YO'Q.
 
 ### 🟪 Bosqich N5 — Standalone / freemium (ikkinchi daromad)
 - Zalga bormaydigan foydalanuvchilar ham nutrition'ni ishlatadi.

@@ -301,7 +301,24 @@
       "avgPerDay": "В среднем {{kcal}} ккал за день с логами",
       "emptyWeek": "На этой неделе пока нет записей.",
       "trend": "Тренд {{delta}} кг/нед",
-      "editGoals": "Изменить цели"
+      "editGoals": "Изменить цели",
+      "weeklyGoal": "Цель недели: логируйте дни",
+      "weeklyGoalCount": "{{logged}}/{{target}} дней",
+      "quality": "Качество"
+    },
+    "badges": {
+      "title": "Достижения",
+      "achieved": "Готово",
+      "achievedA11y": "получено",
+      "progress": "{{current}}/{{target}}",
+      "names": {
+        "streak7": "Серия 7 дней",
+        "streak30": "Серия 30 дней",
+        "logs100": "100 записей",
+        "scans10": "10 сканов",
+        "foodAdded": "Продукт добавлен",
+        "weekPerfect": "Идеальная неделя"
+      }
     },
     "editGoals": {
       "title": "Изменить цели",
