@@ -1,4 +1,6 @@
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Pinned to an exact version (S1 supply-chain hardening) — a floating `@2` would
+// pull whatever is latest on every redeploy. Bump deliberately, verify on deploy.
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 // Admin / staff membership API.
 //
@@ -16,11 +18,27 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 // stored plaintext. admin_sessions/admin_audit/gym_staff are service-role-only.
 // Deploy with `--no-verify-jwt` (public; the token/password is the boundary).
 
+// CORS (S1): no wildcard Access-Control-Allow-Origin. The allowed origin is
+// reflected per-request in Deno.serve() only when it passes allowedOrigin() —
+// the panels are on *.vercel.app; localhost is for dev. Random sites get no
+// ACAO header and can't read responses. (Auth is token-in-body, so this is
+// defense-in-depth, not the primary boundary.)
 const cors = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+// Reflect the request Origin only if it's a panel we trust. Tighten to exact
+// prod aliases once confirmed (gym-admin / gym-panel Vercel URLs).
+function allowedOrigin(origin: string | null): string | null {
+  if (!origin) return null;
+  const ok = origin.endsWith(".vercel.app") ||
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://127.0.0.1");
+  return ok ? origin : null;
+}
+const SESSION_TTL_MS = 8 * 3_600_000; // 8h (S1: was 12h), slid forward on activity
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isUuid = (s: string) => UUID_RE.test(s);
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -113,7 +131,13 @@ async function authByToken(db: SupabaseClient, token: string): Promise<Auth | nu
     await db.from("admin_sessions").delete().eq("token_hash", th);
     return null;
   }
-  await db.from("admin_sessions").update({ last_seen: new Date().toISOString() }).eq("token_hash", th);
+  // Sliding session: each active request pushes expiry out, so an idle session
+  // dies after SESSION_TTL_MS but an in-use one stays alive.
+  const now = new Date();
+  await db.from("admin_sessions").update({
+    last_seen: now.toISOString(),
+    expires_at: new Date(now.getTime() + SESSION_TTL_MS).toISOString(),
+  }).eq("token_hash", th);
   return { role: data.role as Auth["role"], staffId: data.staff_id, name: data.name };
 }
 
@@ -142,6 +166,26 @@ async function staffNames(db: SupabaseClient, ids: string[]): Promise<Record<str
   if (uniq.length === 0) return {};
   const { data } = await db.from("gym_staff").select("id, name").in("id", uniq);
   return Object.fromEntries((data ?? []).map((s) => [s.id, s.name]));
+}
+
+// Per-actor rate limit for sensitive mutations (S1): count this actor's recent
+// audit rows for `action` within a window. Generous ceilings — never hit in
+// normal use, but stop a stolen token from mass-abusing refund/delete/password.
+async function rateLimited(
+  db: SupabaseClient,
+  auth: Auth,
+  action: string,
+  max: number,
+  windowMin: number,
+): Promise<boolean> {
+  const since = new Date(Date.now() - windowMin * 60_000).toISOString();
+  const { data } = await db
+    .from("admin_audit")
+    .select("id")
+    .eq("action", action)
+    .eq("actor_name", auth.name)
+    .gte("created_at", since);
+  return (data ?? []).length >= max;
 }
 
 async function handlePost(req: Request): Promise<Response> {
@@ -173,7 +217,7 @@ async function handlePost(req: Request): Promise<Response> {
       staff_id: a.staffId,
       role: a.role,
       name: a.name,
-      expires_at: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+      expires_at: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
     });
     // Don't hand back a token we couldn't store (e.g. migration 0020 not applied).
     if (sErr) return json({ error: "Sessiya saqlanmadi — migration 0020 qo'llanganmi?" }, 500);
@@ -188,11 +232,19 @@ async function handlePost(req: Request): Promise<Response> {
     return json({ ok: true });
   }
 
-  // Resolve auth: token first, else legacy password (backward compat).
-  const auth = body.token
-    ? await authByToken(db, String(body.token))
-    : await authenticate(db, String(body.password ?? ""));
-  if (!auth) return json({ error: body.token ? "Sessiya tugagan — qayta kiring" : "Wrong password" }, 401);
+  // Resolve auth: TOKEN ONLY (S1 removed the legacy per-request {password} path).
+  // The password is accepted only by `login` above; every other action needs a
+  // valid session token.
+  const auth = await authByToken(db, String(body.token ?? ""));
+  if (!auth) return json({ error: "Sessiya tugagan — qayta kiring" }, 401);
+
+  // logout_all: drop every session for this actor (chiqish — barcha qurilmadan).
+  if (action === "logout_all") {
+    if (auth.staffId) await db.from("admin_sessions").delete().eq("staff_id", auth.staffId);
+    else await db.from("admin_sessions").delete().is("staff_id", null); // owner/master
+    await audit(db, auth, "logout_all", null, {});
+    return json({ ok: true });
+  }
 
   // ── session / staff + admin actions ────────────────────────────────────
   if (action === "session") return json({ role: auth.role, name: auth.name });
@@ -442,6 +494,10 @@ async function handlePost(req: Request): Promise<Response> {
 
   if (action === "staff_delete") {
     const staffId = String(body.staff_id ?? "").trim();
+    if (!isUuid(staffId)) return json({ error: "staff_id noto'g'ri" }, 400);
+    if (await rateLimited(db, auth, "staff_delete", 10, 10)) {
+      return json({ error: "Juda ko'p urinish — biroz kuting" }, 429);
+    }
     await db.from("gym_staff").delete().eq("id", staffId);
     await audit(db, auth, "staff_delete", staffId, {});
     return json({ ok: true });
@@ -450,6 +506,9 @@ async function handlePost(req: Request): Promise<Response> {
   if (action === "admin_set_password") {
     const pw = String(body.new_password ?? "").trim();
     if (!pw) return json({ error: "new_password required" }, 400);
+    if (await rateLimited(db, auth, "admin_set_password", 5, 10)) {
+      return json({ error: "Juda ko'p urinish — biroz kuting" }, 429);
+    }
     const hash = await hashPw(pw);
     const { data: existing } = await db.from("gym_staff").select("id").eq("role", "admin").limit(1).maybeSingle();
     const res = existing
@@ -782,16 +841,19 @@ async function handlePost(req: Request): Promise<Response> {
     const { data: sumRows } = await applyFilters(db.from("payments").select("amount_uzs"));
     const sum = (sumRows ?? []).reduce((a: number, r: { amount_uzs: number }) => a + (r.amount_uzs || 0), 0);
 
-    const uids = [...new Set((pays ?? []).map((p) => p.user_id))];
+    // applyFilters is loosely typed → coerce the rows to a concrete shape here.
+    // deno-lint-ignore no-explicit-any
+    const payRows = (pays ?? []) as any[];
+    const uids = [...new Set(payRows.map((p) => p.user_id as string))];
     const nameMap: Record<string, string | null> = {};
     if (uids.length) {
       const { data: profs } = await db.from("profiles").select("id, name").in("id", uids);
       for (const p of profs ?? []) nameMap[p.id] = p.name;
     }
-    const staff = await staffNames(db, (pays ?? []).map((p) => p.activated_by as string));
+    const staff = await staffNames(db, payRows.map((p) => p.activated_by as string));
 
     return json({
-      payments: (pays ?? []).map((p) => ({
+      payments: payRows.map((p) => ({
         ...p,
         member_name: nameMap[p.user_id] ?? null,
         staff_name: p.activated_by ? staff[p.activated_by] ?? null : null,
@@ -885,7 +947,10 @@ async function handlePost(req: Request): Promise<Response> {
   // purchase in question (the common case: the latest one).
   if (action === "payment_refund") {
     const paymentId = String(body.payment_id ?? "").trim();
-    if (!paymentId) return json({ error: "payment_id required" }, 400);
+    if (!isUuid(paymentId)) return json({ error: "payment_id noto'g'ri" }, 400);
+    if (await rateLimited(db, auth, "payment_refund", 20, 10)) {
+      return json({ error: "Juda ko'p qaytarish urinishi — biroz kuting" }, 429);
+    }
     const { data: pay } = await db
       .from("payments")
       .select("id, user_id, status, membership_id, amount_uzs")
@@ -914,13 +979,21 @@ async function handlePost(req: Request): Promise<Response> {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: cors });
+  // Reflect the request Origin only if it's a trusted panel (S1). Non-allowed
+  // origins get no ACAO header, so a browser on another site can't read replies.
+  const origin = allowedOrigin(req.headers.get("origin"));
+  const withCors = (res: Response): Response => {
+    if (origin) res.headers.set("Access-Control-Allow-Origin", origin);
+    res.headers.set("Vary", "Origin");
+    return res;
+  };
+  if (req.method === "OPTIONS") return withCors(new Response(null, { status: 200, headers: cors }));
   if (req.method === "POST") {
     try {
-      return await handlePost(req);
+      return withCors(await handlePost(req));
     } catch (e) {
-      return json({ error: String(e instanceof Error ? e.message : e) }, 500);
+      return withCors(json({ error: String(e instanceof Error ? e.message : e) }, 500));
     }
   }
-  return json({ ok: true, api: "admin-verify", note: "POST { action, token|password }" });
+  return withCors(json({ ok: true, api: "admin-verify", note: "POST { action, token }" }));
 });
