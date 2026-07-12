@@ -69,6 +69,7 @@
       <button id="tab-dash" class="on" onclick="show('dash')">Dashboard</button>
       <button id="tab-members" class="off" onclick="show('members')">A'zolar</button>
       <button id="tab-finance" class="off" onclick="show('finance')">Moliya</button>
+      <button id="tab-plans" class="off" onclick="show('plans')">Tariflar</button>
       <button id="tab-staff" class="off" onclick="show('staff')">Xodimlar</button>
       <button id="tab-audit" class="off" onclick="show('audit')">Audit</button>
     </div>
@@ -186,6 +187,28 @@
       </div>
     </section>
 
+    <!-- Plans (tariffs) -->
+    <section id="sec-plans" class="hidden">
+      <h2>Yangi tarif</h2>
+      <div class="card">
+        <label>Nom</label>
+        <input id="np-name" placeholder="masalan: 1 oylik" autocomplete="off" />
+        <label>Davomiylik (kun)</label>
+        <input id="np-days" type="number" inputmode="numeric" placeholder="30" />
+        <label>App narxi (so'm)</label>
+        <input id="np-app" type="number" inputmode="numeric" placeholder="250000" />
+        <label>Zal narxi (so'm)</label>
+        <input id="np-gym" type="number" inputmode="numeric" placeholder="350000" />
+        <label>Tartib (kichik = yuqorida)</label>
+        <input id="np-sort" type="number" inputmode="numeric" placeholder="1" />
+        <button style="margin-top:10px" onclick="addPlan()">Qo'shish</button>
+        <p id="np-msg" class="muted"></p>
+      </div>
+
+      <h2>Tariflar ro'yxati</h2>
+      <div id="plansList"></div>
+    </section>
+
     <!-- Audit log -->
     <section id="sec-audit" class="hidden">
       <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" onclick="loadAudit()">Yangilash</button></div>
@@ -252,7 +275,7 @@
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["dash", "staff", "members", "finance", "audit"].forEach((t) => {
+    ["dash", "staff", "members", "finance", "plans", "audit"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
@@ -260,6 +283,7 @@
     if (tab === "staff") loadStaff();
     if (tab === "members") { renderFilters(); loadMemberPlans(); loadMembers(false); loadFeed(); }
     if (tab === "finance") initFinance();
+    if (tab === "plans") loadPlansAdmin();
     if (tab === "audit") loadAudit();
   }
   async function changeAdminPw() {
@@ -731,6 +755,76 @@
     });
     wrap.appendChild(c);
     return wrap;
+  }
+
+  // ── Plans (tariffs) management ──────────────────────────────────────────
+  const expandedPlans = new Set();
+  async function loadPlansAdmin() {
+    const box = $("plansList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const r = await api("plan_list_all");
+    const plans = (r.data && r.data.plans) || [];
+    box.innerHTML = "";
+    if (plans.length === 0) { box.innerHTML = '<p class="muted">Hali tarif yo\'q.</p>'; return; }
+    plans.forEach((p) => box.appendChild(planItem(p)));
+  }
+  function planItem(p) {
+    const c = el("div", "card");
+    const top = el("div", "between");
+    const left = el("div");
+    left.innerHTML = '<div style="font-weight:700">' + escapeHtml(p.name_uz) + ' <span class="muted">· ' + p.duration_days + ' kun</span></div>'
+      + '<div class="muted">App: ' + uzs(p.price_app_uzs) + ' · Zal: ' + uzs(p.price_gym_uzs) + ' so\'m · tartib ' + p.sort_order + '</div>';
+    top.appendChild(left);
+    top.appendChild(el("span", "badge " + (p.is_active ? "ok" : "bad"), p.is_active ? "FAOL" : "NOFAOL"));
+    c.appendChild(top);
+
+    // Inline edit form, revealed by "Tahrirlash" (kept open across reloads).
+    const form = el("div"); form.style.marginTop = "10px";
+    form.style.display = expandedPlans.has(p.id) ? "block" : "none";
+    const mk = (labelTxt, val, type) => {
+      form.appendChild(el("label", null, labelTxt));
+      const inp = el("input"); if (type) { inp.type = type; inp.setAttribute("inputmode", "numeric"); }
+      inp.value = val == null ? "" : String(val);
+      form.appendChild(inp); return inp;
+    };
+    const iName = mk("Nom", p.name_uz);
+    const iDays = mk("Davomiylik (kun)", p.duration_days, "number");
+    const iApp = mk("App narxi (so'm)", p.price_app_uzs, "number");
+    const iGym = mk("Zal narxi (so'm)", p.price_gym_uzs, "number");
+    const iSort = mk("Tartib", p.sort_order, "number");
+    const msg = el("p", "muted");
+    const row = el("div", "row"); row.style.marginTop = "8px";
+    const save = btn("Saqlash", "mini", async () => {
+      const r = await api("plan_update", { plan_id: p.id, name_uz: iName.value, duration_days: iDays.value, price_app_uzs: iApp.value, price_gym_uzs: iGym.value, sort_order: iSort.value });
+      if (r.data && r.data.ok) { msg.textContent = "Saqlandi ✓"; loadPlansAdmin(); }
+      else { msg.textContent = (r.data && r.data.error) || "Xato"; }
+    });
+    const toggle = btn(p.is_active ? "Nofaol qilish" : "Faollashtirish", "ghost mini", async () => {
+      const r = await api("plan_set_active", { plan_id: p.id, is_active: !p.is_active });
+      if (r.data && r.data.ok) loadPlansAdmin(); else alert((r.data && r.data.error) || "Xato");
+    });
+    row.appendChild(save); row.appendChild(toggle);
+    form.appendChild(row); form.appendChild(msg);
+
+    const edit = btn(expandedPlans.has(p.id) ? "Yopish" : "Tahrirlash", "ghost mini", () => {
+      if (expandedPlans.has(p.id)) { expandedPlans.delete(p.id); form.style.display = "none"; edit.textContent = "Tahrirlash"; }
+      else { expandedPlans.add(p.id); form.style.display = "block"; edit.textContent = "Yopish"; }
+    });
+    edit.style.marginTop = "10px";
+    c.appendChild(edit); c.appendChild(form);
+    return c;
+  }
+  async function addPlan() {
+    const r = await api("plan_create", {
+      name_uz: $("np-name").value,
+      duration_days: $("np-days").value,
+      price_app_uzs: $("np-app").value,
+      price_gym_uzs: $("np-gym").value,
+      sort_order: $("np-sort").value || 0,
+    });
+    if (r.data && r.data.ok) {
+      ["np-name", "np-days", "np-app", "np-gym", "np-sort"].forEach((id) => { $(id).value = ""; });
+      $("np-msg").textContent = "Qo'shildi ✓"; loadPlansAdmin();
+    } else { $("np-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
 
   // Restore the session token remembered on this device (verify it's still valid).

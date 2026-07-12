@@ -9,6 +9,7 @@ import {
   dayEndUtc,
   dayStartUtc,
   deriveMemberStatus,
+  validatePlan,
 } from "./logic.ts";
 
 // Admin / staff membership API.
@@ -457,6 +458,49 @@ async function handlePost(req: Request): Promise<Response> {
 
   // ── admin/owner-only actions ───────────────────────────────────────────
   if (!isAdmin(auth)) return json({ error: "Admin only" }, 403);
+
+  // ── A4: tariff (plan) management (admin/owner) ─────────────────────────
+  // Full list incl. inactive (the `plans` action above stays active-only for
+  // the staff picker). No hard delete — plans are FK'd by memberships/payments;
+  // deactivate (is_active=false) hides a plan instead.
+  if (action === "plan_list_all") {
+    const { data } = await db
+      .from("membership_plans")
+      .select("id, name_uz, duration_days, price_app_uzs, price_gym_uzs, is_active, sort_order")
+      .order("sort_order", { ascending: true })
+      .order("name_uz", { ascending: true });
+    return json({ plans: data ?? [] });
+  }
+
+  if (action === "plan_create") {
+    const v = validatePlan(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { data, error } = await db.from("membership_plans").insert(v.value).select("id").single();
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "plan_create", data.id, { name_uz: v.value.name_uz });
+    return json({ ok: true, id: data.id });
+  }
+
+  if (action === "plan_update") {
+    const planId = String(body.plan_id ?? "").trim();
+    if (!isUuid(planId)) return json({ error: "plan_id noto'g'ri" }, 400);
+    const v = validatePlan(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { error } = await db.from("membership_plans").update(v.value).eq("id", planId);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "plan_update", planId, { name_uz: v.value.name_uz });
+    return json({ ok: true });
+  }
+
+  if (action === "plan_set_active") {
+    const planId = String(body.plan_id ?? "").trim();
+    if (!isUuid(planId)) return json({ error: "plan_id noto'g'ri" }, 400);
+    const isActive = !!body.is_active;
+    const { error } = await db.from("membership_plans").update({ is_active: isActive }).eq("id", planId);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "plan_set_active", planId, { is_active: isActive });
+    return json({ ok: true });
+  }
 
   if (action === "staff_list") {
     const { data } = await db
