@@ -72,11 +72,17 @@ Nima uchun birinchi: bu bizni ajratadigan yagona narsa; qolgani busiz shunchaki 
 - 🧑 Handoff: migration `0021` apply. Qolgan (N3.1): progress ekranida smoothed trend-line,
   vazn kiritish eslatmasi, adaptiv on/off toggle.
 
-### 🟦 Bosqich N4 — Nutrition hub + insights + intizomli gamification
-- **Daily Breakdown** ekrani (Cal AI) — alohida kunlik xulosa (kaloriya ring + makro + edit goals).
-- **Insights/hisobotlar**: haftalik trend (kaloriya/makro/vazn), health-score (bor).
-- **Streak celebration modal** + streak mexanikasi (chartreuse, minimal).
-- Gamification: streak, haftalik maqsad, badge — kam, brendga mos.
+### 🟦 Bosqich N4 — Nutrition hub + insights + intizomli gamification ✅ (asosiy qism)
+- **Daily Breakdown ✅** (`app/daily-breakdown.tsx`, Nutrition→Macros "Xulosa" havolasi):
+  kaloriya ring (bugungi/goal %) + makro barlar + shu hafta kkal grafigi (TrendChart) +
+  logʻlangan kunlar oʻrtachasi + TDEE/trend qatori (adaptivdan) + **Edit goals**.
+- **Edit goals ✅** (`app/edit-goals.tsx`): P/C/F gramm → jonli kkal; saqlash `profiles`ga
+  + `nutrition_targets`ga `reason='manual'` yozadi — adaptiv keyingi hafta shu raqamdan
+  qadam tashlaydi (urishmaydi).
+- **Streak celebration modal ✅**: ovqat-log streak (ketma-ket kunlar, insights.ts sof
+  mantiq + 17 test), kuniga bir marta birinchi logdan keyin (AsyncStorage flag), olov +
+  raqam + hafta nuqtalari (chartreuse — plan ruxsati), "zanjirni uzma" ohangi.
+- Qolgan (N4.1): badge/haftalik maqsad gamification, health-score integratsiyasi.
 
 ### 🟪 Bosqich N5 — Standalone / freemium (ikkinchi daromad)
 - Zalga bormaydigan foydalanuvchilar ham nutrition'ni ishlatadi.

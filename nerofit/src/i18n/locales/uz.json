@@ -293,6 +293,27 @@
     "dayPart": { "morning": "Ertalab", "midday": "Kunduzi", "evening": "Kechqurun" },
     "emptyMeals": "Hozircha taomlar yoʻq.",
     "recentScans": "Soʻnggi skanlar →",
+    "breakdown": {
+      "title": "Kunlik xulosa",
+      "link": "Xulosa",
+      "today": "Bugun",
+      "thisWeek": "Shu hafta",
+      "avgPerDay": "Logʻlangan kuniga oʻrtacha {{kcal}} kkal",
+      "emptyWeek": "Bu hafta hali log yoʻq.",
+      "trend": "Trend {{delta}} kg/hafta",
+      "editGoals": "Maqsadlarni tahrirlash"
+    },
+    "editGoals": {
+      "title": "Maqsadlarni tahrirlash",
+      "derived": "kkal / kun (makrolardan)",
+      "adaptiveNote": "Haftalik adaptiv yangilanishlar shu yerda kiritgan maqsadlaringdan davom etadi.",
+      "save": "Maqsadlarni saqlash"
+    },
+    "streak": {
+      "days": "Kunlik streak",
+      "body": "Har bir logʻlangan kun rejangni aqlliroq qiladi. Zanjirni uzma.",
+      "continue": "Davom etish"
+    },
     "adaptive": {
       "updated": "Rejang yangilandi",
       "kcalPerDay": "kkal / kun",

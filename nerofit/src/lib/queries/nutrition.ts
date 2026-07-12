@@ -19,6 +19,13 @@ import {
   type UserMealItem,
 } from "@/lib/api/userFoods";
 import { recentFoodsFromLogs } from "@/lib/nutrition/fastLog";
+import { dailyIntake } from "@/lib/nutrition/adaptive";
+import {
+  computeLogStreak,
+  trailingKcal,
+  weekDots,
+  type WeekDot,
+} from "@/lib/nutrition/insights";
 import {
   listSupplements,
   listTodaySupplementLogs,
@@ -40,6 +47,18 @@ import type { FoodInput } from "@/lib/nutrition/foodInput";
 import { track } from "@/lib/analytics";
 import { qk } from "./keys";
 import type { Meal, MealSlot } from "@/types/db";
+
+// Everything derived from meal_logs, refreshed after any log/delete.
+function invalidateMealData(
+  qc: ReturnType<typeof useQueryClient>,
+  userId: string | undefined,
+): void {
+  if (!userId) return;
+  void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
+  void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
+  void qc.invalidateQueries({ queryKey: ["kcal-week", userId] });
+  void qc.invalidateQueries({ queryKey: ["nutrition-streak", userId] });
+}
 
 // ---- Meals ----
 export function useMeals() {
@@ -67,11 +86,47 @@ export function useLogMeal(userId: string | undefined) {
     },
     onSuccess: (_data, { meal, slot }) => {
       track("meal_logged", { meal_id: meal.id, slot });
-      if (userId) {
-        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
-        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
-      }
+      invalidateMealData(qc, userId);
     },
+  });
+}
+
+// Local YYYY-MM-DD (query layer owns "now" so screens stay pure for the
+// React compiler — same convention as adaptiveGoals.ts).
+function localToday(): string {
+  const d = new Date();
+  const m = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+// ---- Insights (daily breakdown + streak) ----
+
+// Trailing 7-day kcal series + average over logged days.
+export function useWeeklyKcal(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["kcal-week", userId] : ["kcal-week", "none"],
+    queryFn: async () =>
+      trailingKcal(dailyIntake(await listRecentMealLogs(userId!, 7, 400)), localToday()),
+    enabled: !!userId,
+    staleTime: 1000 * 60,
+  });
+}
+
+export type NutritionStreak = { streak: number; dots: WeekDot[] };
+
+// Consecutive-day logging streak + current-week dots (celebration modal).
+export function useNutritionStreak(userId: string | undefined) {
+  return useQuery({
+    queryKey: userId ? ["nutrition-streak", userId] : ["nutrition-streak", "none"],
+    queryFn: async (): Promise<NutritionStreak> => {
+      const logs = await listRecentMealLogs(userId!, 28, 600);
+      const days = logs.map((l) => l.log_date);
+      const today = localToday();
+      return { streak: computeLogStreak(days, today), dots: weekDots(days, today) };
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60,
   });
 }
 
@@ -106,10 +161,7 @@ export function useLogManualMeal(userId: string | undefined) {
     },
     onSuccess: (_data, entry) => {
       track("meal_logged", { source: "manual", slot: entry.slot });
-      if (userId) {
-        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
-        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
-      }
+      invalidateMealData(qc, userId);
     },
   });
 }
@@ -225,10 +277,7 @@ export function useLogScannedMeal(userId: string | undefined) {
     },
     onSuccess: (_data, entry) => {
       track("meal_logged", { source: "scan", slot: entry.slot });
-      if (userId) {
-        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
-        void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
-      }
+      invalidateMealData(qc, userId);
     },
   });
 }
@@ -319,10 +368,7 @@ export function useDeleteMealLog(userId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteMealLog(id),
-    onSuccess: () => {
-      if (userId)
-        void qc.invalidateQueries({ queryKey: qk.mealLogsToday(userId) });
-    },
+    onSuccess: () => invalidateMealData(qc, userId),
   });
 }
 
