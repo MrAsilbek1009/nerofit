@@ -253,6 +253,23 @@ To'liq reja: `~/.claude/plans/delegated-percolating-barto.md`.
 **Deploy:** `admin-verify` qayta deploy + `gym-panel` Vercel (migration yo'q).
 ⚠️ CORS: panellar `.vercel.app`да bo'lsa ishlaydi; custom domen bo'lsa `allowedOrigin`ga qo'shish kerak.
 
-### ⬜ S2 — CI xavfsizlik shlyuzi + testlar + umumiy modul — keyingi
-### ⬜ A4 — Tariflar & narx boshqaruvi
+### ✅ S2 — CI xavfsizlik shlyuzi + pul-mantiq testlari (2026-07, `admin-s2-ci-tests` branch, migration yo'q)
+**Nima o'zgardi:**
+- **Yangi `admin-verify/logic.ts`** — pure (DB-siz) mantiq ajratildi: `deriveMemberStatus`,
+  `computeExtendedEnd`, `dayStartUtc/dayEndUtc`, `aggregateCashByStaff`, `aggregateRevenue`.
+  `index.ts` shu funksiyalarni import qiladi (xatti-harakat aynan bir xil).
+- **`logic.test.ts`** — 8 Deno unit-test (pul/holat mantiqi): status hosil qilish,
+  muddat uzaytirish, UTC+5 kun chegarasi, kassa va daromad agregatsiyasi. Offline
+  (tashqi import yo'q). `deno test` → 8/8 ✓.
+- **CI'ga `admin` job qo'shildi** ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
+  `deno check index.ts` + `deno test` + `node scripts/check-admin-panels.mjs`
+  (panellar inline JS syntaksisi). **Endi CI admin'ni ham tekshiradi** (avval faqat RN edi).
+- **Lokal type-check:** `npx --yes deno@2 check index.ts` (deno o'rnatilmagan; npx yuklaydi).
+**Deferred (kam xavfsizlik qiymati, refaktor riski):** 926-qatorli `handlePost`ни to'liq
+routing-modullarga bo'lish + `admin-shared.js` (3 panel alohida Vercel deploy — murakkab).
+Keyingi polish (D1) yoki alohida qadamда.
+**Verify:** `deno check` + `deno test` (8/8) + panel syntaksis — hammasi toza; CI'да avtomatik.
+**Deploy:** kod-sifat/CI o'zgarishi — `admin-verify` qayta deploy ixtiyoriy (xatti-harakat o'zgarmagan); panellar tegilmagan.
+
+### ⬜ A4 — Tariflar & narx boshqaruvi — keyingi
 
