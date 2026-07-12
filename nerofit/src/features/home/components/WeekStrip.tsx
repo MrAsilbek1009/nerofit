@@ -1,37 +1,72 @@
-import { Text, View } from "react-native";
+import { useRef } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { startOfWeek, toLocalDayKey } from "@/features/progress/streak";
 import { colors, fonts, space } from "@/theme";
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+// Current week + three weeks back (Cal AI-style continuous strip).
+const WEEKS_BACK = 3;
 
-// Mon-anchored current week. Today gets the chartreuse ring; days with logged
-// activity get a chartreuse dot. Display-only for now (date navigation is a
-// later stage).
-// `activeDays` are raw ISO timestamps (e.g. session/meal times); they're
-// normalised to local day keys here.
-export function WeekStrip({ activeDays }: { activeDays: string[] }) {
+// Items may be ISO timestamps (sessions) or YYYY-MM-DD keys (meal log dates).
+function toDayKey(value: string): string {
+  return value.length === 10 ? value : toLocalDayKey(new Date(value));
+}
+
+/**
+ * Scrollable day strip (Cal AI reference): opens on the current week, scrolls
+ * back three weeks. Day states — today: chartreuse ring; past with activity:
+ * solid ring + chartreuse dot; past without: dashed ring, muted; future:
+ * muted. Tapping any day opens Progress.
+ */
+export function WeekStrip({
+  activeDays,
+  onPressDay,
+}: {
+  activeDays: string[];
+  onPressDay?: () => void;
+}) {
   const { t } = useTranslation();
-  const active = new Set(activeDays.map(toLocalDayKey));
+  const scrollRef = useRef<ScrollView>(null);
+  const active = new Set(activeDays.map(toDayKey));
   const todayKey = toLocalDayKey(new Date());
   const monday = startOfWeek();
 
-  const days = DAY_KEYS.map((key, i) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    const dayKey = toLocalDayKey(date);
-    return {
-      letter: t(`progress.days.${key}`),
-      date: date.getDate(),
-      isToday: dayKey === todayKey,
-      isActive: active.has(dayKey),
-    };
-  });
+  const days = [];
+  for (let w = -WEEKS_BACK; w <= 0; w++) {
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + w * 7 + i);
+      const dayKey = toLocalDayKey(date);
+      days.push({
+        key: dayKey,
+        letter: t(`progress.days.${DAY_KEYS[i]}`),
+        date: date.getDate(),
+        isToday: dayKey === todayKey,
+        isFuture: dayKey > todayKey,
+        isActive: active.has(dayKey),
+      });
+    }
+  }
 
   return (
-    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-      {days.map((d, i) => (
-        <View key={i} style={{ alignItems: "center", gap: space[1] }}>
+    <ScrollView
+      ref={scrollRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      // Land on the current week (the strip's tail) without a visible jump.
+      onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
+      contentContainerStyle={{ gap: space[2] }}
+    >
+      {days.map((d) => (
+        <Pressable
+          key={d.key}
+          onPress={onPressDay}
+          disabled={!onPressDay}
+          accessibilityRole="button"
+          accessibilityLabel={`${d.letter} ${d.date}`}
+          style={{ alignItems: "center", gap: space[1], width: 40 }}
+        >
           <Text
             style={{
               fontFamily: fonts.label,
@@ -49,15 +84,22 @@ export function WeekStrip({ activeDays }: { activeDays: string[] }) {
               alignItems: "center",
               justifyContent: "center",
               borderWidth: d.isToday ? 2 : 1,
-              borderColor: d.isToday ? colors.accent : colors.border,
+              // Past day without activity reads as an open (dashed) slot.
+              borderStyle: !d.isToday && !d.isFuture && !d.isActive ? "dashed" : "solid",
+              borderColor: d.isToday
+                ? colors.accent
+                : d.isActive
+                  ? colors.textLo
+                  : colors.border,
               backgroundColor: d.isToday ? colors.elevated : "transparent",
+              opacity: d.isFuture ? 0.5 : 1,
             }}
           >
             <Text
               style={{
                 fontFamily: fonts.bodyMed,
                 fontSize: 13,
-                color: d.isToday ? colors.textHi : colors.textLo,
+                color: d.isToday || d.isActive ? colors.textHi : colors.textLo,
               }}
             >
               {d.date}
@@ -71,8 +113,8 @@ export function WeekStrip({ activeDays }: { activeDays: string[] }) {
               backgroundColor: d.isActive ? colors.accent : "transparent",
             }}
           />
-        </View>
+        </Pressable>
       ))}
-    </View>
+    </ScrollView>
   );
 }

@@ -58,6 +58,7 @@ function invalidateMealData(
   void qc.invalidateQueries({ queryKey: ["recent-foods", userId] });
   void qc.invalidateQueries({ queryKey: ["kcal-week", userId] });
   void qc.invalidateQueries({ queryKey: ["nutrition-streak", userId] });
+  void qc.invalidateQueries({ queryKey: ["logged-days", userId] });
 }
 
 // ---- Meals ----
@@ -108,6 +109,19 @@ export function useWeeklyKcal(userId: string | undefined) {
     queryKey: userId ? ["kcal-week", userId] : ["kcal-week", "none"],
     queryFn: async () =>
       trailingKcal(dailyIntake(await listRecentMealLogs(userId!, 7, 400)), localToday()),
+    enabled: !!userId,
+    staleTime: 1000 * 60,
+  });
+}
+
+// Distinct YYYY-MM-DD keys with at least one meal log (home week-strip dots).
+export function useLoggedMealDays(userId: string | undefined, days = 28) {
+  return useQuery({
+    queryKey: userId ? ["logged-days", userId, days] : ["logged-days", "none"],
+    queryFn: async () => {
+      const logs = await listRecentMealLogs(userId!, days, 800);
+      return [...new Set(logs.map((l) => l.log_date))];
+    },
     enabled: !!userId,
     staleTime: 1000 * 60,
   });

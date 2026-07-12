@@ -18,11 +18,14 @@ export function StreakModal({
   streak,
   dots,
   onClose,
+  body,
 }: {
   visible: boolean;
   streak: number;
   dots: WeekDot[];
   onClose: () => void;
+  /** Override the encouragement line (defaults to the nutrition copy). */
+  body?: string;
 }) {
   const { t } = useTranslation();
 
@@ -81,7 +84,7 @@ export function StreakModal({
           </View>
 
           <Text style={[typography.bodyMuted, { textAlign: "center" }]}>
-            {t("nutrition.streak.body")}
+            {body ?? t("nutrition.streak.body")}
           </Text>
 
           <View style={{ alignSelf: "stretch" }}>

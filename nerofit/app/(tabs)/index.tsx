@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -25,12 +26,14 @@ import {
   sumMealLogs,
   sumMicros,
 } from "@/features/home/summary";
-import { computeDayStreak } from "@/features/progress/streak";
+import { StreakModal } from "@/features/nutrition/components/StreakModal";
+import { computeDayStreak, toLocalDayKey } from "@/features/progress/streak";
 import { useUserId } from "@/hooks/useUser";
+import { weekDots } from "@/lib/nutrition/insights";
 import { useProfile } from "@/lib/queries/profile";
 import { useLatestBodyMetric } from "@/lib/queries/bodyMetrics";
 import { useRecentHealthMetrics } from "@/lib/queries/healthMetrics";
-import { useTodayMealLogs } from "@/lib/queries/nutrition";
+import { useLoggedMealDays, useTodayMealLogs } from "@/lib/queries/nutrition";
 import { useStreakSessions, useWeekSessions } from "@/lib/queries/progress";
 import { useActivityToday } from "@/lib/queries/activity";
 import { useAddWaterLog, useTodayWaterTotal } from "@/lib/queries/waterLogs";
@@ -54,6 +57,8 @@ export default function HomeScreen() {
   const waterTotal = useTodayWaterTotal(userId);
   const weekSessions = useWeekSessions(userId);
   const streakSessions = useStreakSessions(userId);
+  const loggedMealDays = useLoggedMealDays(userId);
+  const [streakOpen, setStreakOpen] = useState(false);
   const heartRate = useRecentHealthMetrics(userId, "heart_rate");
   const bloodPressure = useRecentHealthMetrics(userId, "blood_pressure_systolic");
   const activity = useActivityToday();
@@ -128,12 +133,18 @@ export default function HomeScreen() {
   });
 
   const streak = computeDayStreak(streakSessions.data ?? []);
-  // A day counts as "active" when a workout was completed; today also counts
-  // once a meal is logged.
+  // A day counts as "active" when a workout was completed or a meal was
+  // logged (sessions are ISO timestamps, meal days are YYYY-MM-DD keys —
+  // the strip normalises both).
   const activeDays = [
-    ...(weekSessions.data ?? []),
+    ...(streakSessions.data ?? []),
+    ...(loggedMealDays.data ?? []),
     ...(logs.length > 0 ? [new Date().toISOString()] : []),
   ];
+  const activeDayKeys = activeDays.map((v) =>
+    v.length === 10 ? v : toLocalDayKey(new Date(v)),
+  );
+  const streakDots = weekDots(activeDayKeys, toLocalDayKey(new Date()));
 
   const recent = logs.length > 0 ? logs[logs.length - 1] : null;
 
@@ -154,9 +165,9 @@ export default function HomeScreen() {
           <RefreshControl refreshing={false} onRefresh={onRefresh} tintColor={colors.accent} />
         }
       >
-        <HomeHeader streak={streak} />
+        <HomeHeader streak={streak} onStreakPress={() => setStreakOpen(true)} />
 
-        <WeekStrip activeDays={activeDays} />
+        <WeekStrip activeDays={activeDays} onPressDay={() => router.push("/progress")} />
 
         <DailySummaryCarousel
           pages={[
@@ -238,6 +249,15 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Streak details on demand (flame pill tap — Cal AI "View streak") */}
+      <StreakModal
+        visible={streakOpen}
+        streak={streak}
+        dots={streakDots}
+        body={t("home.streakBody")}
+        onClose={() => setStreakOpen(false)}
+      />
     </SafeAreaView>
   );
 }

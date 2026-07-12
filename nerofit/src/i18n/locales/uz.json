@@ -118,6 +118,8 @@
 
   "home": {
     "welcome": "Xush kelibsiz!",
+    "streakA11y": "Kunlik streak: {{count}}",
+    "streakBody": "Har bir faol kun — mashq yoki logʻlangan taom — zanjirni tirik saqlaydi.",
     "caloriesLeft": "Qolgan kaloriya",
     "left": "qoldi",
     "recentlyLogged": "Oxirgi yozuvlar",

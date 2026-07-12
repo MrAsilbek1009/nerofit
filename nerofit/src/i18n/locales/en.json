@@ -118,6 +118,8 @@
 
   "home": {
     "welcome": "Welcome back!",
+    "streakA11y": "Day streak: {{count}}",
+    "streakBody": "Every active day — a workout or a logged meal — keeps the chain alive.",
     "caloriesLeft": "Calories left",
     "left": "left",
     "recentlyLogged": "Recently logged",
