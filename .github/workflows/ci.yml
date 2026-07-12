@@ -20,3 +20,22 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test -- --ci
+
+  # S2: guard the admin surface (Deno Edge Function + vanilla panels), which the
+  # `check` job above does NOT cover. Type-checks + unit-tests admin-verify and
+  # syntax-checks the panels' inline JS.
+  admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check admin-verify (Deno)
+        working-directory: nerofit/supabase/functions/admin-verify
+        run: deno check index.ts
+      - name: Unit-test admin money/status logic (Deno)
+        working-directory: nerofit/supabase/functions/admin-verify
+        run: deno test
+      - name: Syntax-check admin panels
+        run: node scripts/check-admin-panels.mjs

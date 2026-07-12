@@ -1,6 +1,15 @@
 // Pinned to an exact version (S1 supply-chain hardening) — a floating `@2` would
 // pull whatever is latest on every redeploy. Bump deliberately, verify on deploy.
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+// Pure money/status logic (S2) — unit-tested in logic.test.ts, guarded by CI.
+import {
+  aggregateCashByStaff,
+  aggregateRevenue,
+  computeExtendedEnd,
+  dayEndUtc,
+  dayStartUtc,
+  deriveMemberStatus,
+} from "./logic.ts";
 
 // Admin / staff membership API.
 //
@@ -59,14 +68,6 @@ function isoDate(d: Date): string {
 }
 function daysBetween(fromIso: string, toIso: string): number {
   return Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000));
-}
-// Local-day (Uzbekistan, UTC+5) boundaries as UTC ISO — for finance day/range
-// filters so "today's cash" matches the gym's wall clock, not UTC midnight.
-function dayStartUtc(d: string): string {
-  return new Date(d + "T00:00:00+05:00").toISOString();
-}
-function dayEndUtc(d: string): string { // exclusive upper bound (start of next local day)
-  return new Date(new Date(d + "T00:00:00+05:00").getTime() + 86_400_000).toISOString();
 }
 function getIp(req: Request): string {
   return (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
@@ -607,22 +608,12 @@ async function handlePost(req: Request): Promise<Response> {
       for (const p of profs ?? []) nameMap[p.id] = p.name;
     }
 
-    // deno-lint-ignore no-explicit-any
-    const derive = (m: any): string => {
-      if (m.status === "frozen") return "frozen";
-      if (m.status === "pending") return "pending";
-      if (m.status === "active" && m.end_date && m.end_date >= todayIso) {
-        return m.end_date <= in7Iso ? "expiring" : "active";
-      }
-      return "expired";
-    };
-
     let list = userIds.map((uid) => {
       const m = current.get(uid);
       return {
         user_id: uid,
         name: nameMap[uid] ?? null,
-        status: derive(m),
+        status: deriveMemberStatus(m, todayIso, in7Iso),
         plan_id: m.plan_id,
         // deno-lint-ignore no-explicit-any
         plan_name: (m as any).membership_plans?.name_uz ?? null,
@@ -682,8 +673,7 @@ async function handlePost(req: Request): Promise<Response> {
       .limit(1)
       .maybeSingle();
     if (!m) return json({ error: "A'zolik topilmadi" }, 404);
-    const base = m.end_date && new Date(m.end_date) >= today() ? new Date(m.end_date) : today();
-    const newEnd = isoDate(new Date(base.getTime() + days * 86_400_000));
+    const newEnd = computeExtendedEnd(m.end_date, days, today());
     const patch: Record<string, unknown> = { end_date: newEnd };
     if (m.status !== "frozen") patch.status = "active";
     const { error } = await db.from("memberships").update(patch).eq("id", m.id);
@@ -877,22 +867,14 @@ async function handlePost(req: Request): Promise<Response> {
       .eq("status", "paid")
       .gte("paid_at", dayStartUtc(date))
       .lt("paid_at", dayEndUtc(date));
-    const byStaff = new Map<string, { count: number; sum: number }>();
-    let totalSum = 0, totalCount = 0;
-    for (const p of pays ?? []) {
-      const key = p.activated_by ?? "__owner__";
-      const cur = byStaff.get(key) ?? { count: 0, sum: 0 };
-      cur.count++; cur.sum += p.amount_uzs || 0;
-      byStaff.set(key, cur);
-      totalSum += p.amount_uzs || 0; totalCount++;
-    }
-    const names = await staffNames(db, [...byStaff.keys()].filter((k) => k !== "__owner__"));
-    const staff = [...byStaff.entries()].map(([k, v]) => ({
-      staff_id: k === "__owner__" ? null : k,
-      staff_name: k === "__owner__" ? "admin/owner" : (names[k] ?? "(o'chirilgan)"),
-      count: v.count,
-      sum_uzs: v.sum,
-    })).sort((a, b) => b.sum_uzs - a.sum_uzs);
+    const { groups, totalSum, totalCount } = aggregateCashByStaff(pays ?? []);
+    const names = await staffNames(db, groups.map((g) => g.key).filter((k) => k !== "__owner__"));
+    const staff = groups.map((g) => ({
+      staff_id: g.key === "__owner__" ? null : g.key,
+      staff_name: g.key === "__owner__" ? "admin/owner" : (names[g.key] ?? "(o'chirilgan)"),
+      count: g.count,
+      sum_uzs: g.sum,
+    }));
     return json({ date, staff, total_uzs: totalSum, total_count: totalCount });
   }
 
@@ -907,16 +889,9 @@ async function handlePost(req: Request): Promise<Response> {
       .gte("paid_at", dayStartUtc(from))
       .lt("paid_at", dayEndUtc(to));
 
-    const byProv = new Map<string, { count: number; sum: number }>();
+    const payRows = pays ?? [];
     const memIds = new Set<string>();
-    let total = 0, cnt = 0;
-    for (const p of pays ?? []) {
-      const pr = p.provider || "—";
-      const c = byProv.get(pr) ?? { count: 0, sum: 0 };
-      c.count++; c.sum += p.amount_uzs || 0; byProv.set(pr, c);
-      if (p.membership_id) memIds.add(p.membership_id);
-      total += p.amount_uzs || 0; cnt++;
-    }
+    for (const p of payRows) if (p.membership_id) memIds.add(p.membership_id);
 
     // membership_id → plan_id → name_uz
     const memToPlan: Record<string, string> = {};
@@ -927,16 +902,8 @@ async function handlePost(req: Request): Promise<Response> {
     }
     const { data: plans } = await db.from("membership_plans").select("id, name_uz");
     const planName: Record<string, string> = Object.fromEntries((plans ?? []).map((p) => [p.id, p.name_uz]));
-    const byPlan = new Map<string, { count: number; sum: number }>();
-    for (const p of pays ?? []) {
-      const nm = p.membership_id && memToPlan[p.membership_id] ? (planName[memToPlan[p.membership_id]] ?? "—") : "—";
-      const c = byPlan.get(nm) ?? { count: 0, sum: 0 };
-      c.count++; c.sum += p.amount_uzs || 0; byPlan.set(nm, c);
-    }
 
-    const asRows = (m: Map<string, { count: number; sum: number }>) =>
-      [...m.entries()].map(([k, v]) => ({ label: k, count: v.count, sum_uzs: v.sum })).sort((a, b) => b.sum_uzs - a.sum_uzs);
-    return json({ from, to, total_uzs: total, total_count: cnt, by_provider: asRows(byProv), by_plan: asRows(byPlan) });
+    return json({ from, to, ...aggregateRevenue(payRows, memToPlan, planName) });
   }
 
   // ── A3 finance: refund / cancel a payment (admin/owner) ────────────────
