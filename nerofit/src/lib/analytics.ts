@@ -25,6 +25,8 @@ export type AnalyticsEvent =
   | "meal_logged"
   | "food_barcode_scanned"
   | "food_favorited"
+  | "goals_edited"
+  | "streak_celebrated"
   | "food_scan_fixed"
   | "food_search_selected"
   | "food_submitted"

@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getGoals } from "@/lib/api/goals";
 import { listRecentMealLogs } from "@/lib/api/meals";
 import {
@@ -41,6 +41,44 @@ function isFresh(target: NutritionTarget | null, days = 3): boolean {
 }
 
 const FOCUSES: GoalFocus[] = ["lose_fat", "build_muscle", "stay_fit"];
+
+/**
+ * Manual goal edit (daily-breakdown → edit goals). Writes the live profile
+ * goals AND records a nutrition_targets row (reason "manual") so the adaptive
+ * recompute steps from the user's number instead of fighting it. tdee_kcal is
+ * unknowable here — stored as the derived kcal, the best available anchor.
+ */
+export function useSaveManualGoals(userId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (goals: { protein_g: number; carbs_g: number; fats_g: number }) => {
+      if (!userId) throw new Error("Not authenticated");
+      const kcal = Math.round(goals.protein_g * 4 + goals.carbs_g * 4 + goals.fats_g * 9);
+      await upsertNutritionTarget(userId, {
+        effective_date: todayKey(),
+        kcal,
+        protein_g: goals.protein_g,
+        carbs_g: goals.carbs_g,
+        fats_g: goals.fats_g,
+        tdee_kcal: kcal,
+        weight_trend_weekly_kg: null,
+        reason: "manual",
+      });
+      await updateProfile(userId, {
+        protein_goal_g: goals.protein_g,
+        carbs_goal_g: goals.carbs_g,
+        fats_goal_g: goals.fats_g,
+      });
+    },
+    onSuccess: () => {
+      track("goals_edited");
+      if (userId) {
+        void qc.invalidateQueries({ queryKey: qk.profile(userId) });
+        void qc.invalidateQueries({ queryKey: ["adaptive-goals", userId] });
+      }
+    },
+  });
+}
 
 /**
  * Weekly adaptive-goals check (MacroFactor-style, docs/nutrition-pillar-plan.md

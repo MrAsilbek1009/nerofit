@@ -7,17 +7,21 @@ import { Button, ProgressRing } from "@/components/ui";
 import { MacroBar } from "@/features/nutrition/components/MacroBar";
 import { PlanUpdatedCard } from "@/features/nutrition/components/PlanUpdatedCard";
 import { SectionLabel } from "@/features/nutrition/components/SectionLabel";
+import { StreakModal } from "@/features/nutrition/components/StreakModal";
 import { SupplementRow } from "@/features/nutrition/components/SupplementRow";
+import { useStreakCelebration } from "@/features/nutrition/streakCelebration";
 import { useUserId } from "@/hooks/useUser";
 import { useAdaptiveGoals } from "@/lib/queries/adaptiveGoals";
 import { useProfile } from "@/lib/queries/profile";
 import {
   useMeals,
+  useNutritionStreak,
   useSupplements,
   useTodayMealLogs,
   useTodaySupplementLogs,
   useToggleSupplement,
 } from "@/lib/queries/nutrition";
+import { track } from "@/lib/analytics";
 import { useTodayWaterTotal } from "@/lib/queries/waterLogs";
 import type { MealLog, MealSlot } from "@/types/db";
 import { colors, fonts, radii, space, typography } from "@/theme";
@@ -37,10 +41,24 @@ export default function NutritionScreen() {
   const supplementLogs = useTodaySupplementLogs(userId);
   const toggleSupp = useToggleSupplement(userId);
   const adaptive = useAdaptiveGoals(userId);
+  const streak = useNutritionStreak(userId);
+  const celebration = useStreakCelebration();
 
   // The query layer decides freshness (pure render, React-compiler friendly).
   const adaptiveTarget = adaptive.data?.target ?? null;
   const showPlanUpdated = adaptive.data?.showNotice ?? false;
+
+  // Celebrate once per day, only after today's first log exists.
+  const showStreak =
+    celebration.ready &&
+    !celebration.celebratedToday &&
+    (streak.data?.streak ?? 0) > 0 &&
+    (mealLogs.data?.length ?? 0) > 0;
+
+  function closeStreak() {
+    track("streak_celebrated", { streak: streak.data?.streak ?? 0 });
+    celebration.markCelebrated();
+  }
 
   const logs = mealLogs.data ?? [];
   const macros = logs.reduce(
@@ -115,6 +133,16 @@ export default function NutritionScreen() {
           <MacroBar label={t("nutrition.protein")} current={macros.protein} goal={profile.data?.protein_goal_g ?? 200} />
           <MacroBar label={t("nutrition.carbs")} current={macros.carbs} goal={profile.data?.carbs_goal_g ?? 300} />
           <MacroBar label={t("nutrition.fats")} current={macros.fats} goal={profile.data?.fats_goal_g ?? 80} />
+          <Pressable
+            onPress={() => router.push("/daily-breakdown")}
+            accessibilityRole="button"
+            style={{ alignSelf: "flex-end" }}
+            hitSlop={8}
+          >
+            <Text style={[typography.labelCaps, { color: colors.accent }]}>
+              {t("nutrition.breakdown.link")}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Meals */}
@@ -174,6 +202,13 @@ export default function NutritionScreen() {
           )}
         </View>
       </ScrollView>
+
+      <StreakModal
+        visible={showStreak}
+        streak={streak.data?.streak ?? 0}
+        dots={streak.data?.dots ?? []}
+        onClose={closeStreak}
+      />
     </SafeAreaView>
   );
 }

@@ -293,6 +293,27 @@
     "dayPart": { "morning": "Morning", "midday": "Midday", "evening": "Evening" },
     "emptyMeals": "No catalog meals yet.",
     "recentScans": "Recent scans →",
+    "breakdown": {
+      "title": "Daily breakdown",
+      "link": "Breakdown",
+      "today": "Today",
+      "thisWeek": "This week",
+      "avgPerDay": "Avg {{kcal}} kcal per logged day",
+      "emptyWeek": "No logs this week yet.",
+      "trend": "Trend {{delta}} kg/wk",
+      "editGoals": "Edit goals"
+    },
+    "editGoals": {
+      "title": "Edit goals",
+      "derived": "kcal / day from macros",
+      "adaptiveNote": "Weekly adaptive updates will continue from the goals you set here.",
+      "save": "Save goals"
+    },
+    "streak": {
+      "days": "Day streak",
+      "body": "Every logged day makes your plan smarter. Keep the chain going.",
+      "continue": "Continue"
+    },
     "adaptive": {
       "updated": "Plan updated",
       "kcalPerDay": "kcal / day",
