@@ -271,5 +271,19 @@ Keyingi polish (D1) yoki alohida qadamда.
 **Verify:** `deno check` + `deno test` (8/8) + panel syntaksis — hammasi toza; CI'да avtomatik.
 **Deploy:** kod-sifat/CI o'zgarishi — `admin-verify` qayta deploy ixtiyoriy (xatti-harakat o'zgarmagan); panellar tegilmagan.
 
-### ⬜ A4 — Tariflar & narx boshqaruvi — keyingi
+### ✅ A4 — Tariflar & narx boshqaruvi (2026-07, `admin-a4-plans` branch, migration yo'q)
+**Nima o'zgardi:**
+- **`logic.ts`** — `validatePlan` (pure, nom/davomiylik/narx/tartib validatsiya + coerce);
+  `logic.test.ts`ga 3 test qo'shildi (jami 11/11 ✓).
+- **`admin-verify`** — 4 yangi action (admin/owner): `plan_list_all` (barcha tarif,
+  nofaol ham), `plan_create`, `plan_update` (ikkalasi `validatePlan` + audit),
+  `plan_set_active` (faol/nofaol). **Hard delete yo'q** — memberships/payments FK'lagan;
+  nofaol qilish yashiradi. Mavjud `plans` action (faqat faol, picker uchun) o'zgармаган.
+- **`gym-admin` yangi "Tariflar" tab** (nav 6 tab): yangi tarif formasi + ro'yxat
+  (nom·kun·app/zal narx·tartib·FAOL/NOFAOL badge) + inline tahrirlash akkordeoni +
+  faol/nofaol toggle.
+**Verify:** `deno check` + `deno test` (11/11) + panel syntaksis + brauzer mock-render (6 tab, form, ro'yxat, tahrirlash toggle) — hammasi ✓.
+**Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
+
+### ⬜ C1 — Kontent boshqaruvi (mashq/dastur/video) — keyingi
 

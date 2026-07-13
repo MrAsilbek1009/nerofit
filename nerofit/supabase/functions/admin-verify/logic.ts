@@ -32,6 +32,50 @@ export function computeExtendedEnd(currentEnd: string | null, days: number, toda
   return new Date(base.getTime() + days * DAY_MS).toISOString().slice(0, 10);
 }
 
+// ── Plan validation (A4: tariflar) ─────────────────────────────────────────
+export type PlanInput = {
+  name_uz?: unknown;
+  duration_days?: unknown;
+  price_app_uzs?: unknown;
+  price_gym_uzs?: unknown;
+  sort_order?: unknown;
+};
+export type CleanPlan = {
+  name_uz: string;
+  duration_days: number;
+  price_app_uzs: number;
+  price_gym_uzs: number;
+  sort_order: number;
+};
+// Validate + coerce a tariff before it touches the DB. Prices in so'm (integer,
+// 0 allowed for a free/promo plan). Returns a discriminated result so callers
+// get a typed clean value or a user-facing Uzbek error.
+export function validatePlan(
+  input: PlanInput,
+): { ok: true; value: CleanPlan } | { ok: false; error: string } {
+  const name_uz = String(input.name_uz ?? "").trim();
+  if (!name_uz) return { ok: false, error: "Nom kerak" };
+  if (name_uz.length > 100) return { ok: false, error: "Nom juda uzun (max 100)" };
+
+  const duration_days = Math.floor(Number(input.duration_days));
+  if (!Number.isFinite(duration_days) || duration_days < 1 || duration_days > 3650) {
+    return { ok: false, error: "Davomiylik 1..3650 kun bo'lishi kerak" };
+  }
+  const price_app_uzs = Math.floor(Number(input.price_app_uzs));
+  if (!Number.isFinite(price_app_uzs) || price_app_uzs < 0 || price_app_uzs > 1_000_000_000) {
+    return { ok: false, error: "App narxi 0..1 mlrd so'm bo'lishi kerak" };
+  }
+  const price_gym_uzs = Math.floor(Number(input.price_gym_uzs));
+  if (!Number.isFinite(price_gym_uzs) || price_gym_uzs < 0 || price_gym_uzs > 1_000_000_000) {
+    return { ok: false, error: "Zal narxi 0..1 mlrd so'm bo'lishi kerak" };
+  }
+  const sort_order = Math.floor(Number(input.sort_order ?? 0));
+  if (!Number.isFinite(sort_order) || sort_order < 0 || sort_order > 1000) {
+    return { ok: false, error: "Tartib 0..1000 bo'lishi kerak" };
+  }
+  return { ok: true, value: { name_uz, duration_days, price_app_uzs, price_gym_uzs, sort_order } };
+}
+
 // ── Cash reconciliation (cash_report) ──────────────────────────────────────
 export type CashRow = { amount_uzs: number | null; activated_by: string | null };
 export type CashGroup = { key: string; count: number; sum: number };

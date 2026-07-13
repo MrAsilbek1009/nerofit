@@ -7,6 +7,7 @@ import {
   dayEndUtc,
   dayStartUtc,
   deriveMemberStatus,
+  validatePlan,
 } from "./logic.ts";
 
 function assertEquals(actual: unknown, expected: unknown, msg?: string): void {
@@ -67,6 +68,24 @@ Deno.test("aggregateCashByStaff — groups, owner bucket, null amount, sort", ()
 
 Deno.test("aggregateCashByStaff — empty", () => {
   assertEquals(aggregateCashByStaff([]), { groups: [], totalSum: 0, totalCount: 0 });
+});
+
+Deno.test("validatePlan — valid input is coerced", () => {
+  const r = validatePlan({ name_uz: " 1 oylik ", duration_days: "30", price_app_uzs: "250000", price_gym_uzs: 350000, sort_order: "1" });
+  assertEquals(r, { ok: true, value: { name_uz: "1 oylik", duration_days: 30, price_app_uzs: 250000, price_gym_uzs: 350000, sort_order: 1 } });
+});
+
+Deno.test("validatePlan — sort_order defaults to 0; free price allowed", () => {
+  const r = validatePlan({ name_uz: "Promo", duration_days: 7, price_app_uzs: 0, price_gym_uzs: 0 });
+  assertEquals(r, { ok: true, value: { name_uz: "Promo", duration_days: 7, price_app_uzs: 0, price_gym_uzs: 0, sort_order: 0 } });
+});
+
+Deno.test("validatePlan — rejects bad input", () => {
+  assertEquals(validatePlan({ name_uz: "", duration_days: 30, price_app_uzs: 1, price_gym_uzs: 1 }).ok, false, "empty name");
+  assertEquals(validatePlan({ name_uz: "x", duration_days: 0, price_app_uzs: 1, price_gym_uzs: 1 }).ok, false, "zero duration");
+  assertEquals(validatePlan({ name_uz: "x", duration_days: 5000, price_app_uzs: 1, price_gym_uzs: 1 }).ok, false, "duration too long");
+  assertEquals(validatePlan({ name_uz: "x", duration_days: 30, price_app_uzs: -1, price_gym_uzs: 1 }).ok, false, "negative price");
+  assertEquals(validatePlan({ name_uz: "x", duration_days: 30, price_app_uzs: "abc", price_gym_uzs: 1 }).ok, false, "non-numeric price");
 });
 
 Deno.test("aggregateRevenue — by provider + plan, fallbacks, totals", () => {
