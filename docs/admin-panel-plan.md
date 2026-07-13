@@ -338,8 +338,12 @@ Keyingi polish (D1) yoki alohida qadamда.
   vertikal sidebar** (216px, brand + 8 ikonkali tugma), main kontent o'ngда, KPI grid
   auto-fit (keng ekranда ko'proq ustun). Bo'limlar **qayta tartiblandi** (Gymove kabi):
   Dashboard · A'zolar · Trenerlar · Kontent · Moliya · Tariflar · Xodimlar · Audit.
-  Faol element chartreuse. Mobil (<760px): sidebar → yuqori gorizontal-scroll bar.
-  Ikonkalar Feather-uslub `aria-hidden` inline SVG. `#dash.hidden` specificity tuzatildi.
+  Faol element chartreuse. Ikonkalar Feather-uslub `aria-hidden` inline SVG.
+  `#dash.hidden` specificity tuzatildi.
+- **Responsive (Gymove kabi)** — mobil (<760px): sidebar **off-canvas drawer** bo'ladi
+  (`position:fixed`, `translateX(-100%)`); yuqorida **hamburger** bar chiqadi; bosilganда
+  drawer sirg'alib chiqadi + backdrop; nav yoki backdrop bosilsa yopiladi (`toggleSidebar`/
+  `closeSidebar`). Desktop: sidebar doim chapда, topbar yo'q. KPI grid keng ekranда ko'p ustun.
 **Verify:** panel syntaksis + brauzer (nav nowrap+scrollable, Hanken/Inter yuklandi, chip=BUTTON,
 toast ishlaydi, konsol toza) — ✓.
 **Deploy:** `gym-admin` Vercel (migration yo'q; backend tegilmagan).
