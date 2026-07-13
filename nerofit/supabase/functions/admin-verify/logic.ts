@@ -76,6 +76,82 @@ export function validatePlan(
   return { ok: true, value: { name_uz, duration_days, price_app_uzs, price_gym_uzs, sort_order } };
 }
 
+// ── Content: exercise validation (C1) ──────────────────────────────────────
+export type ExerciseInput = {
+  title?: unknown;
+  target_muscles?: unknown; // string[] or comma-separated string
+  default_sets?: unknown;
+  default_reps?: unknown;
+  image_url?: unknown;
+};
+export type CleanExercise = {
+  title: string;
+  target_muscles: string[];
+  default_sets: number;
+  default_reps: number;
+  image_url: string | null;
+};
+// Normalize target_muscles from an array or a comma string → trimmed, non-empty,
+// de-duped, capped list.
+export function normalizeMuscles(input: unknown): string[] {
+  const raw = Array.isArray(input)
+    ? input.map((x) => String(x))
+    : String(input ?? "").split(",");
+  const out: string[] = [];
+  for (const m of raw) {
+    const t = m.trim();
+    if (t && t.length <= 40 && !out.includes(t)) out.push(t);
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+export function validateExercise(
+  input: ExerciseInput,
+): { ok: true; value: CleanExercise } | { ok: false; error: string } {
+  const title = String(input.title ?? "").trim();
+  if (!title) return { ok: false, error: "Nom kerak" };
+  if (title.length > 120) return { ok: false, error: "Nom juda uzun (max 120)" };
+
+  const default_sets = Math.floor(Number(input.default_sets));
+  if (!Number.isFinite(default_sets) || default_sets < 1 || default_sets > 20) {
+    return { ok: false, error: "Set 1..20 bo'lishi kerak" };
+  }
+  const default_reps = Math.floor(Number(input.default_reps));
+  if (!Number.isFinite(default_reps) || default_reps < 1 || default_reps > 100) {
+    return { ok: false, error: "Takror 1..100 bo'lishi kerak" };
+  }
+  const imageRaw = String(input.image_url ?? "").trim();
+  if (imageRaw && !/^https?:\/\//i.test(imageRaw)) {
+    return { ok: false, error: "Rasm havolasi http(s):// bilan boshlanishi kerak" };
+  }
+  if (imageRaw.length > 500) return { ok: false, error: "Rasm havolasi juda uzun" };
+
+  return {
+    ok: true,
+    value: {
+      title,
+      target_muscles: normalizeMuscles(input.target_muscles),
+      default_sets,
+      default_reps,
+      image_url: imageRaw || null,
+    },
+  };
+}
+
+// Validate a video URL + optional duration for exercise_video_add.
+export function validateVideoUrl(
+  url: unknown,
+  duration: unknown,
+): { ok: true; value: { url: string; duration_sec: number | null } } | { ok: false; error: string } {
+  const u = String(url ?? "").trim();
+  if (!u) return { ok: false, error: "Video havolasi kerak" };
+  if (!/^https?:\/\//i.test(u)) return { ok: false, error: "Havola http(s):// bilan boshlanishi kerak" };
+  if (u.length > 1000) return { ok: false, error: "Havola juda uzun" };
+  const d = Math.floor(Number(duration));
+  const duration_sec = Number.isFinite(d) && d > 0 && d <= 36000 ? d : null;
+  return { ok: true, value: { url: u, duration_sec } };
+}
+
 // ── Cash reconciliation (cash_report) ──────────────────────────────────────
 export type CashRow = { amount_uzs: number | null; activated_by: string | null };
 export type CashGroup = { key: string; count: number; sum: number };

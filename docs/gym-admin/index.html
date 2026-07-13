@@ -70,6 +70,7 @@
       <button id="tab-members" class="off" onclick="show('members')">A'zolar</button>
       <button id="tab-finance" class="off" onclick="show('finance')">Moliya</button>
       <button id="tab-plans" class="off" onclick="show('plans')">Tariflar</button>
+      <button id="tab-content" class="off" onclick="show('content')">Kontent</button>
       <button id="tab-staff" class="off" onclick="show('staff')">Xodimlar</button>
       <button id="tab-audit" class="off" onclick="show('audit')">Audit</button>
     </div>
@@ -209,6 +210,28 @@
       <div id="plansList"></div>
     </section>
 
+    <!-- Content: exercise library + videos -->
+    <section id="sec-content" class="hidden">
+      <h2>Yangi mashq</h2>
+      <div class="card">
+        <label>Nom</label>
+        <input id="ne-title" placeholder="masalan: Squat" autocomplete="off" />
+        <label>Mushaklar (vergul bilan)</label>
+        <input id="ne-muscles" placeholder="oyoq, dumba" autocomplete="off" />
+        <div class="row">
+          <div><label>Set</label><input id="ne-sets" type="number" inputmode="numeric" placeholder="3" /></div>
+          <div><label>Takror</label><input id="ne-reps" type="number" inputmode="numeric" placeholder="10" /></div>
+        </div>
+        <label>Rasm havolasi (ixtiyoriy)</label>
+        <input id="ne-img" placeholder="https://..." autocomplete="off" />
+        <button style="margin-top:10px" onclick="addExercise()">Qo'shish</button>
+        <p id="ne-msg" class="muted"></p>
+      </div>
+
+      <div class="between" style="margin-top:8px"><h2 style="margin:0">Mashqlar</h2><button class="ghost mini" onclick="loadContent()">Yangilash</button></div>
+      <div id="exerciseList"></div>
+    </section>
+
     <!-- Audit log -->
     <section id="sec-audit" class="hidden">
       <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" onclick="loadAudit()">Yangilash</button></div>
@@ -275,7 +298,7 @@
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["dash", "staff", "members", "finance", "plans", "audit"].forEach((t) => {
+    ["dash", "staff", "members", "finance", "plans", "content", "audit"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
@@ -284,6 +307,7 @@
     if (tab === "members") { renderFilters(); loadMemberPlans(); loadMembers(false); loadFeed(); }
     if (tab === "finance") initFinance();
     if (tab === "plans") loadPlansAdmin();
+    if (tab === "content") loadContent();
     if (tab === "audit") loadAudit();
   }
   async function changeAdminPw() {
@@ -825,6 +849,99 @@
       ["np-name", "np-days", "np-app", "np-gym", "np-sort"].forEach((id) => { $(id).value = ""; });
       $("np-msg").textContent = "Qo'shildi ✓"; loadPlansAdmin();
     } else { $("np-msg").textContent = (r.data && r.data.error) || "Xato"; }
+  }
+
+  // ── Content: exercise library + videos ──────────────────────────────────
+  const expandedEx = new Set();
+  async function loadContent() {
+    const box = $("exerciseList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const r = await api("exercise_list");
+    const list = (r.data && r.data.exercises) || [];
+    box.innerHTML = "";
+    if (list.length === 0) { box.innerHTML = '<p class="muted">Hali mashq yo\'q.</p>'; return; }
+    list.forEach((e) => box.appendChild(exerciseItem(e)));
+  }
+  function exerciseItem(e) {
+    const vids = e.exercise_videos || [];
+    const c = el("div", "card");
+    const top = el("div");
+    const muscles = (e.target_muscles || []).join(", ");
+    top.innerHTML = '<div style="font-weight:700">' + escapeHtml(e.title) + '</div>'
+      + '<div class="muted">' + (muscles ? escapeHtml(muscles) + ' · ' : '') + e.default_sets + '×' + e.default_reps + ' · ' + vids.length + ' video</div>';
+    c.appendChild(top);
+
+    const form = el("div"); form.style.marginTop = "10px";
+    form.style.display = expandedEx.has(e.id) ? "block" : "none";
+    const mk = (labelTxt, val, type) => {
+      form.appendChild(el("label", null, labelTxt));
+      const inp = el("input"); if (type) { inp.type = type; inp.setAttribute("inputmode", "numeric"); }
+      inp.value = val == null ? "" : String(val); form.appendChild(inp); return inp;
+    };
+    const iTitle = mk("Nom", e.title);
+    const iMus = mk("Mushaklar (vergul bilan)", (e.target_muscles || []).join(", "));
+    const iSets = mk("Set", e.default_sets, "number");
+    const iReps = mk("Takror", e.default_reps, "number");
+    const iImg = mk("Rasm havolasi", e.image_url);
+    const emsg = el("p", "muted");
+    const saveRow = el("div", "row"); saveRow.style.marginTop = "8px";
+    const save = btn("Saqlash", "mini", async () => {
+      const r = await api("exercise_update", { exercise_id: e.id, title: iTitle.value, target_muscles: iMus.value, default_sets: iSets.value, default_reps: iReps.value, image_url: iImg.value });
+      if (r.data && r.data.ok) { emsg.textContent = "Saqlandi ✓"; loadContent(); } else { emsg.textContent = (r.data && r.data.error) || "Xato"; }
+    });
+    const del = btn("O'chirish", "danger mini", async () => {
+      if (!confirm("'" + e.title + "' o'chirilsinmi?")) return;
+      const r = await api("exercise_delete", { exercise_id: e.id });
+      if (r.data && r.data.ok) { expandedEx.delete(e.id); loadContent(); } else { alert((r.data && r.data.error) || "Xato"); }
+    });
+    saveRow.appendChild(save); saveRow.appendChild(del);
+    form.appendChild(saveRow); form.appendChild(emsg);
+
+    // Videos list + add
+    form.appendChild(el("label", null, "Videolar"));
+    if (vids.length) {
+      vids.forEach((v) => {
+        const it = el("div", "item");
+        const b = el("div", "between");
+        const link = el("div"); link.style.overflow = "hidden"; link.style.textOverflow = "ellipsis"; link.style.whiteSpace = "nowrap"; link.style.flex = "1";
+        link.innerHTML = '<span class="muted">' + escapeHtml(v.url) + (v.duration_sec ? ' · ' + v.duration_sec + 's' : '') + '</span>';
+        const rm = btn("O'chir", "danger mini", async () => {
+          const r = await api("exercise_video_delete", { video_id: v.id });
+          if (r.data && r.data.ok) loadContent(); else alert((r.data && r.data.error) || "Xato");
+        });
+        b.appendChild(link); b.appendChild(rm);
+        it.appendChild(b); form.appendChild(it);
+      });
+    } else { form.appendChild(el("p", "muted", "Video yo'q")); }
+    const vUrl = el("input"); vUrl.placeholder = "Video havolasi https://..."; vUrl.style.marginTop = "8px"; vUrl.setAttribute("autocomplete", "off");
+    const vRow = el("div", "row");
+    const vDur = el("input"); vDur.type = "number"; vDur.setAttribute("inputmode", "numeric"); vDur.placeholder = "sek (ixtiyoriy)";
+    const vAdd = btn("Video qo'shish", "mini", async () => {
+      const r = await api("exercise_video_add", { exercise_id: e.id, url: vUrl.value, duration_sec: vDur.value });
+      if (r.data && r.data.ok) { vUrl.value = ""; vDur.value = ""; loadContent(); } else { alert((r.data && r.data.error) || "Xato"); }
+    });
+    vRow.appendChild(vDur); vRow.appendChild(vAdd);
+    form.appendChild(vUrl); form.appendChild(vRow);
+
+    const edit = btn(expandedEx.has(e.id) ? "Yopish" : "Tahrirlash", "ghost mini", () => {
+      if (expandedEx.has(e.id)) { expandedEx.delete(e.id); form.style.display = "none"; edit.textContent = "Tahrirlash"; }
+      else { expandedEx.add(e.id); form.style.display = "block"; edit.textContent = "Yopish"; }
+    });
+    edit.style.marginTop = "10px";
+    c.appendChild(edit); c.appendChild(form);
+    return c;
+  }
+  async function addExercise() {
+    const r = await api("exercise_create", {
+      title: $("ne-title").value,
+      target_muscles: $("ne-muscles").value,
+      default_sets: $("ne-sets").value || 3,
+      default_reps: $("ne-reps").value || 10,
+      image_url: $("ne-img").value,
+    });
+    if (r.data && r.data.ok) {
+      ["ne-title", "ne-muscles", "ne-sets", "ne-reps", "ne-img"].forEach((id) => { $(id).value = ""; });
+      $("ne-msg").textContent = "Qo'shildi ✓"; loadContent();
+    } else { $("ne-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
 
   // Restore the session token remembered on this device (verify it's still valid).

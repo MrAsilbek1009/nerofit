@@ -7,7 +7,10 @@ import {
   dayEndUtc,
   dayStartUtc,
   deriveMemberStatus,
+  normalizeMuscles,
+  validateExercise,
   validatePlan,
+  validateVideoUrl,
 } from "./logic.ts";
 
 function assertEquals(actual: unknown, expected: unknown, msg?: string): void {
@@ -86,6 +89,32 @@ Deno.test("validatePlan — rejects bad input", () => {
   assertEquals(validatePlan({ name_uz: "x", duration_days: 5000, price_app_uzs: 1, price_gym_uzs: 1 }).ok, false, "duration too long");
   assertEquals(validatePlan({ name_uz: "x", duration_days: 30, price_app_uzs: -1, price_gym_uzs: 1 }).ok, false, "negative price");
   assertEquals(validatePlan({ name_uz: "x", duration_days: 30, price_app_uzs: "abc", price_gym_uzs: 1 }).ok, false, "non-numeric price");
+});
+
+Deno.test("normalizeMuscles — array or comma string, trimmed/deduped/capped", () => {
+  assertEquals(normalizeMuscles("ko'krak, trisеps , ko'krak"), ["ko'krak", "trisеps"], "comma string, dedupe");
+  assertEquals(normalizeMuscles(["Bel", " Oyoq ", ""]), ["Bel", "Oyoq"], "array, trim, drop empty");
+  assertEquals(normalizeMuscles(null), []);
+  assertEquals(normalizeMuscles("a,b,c,d,e,f,g,h,i,j,k,l").length, 10, "capped at 10");
+});
+
+Deno.test("validateExercise — valid input coerced", () => {
+  const r = validateExercise({ title: " Squat ", target_muscles: "oyoq, dumba", default_sets: "4", default_reps: "12", image_url: "" });
+  assertEquals(r, { ok: true, value: { title: "Squat", target_muscles: ["oyoq", "dumba"], default_sets: 4, default_reps: 12, image_url: null } });
+});
+
+Deno.test("validateExercise — rejects bad input", () => {
+  assertEquals(validateExercise({ title: "", default_sets: 3, default_reps: 10 }).ok, false, "empty title");
+  assertEquals(validateExercise({ title: "x", default_sets: 0, default_reps: 10 }).ok, false, "sets < 1");
+  assertEquals(validateExercise({ title: "x", default_sets: 3, default_reps: 999 }).ok, false, "reps too high");
+  assertEquals(validateExercise({ title: "x", default_sets: 3, default_reps: 10, image_url: "ftp://x" }).ok, false, "bad image url");
+});
+
+Deno.test("validateVideoUrl — url + optional duration", () => {
+  assertEquals(validateVideoUrl("https://cdn/x.mp4", "45"), { ok: true, value: { url: "https://cdn/x.mp4", duration_sec: 45 } });
+  assertEquals(validateVideoUrl("https://cdn/x.mp4", ""), { ok: true, value: { url: "https://cdn/x.mp4", duration_sec: null } }, "no duration → null");
+  assertEquals(validateVideoUrl("", "10").ok, false, "empty url");
+  assertEquals(validateVideoUrl("javascript:alert(1)", "10").ok, false, "non-http url rejected");
 });
 
 Deno.test("aggregateRevenue — by provider + plan, fallbacks, totals", () => {
