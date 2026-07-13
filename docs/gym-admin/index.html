@@ -71,6 +71,7 @@
       <button id="tab-finance" class="off" onclick="show('finance')">Moliya</button>
       <button id="tab-plans" class="off" onclick="show('plans')">Tariflar</button>
       <button id="tab-content" class="off" onclick="show('content')">Kontent</button>
+      <button id="tab-trainers" class="off" onclick="show('trainers')">Trenerlar</button>
       <button id="tab-staff" class="off" onclick="show('staff')">Xodimlar</button>
       <button id="tab-audit" class="off" onclick="show('audit')">Audit</button>
     </div>
@@ -232,6 +233,26 @@
       <div id="exerciseList"></div>
     </section>
 
+    <!-- Trainers -->
+    <section id="sec-trainers" class="hidden">
+      <h2>Yangi trener</h2>
+      <div class="card">
+        <label>Ism</label>
+        <input id="nt-name" placeholder="Trener ismi" autocomplete="off" />
+        <label>Mutaxassislik (ixtiyoriy)</label>
+        <input id="nt-spec" placeholder="masalan: Bodybuilding" autocomplete="off" />
+        <label>Bio (ixtiyoriy)</label>
+        <textarea id="nt-bio" rows="2" placeholder="Qisqacha"></textarea>
+        <label>Rasm havolasi (ixtiyoriy)</label>
+        <input id="nt-photo" placeholder="https://..." autocomplete="off" />
+        <button style="margin-top:10px" onclick="addTrainer()">Qo'shish</button>
+        <p id="nt-msg" class="muted"></p>
+      </div>
+
+      <div class="between" style="margin-top:8px"><h2 style="margin:0">Trenerlar</h2><button class="ghost mini" onclick="loadTrainers()">Yangilash</button></div>
+      <div id="trainerList"></div>
+    </section>
+
     <!-- Audit log -->
     <section id="sec-audit" class="hidden">
       <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" onclick="loadAudit()">Yangilash</button></div>
@@ -298,7 +319,7 @@
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   function show(tab) {
-    ["dash", "staff", "members", "finance", "plans", "content", "audit"].forEach((t) => {
+    ["dash", "staff", "members", "finance", "plans", "content", "trainers", "audit"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
@@ -308,6 +329,7 @@
     if (tab === "finance") initFinance();
     if (tab === "plans") loadPlansAdmin();
     if (tab === "content") loadContent();
+    if (tab === "trainers") loadTrainers();
     if (tab === "audit") loadAudit();
   }
   async function changeAdminPw() {
@@ -453,6 +475,7 @@
     let h = '<span class="badge ' + badgeCls + '">' + badgeTxt + '</span>';
     h += '<div class="big">' + escapeHtml(d.name || "(ismsiz)") + '</div>';
     if (d.membership) h += '<div class="muted">' + escapeHtml(d.membership.plan_name || "") + ' · tugaydi: ' + fmt(d.membership.end_date) + (frozen ? ' · muzlatilgan' : '') + '</div>';
+    if (d.trainer && d.trainer.name) h += '<div class="muted">Trener: ' + escapeHtml(d.trainer.name) + '</div>';
     h += '<h2>To‘lovlar (qachon qabul bo‘ldi)</h2>';
     h += (d.payments && d.payments.length) ? d.payments.map((p) =>
       '<div class="item"><div class="between"><span>' + uzs(p.amount_uzs) + ' so‘m · ' + p.provider + '</span><span class="muted">' + p.status + '</span></div>' +
@@ -524,6 +547,27 @@
       fBtn.style.marginTop = "10px";
       wrap.appendChild(fBtn);
     }
+
+    // Assign trainer (dropdown of active trainers; empty = unassign)
+    wrap.appendChild(el("label", null, "Trener biriktirish"));
+    const tRow = el("div", "row");
+    const tSel = el("select");
+    const optNone = el("option", null, "— trener yo'q —"); optNone.value = ""; tSel.appendChild(optNone);
+    (async () => {
+      if (!trainersCache) { try { await fetchTrainers(); } catch (e) {} }
+      activeTrainers().forEach((t) => { const o = el("option", null, t.name); o.value = t.id; tSel.appendChild(o); });
+      if (d.trainer && d.trainer.id) tSel.value = d.trainer.id;
+    })();
+    const tBtn = btn("Biriktirish", "mini", async () => {
+      tBtn.disabled = true;
+      const rr = await api("member_assign_trainer", { user_id: userId, trainer_id: tSel.value });
+      tBtn.disabled = false;
+      if (rr.data && rr.data.ok) await refreshMemberDetail(detail, userId);
+      else alert((rr.data && rr.data.error) || "Xato");
+    });
+    tBtn.style.flex = "0 0 120px";
+    tRow.appendChild(tSel); tRow.appendChild(tBtn);
+    wrap.appendChild(tRow);
 
     // Add internal note
     wrap.appendChild(el("label", null, "Ichki izoh qo‘shish"));
@@ -942,6 +986,71 @@
       ["ne-title", "ne-muscles", "ne-sets", "ne-reps", "ne-img"].forEach((id) => { $(id).value = ""; });
       $("ne-msg").textContent = "Qo'shildi ✓"; loadContent();
     } else { $("ne-msg").textContent = (r.data && r.data.error) || "Xato"; }
+  }
+
+  // ── Trainers ─────────────────────────────────────────────────────────────
+  let trainersCache = null; // full list from trainer_list (incl. inactive)
+  const expandedTrainers = new Set();
+  async function fetchTrainers() {
+    const r = await api("trainer_list");
+    trainersCache = (r.data && r.data.trainers) || [];
+    return trainersCache;
+  }
+  const activeTrainers = () => (trainersCache || []).filter((t) => t.is_active);
+  async function loadTrainers() {
+    const box = $("trainerList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    await fetchTrainers();
+    box.innerHTML = "";
+    if (!trainersCache.length) { box.innerHTML = '<p class="muted">Hali trener yo\'q.</p>'; return; }
+    trainersCache.forEach((t) => box.appendChild(trainerItem(t)));
+  }
+  function trainerItem(t) {
+    const c = el("div", "card");
+    const top = el("div", "between");
+    const left = el("div");
+    left.innerHTML = '<div style="font-weight:700">' + escapeHtml(t.name) + (t.specialization ? ' <span class="muted">· ' + escapeHtml(t.specialization) + '</span>' : '') + '</div>'
+      + '<div class="muted">' + t.member_count + ' a\'zo' + (t.bio ? ' · ' + escapeHtml(t.bio) : '') + '</div>';
+    top.appendChild(left);
+    top.appendChild(el("span", "badge " + (t.is_active ? "ok" : "bad"), t.is_active ? "FAOL" : "NOFAOL"));
+    c.appendChild(top);
+
+    const form = el("div"); form.style.marginTop = "10px"; form.style.display = expandedTrainers.has(t.id) ? "block" : "none";
+    const mk = (labelTxt, val, ta) => {
+      form.appendChild(el("label", null, labelTxt));
+      const inp = el(ta ? "textarea" : "input"); if (ta) inp.rows = 2;
+      inp.value = val == null ? "" : String(val); form.appendChild(inp); return inp;
+    };
+    const iName = mk("Ism", t.name);
+    const iSpec = mk("Mutaxassislik", t.specialization);
+    const iBio = mk("Bio", t.bio, true);
+    const iPhoto = mk("Rasm havolasi", t.photo_url);
+    const msg = el("p", "muted");
+    const row = el("div", "row"); row.style.marginTop = "8px";
+    const save = btn("Saqlash", "mini", async () => {
+      const r = await api("trainer_update", { trainer_id: t.id, name: iName.value, specialization: iSpec.value, bio: iBio.value, photo_url: iPhoto.value });
+      if (r.data && r.data.ok) { msg.textContent = "Saqlandi ✓"; loadTrainers(); } else { msg.textContent = (r.data && r.data.error) || "Xato"; }
+    });
+    const toggle = btn(t.is_active ? "Nofaol qilish" : "Faollashtirish", "ghost mini", async () => {
+      const r = await api("trainer_set_active", { trainer_id: t.id, is_active: !t.is_active });
+      if (r.data && r.data.ok) loadTrainers(); else alert((r.data && r.data.error) || "Xato");
+    });
+    row.appendChild(save); row.appendChild(toggle);
+    form.appendChild(row); form.appendChild(msg);
+
+    const edit = btn(expandedTrainers.has(t.id) ? "Yopish" : "Tahrirlash", "ghost mini", () => {
+      if (expandedTrainers.has(t.id)) { expandedTrainers.delete(t.id); form.style.display = "none"; edit.textContent = "Tahrirlash"; }
+      else { expandedTrainers.add(t.id); form.style.display = "block"; edit.textContent = "Yopish"; }
+    });
+    edit.style.marginTop = "10px";
+    c.appendChild(edit); c.appendChild(form);
+    return c;
+  }
+  async function addTrainer() {
+    const r = await api("trainer_create", { name: $("nt-name").value, specialization: $("nt-spec").value, bio: $("nt-bio").value, photo_url: $("nt-photo").value });
+    if (r.data && r.data.ok) {
+      ["nt-name", "nt-spec", "nt-bio", "nt-photo"].forEach((id) => { $(id).value = ""; });
+      $("nt-msg").textContent = "Qo'shildi ✓"; trainersCache = null; loadTrainers();
+    } else { $("nt-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
 
   // Restore the session token remembered on this device (verify it's still valid).

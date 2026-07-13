@@ -302,5 +302,21 @@ Keyingi polish (D1) yoki alohida qadamда.
 **Verify:** `deno check` + `deno test` (15/15) + panel syntaksis + brauzer mock (7 tab, form, ro'yxat, akkordeon, video/o'chirish tugmalari) — hammasi ✓.
 **Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
 
-### ⬜ T1 — Trenerlar (faqat admin: profil + biriktirish) — keyingi
+### ✅ T1 — Trenerlar (faqat admin: profil + biriktirish) (2026-07, `admin-t1-trainers` branch)
+**Nima o'zgardi:**
+- **Migration `0022_trainers.sql`** — `trainers` (profil: ism/mutaxassislik/bio/rasm/is_active;
+  o'qish authenticated, yozish service-role) + `member_trainers` (user_id PK → bitta trener/a'zo;
+  a'zo o'zинikini o'qiydi). Chain-ready.
+- **`logic.ts`** — `validateTrainer` (pure); `logic.test.ts`ga 2 test (jami 17/17 ✓).
+- **`admin-verify`** — 5 yangi action: `trainer_list` (a'zo soni bilan), `trainer_create`,
+  `trainer_update` (validateTrainer + audit), `trainer_set_active`, `member_assign_trainer`
+  (upsert; bo'sh trainer_id = biriktirishni olib tashlash). `member_detail` endi `trainer` qaytaradi.
+- **`gym-admin`** — yangi **"Trenerlar" tab** (nav 8 tab): yangi trener formasi + ro'yxat
+  (ism·mutaxassislik·a'zo soni·FAOL/NOFAOL) + inline tahrirlash. **A'zolar akkordeonида**:
+  trener biriktirish dropdown (faqat faol) + joriy tanlov + "Biriktirish"; detalида "Trener: X" qatori.
+- **Ilova ko'rsatuvi** (a'zo o'z trenerini ko'radi) — kichik RN qo'shimcha, keyin (RLS tayyor).
+**Verify:** `deno check` + `deno test` (17/17) + panel syntaksis + brauzer mock (8 tab, trener ro'yxat/tahrir, a'zo dropdown faqat faol + joriy tanlov) — ✓.
+**Deploy:** 1) migration `0022` → 2) `admin-verify` → 3) `gym-admin` Vercel.
+
+### ⬜ P1 — Push bildirishnoma + retention — keyingi (C2 kurikulum ham kutmoqda)
 
