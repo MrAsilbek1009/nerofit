@@ -9,7 +9,9 @@ import {
   dayEndUtc,
   dayStartUtc,
   deriveMemberStatus,
+  validateExercise,
   validatePlan,
+  validateVideoUrl,
 } from "./logic.ts";
 
 // Admin / staff membership API.
@@ -499,6 +501,71 @@ async function handlePost(req: Request): Promise<Response> {
     const { error } = await db.from("membership_plans").update({ is_active: isActive }).eq("id", planId);
     if (error) return json({ error: error.message }, 500);
     await audit(db, auth, "plan_set_active", planId, { is_active: isActive });
+    return json({ ok: true });
+  }
+
+  // ── C1: content — exercise library + videos (admin/owner) ──────────────
+  if (action === "exercise_list") {
+    const { data } = await db
+      .from("exercises")
+      .select("id, title, target_muscles, default_sets, default_reps, image_url, exercise_videos(id, url, duration_sec, provider)")
+      .order("title", { ascending: true });
+    return json({ exercises: data ?? [] });
+  }
+
+  if (action === "exercise_create") {
+    const v = validateExercise(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { data, error } = await db.from("exercises").insert(v.value).select("id").single();
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "exercise_create", data.id, { title: v.value.title });
+    return json({ ok: true, id: data.id });
+  }
+
+  if (action === "exercise_update") {
+    const id = String(body.exercise_id ?? "").trim();
+    if (!isUuid(id)) return json({ error: "exercise_id noto'g'ri" }, 400);
+    const v = validateExercise(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { error } = await db.from("exercises").update(v.value).eq("id", id);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "exercise_update", id, { title: v.value.title });
+    return json({ ok: true });
+  }
+
+  // Guarded delete — never destroy an exercise that's used in a workout or has
+  // user history (exercise_logs). Its videos cascade-delete with it.
+  if (action === "exercise_delete") {
+    const id = String(body.exercise_id ?? "").trim();
+    if (!isUuid(id)) return json({ error: "exercise_id noto'g'ri" }, 400);
+    const { count: usedCount } = await db.from("workout_exercises").select("id", { count: "exact", head: true }).eq("exercise_id", id);
+    if ((usedCount ?? 0) > 0) return json({ error: "Bu mashq dasturda ishlatilyapti — avval undan olib tashlang" }, 400);
+    const { count: logCount } = await db.from("exercise_logs").select("id", { count: "exact", head: true }).eq("exercise_id", id);
+    if ((logCount ?? 0) > 0) return json({ error: "Bu mashqda foydalanuvchi tarixi bor — o'chirib bo'lmaydi" }, 400);
+    const { error } = await db.from("exercises").delete().eq("id", id);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "exercise_delete", id, {});
+    return json({ ok: true });
+  }
+
+  if (action === "exercise_video_add") {
+    const id = String(body.exercise_id ?? "").trim();
+    if (!isUuid(id)) return json({ error: "exercise_id noto'g'ri" }, 400);
+    const v = validateVideoUrl(body.url, body.duration_sec);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const provider = (String(body.provider ?? "").trim().slice(0, 30)) || "url";
+    const { error } = await db.from("exercise_videos").insert({ exercise_id: id, url: v.value.url, duration_sec: v.value.duration_sec, provider });
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "exercise_video_add", id, {});
+    return json({ ok: true });
+  }
+
+  if (action === "exercise_video_delete") {
+    const videoId = String(body.video_id ?? "").trim();
+    if (!isUuid(videoId)) return json({ error: "video_id noto'g'ri" }, 400);
+    const { error } = await db.from("exercise_videos").delete().eq("id", videoId);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "exercise_video_delete", videoId, {});
     return json({ ok: true });
   }
 

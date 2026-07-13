@@ -285,5 +285,22 @@ Keyingi polish (D1) yoki alohida qadamда.
 **Verify:** `deno check` + `deno test` (11/11) + panel syntaksis + brauzer mock-render (6 tab, form, ro'yxat, tahrirlash toggle) — hammasi ✓.
 **Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
 
-### ⬜ C1 — Kontent boshqaruvi (mashq/dastur/video) — keyingi
+### ✅ C1 — Kontent: mashq kutubxonasi + videolar (2026-07, `admin-c1-content` branch, migration yo'q)
+**Nima o'zgardi:**
+- **`logic.ts`** — `validateExercise` + `normalizeMuscles` + `validateVideoUrl` (pure,
+  http(s) tekshiruvi bilan); `logic.test.ts`ga 4 test (jami 15/15 ✓).
+- **`admin-verify`** — 6 yangi action (admin/owner): `exercise_list` (mashqlar + nested
+  videolar), `exercise_create`, `exercise_update` (validateExercise + audit),
+  `exercise_delete` (**himoyalangan** — workout_exercises yoki exercise_logs bo'lsa
+  bloklanadi, tarix/dastur buzilmaydi), `exercise_video_add` (URL, validateVideoUrl),
+  `exercise_video_delete`. Video = tashqi URL (Storage upload emas — soddaroq/xavfsiz).
+- **`gym-admin` yangi "Kontent" tab** (nav 7 tab): yangi mashq formasi + ro'yxat
+  (nom·mushaklar·set×takror·video soni) + inline tahrirlash akkordeoni (tahrir + video
+  qo'shish/o'chirish + himoyalangan mashq o'chirish).
+- **Ko'lam:** dastur→workout kurikulum tahrirlash (dasturga mashq biriktirish) — C2 (keyin).
+  Mavjud seed mashqlarни tahrirlash + video qo'shish darrov ilovaga tushadi.
+**Verify:** `deno check` + `deno test` (15/15) + panel syntaksis + brauzer mock (7 tab, form, ro'yxat, akkordeon, video/o'chirish tugmalari) — hammasi ✓.
+**Deploy:** `admin-verify` qayta deploy + `gym-admin` Vercel (migration yo'q).
+
+### ⬜ T1 — Trenerlar (faqat admin: profil + biriktirish) — keyingi
 
