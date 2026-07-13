@@ -330,6 +330,10 @@ Keyingi polish (D1) yoki alohida qadamда.
   `:focus-visible` chartreuse outline; `button:disabled` opacity.
 - **Polish** — chegaralar yumshoqroq (--line #262626 → #1f1f1f), silliq `transition`.
   Accent-intizom saqlangan (chartreuse faqat asosiy tugma/faol tab/tanlangan chip).
+- **Skill-asosli qo'shimcha** (taste-skill + ui-styling o'rganilib, `~/.claude/skills/`ga
+  o'rnatildi): **skeleton loaderlar** (7 ro'yxatda "Yuklanmoqda…" o'rniga shimmer bloklar) +
+  **tactile :active** (tugma/chip bosilganda `scale(.97)` — jismoniy his). Data-UI zichligi
+  saqlandi (landing-page airiness qo'llanmadi).
 **Verify:** panel syntaksis + brauzer (nav nowrap+scrollable, Hanken/Inter yuklandi, chip=BUTTON,
 toast ishlaydi, konsol toza) — ✓.
 **Deploy:** `gym-admin` Vercel (migration yo'q; backend tegilmagan).

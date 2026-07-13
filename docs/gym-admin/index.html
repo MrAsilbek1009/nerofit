@@ -52,9 +52,14 @@
   .bars .bar.dim { background:var(--line); }
   .bars .bar.hi { background:#fff; }
   .barlabels { display:flex; justify-content:space-between; font-size:9px; color:var(--lo); margin-top:5px; }
-  button, .chip { transition:background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease; }
+  button, .chip { transition:background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease, transform .06s ease; }
+  button:active:not(:disabled), .chip:active { transform:scale(.97); } /* tactile press feedback */
   :focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
   button:disabled { opacity:.5; cursor:default; }
+  /* Skeleton loaders (D1): shimmer blocks in the final layout's shape, not a spinner */
+  .skel { background:linear-gradient(90deg,#161616 25%,#20200f 37%,#161616 63%); background-size:400% 100%; border-radius:8px; animation:shimmer 1.4s ease infinite; }
+  .skel-row { height:13px; margin:11px 0; }
+  @keyframes shimmer { from { background-position:100% 0; } to { background-position:-100% 0; } }
   /* Toasts (D1): replace alert() with non-blocking notifications */
   #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; width:max-content; max-width:92vw; }
   .toast { background:var(--card); color:var(--hi); border:1px solid var(--line); border-radius:12px; padding:11px 16px; font-size:14px; font-weight:600; box-shadow:0 8px 28px rgba(0,0,0,.55); animation:toastIn .18s ease; }
@@ -289,6 +294,17 @@
     box.appendChild(t);
     setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 200); }, 2600);
   }
+  // Skeleton loader (D1): shimmer rows in a card while a list loads.
+  function skeleton(box, rows) {
+    box.innerHTML = "";
+    const c = el("div", "card");
+    for (let i = 0; i < (rows || 4); i++) {
+      const s = el("div", "skel skel-row");
+      s.style.width = (55 + Math.floor(Math.random() * 40)) + "%";
+      c.appendChild(s);
+    }
+    box.appendChild(c);
+  }
 
   async function api(action, extra) {
     const res = await fetch(API, {
@@ -363,7 +379,7 @@
     }
   }
   async function loadAudit() {
-    const box = $("auditList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const box = $("auditList"); skeleton(box, 5);
     const r = await api("audit_list");
     const list = (r.data && r.data.audit) || [];
     box.innerHTML = "";
@@ -637,7 +653,7 @@
   async function loadMembers(append) {
     if (membersState.loading) return;
     membersState.loading = true;
-    if (!append) { membersState.offset = 0; $("membersList").innerHTML = '<p class="muted">Yuklanmoqda…</p>'; }
+    if (!append) { membersState.offset = 0; skeleton($("membersList"), 6); }
     const r = await api("members_list", {
       status: membersState.status, plan_id: membersState.plan_id, q: membersState.q,
       sort: membersState.sort, limit: PAGE, offset: membersState.offset,
@@ -689,7 +705,7 @@
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   async function loadFeed() {
-    const box = $("feed"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const box = $("feed"); skeleton(box, 4);
     const r = await api("checkins_recent");
     const list = (r.data && r.data.checkins) || [];
     box.innerHTML = "";
@@ -755,7 +771,7 @@
   async function loadPayments(append) {
     if (payState.loading) return;
     payState.loading = true;
-    if (!append) { payState.offset = 0; $("paymentsList").innerHTML = '<p class="muted">Yuklanmoqda…</p>'; }
+    if (!append) { payState.offset = 0; skeleton($("paymentsList"), 6); }
     const r = await api("payments_list", { provider: payState.provider, status: payState.status, from: payState.from, to: payState.to, q: payState.q, limit: PAGE, offset: payState.offset });
     payState.loading = false;
     const d = r.data || {};
@@ -848,7 +864,7 @@
   // ── Plans (tariffs) management ──────────────────────────────────────────
   const expandedPlans = new Set();
   async function loadPlansAdmin() {
-    const box = $("plansList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const box = $("plansList"); skeleton(box, 3);
     const r = await api("plan_list_all");
     const plans = (r.data && r.data.plans) || [];
     box.innerHTML = "";
@@ -918,7 +934,7 @@
   // ── Content: exercise library + videos ──────────────────────────────────
   const expandedEx = new Set();
   async function loadContent() {
-    const box = $("exerciseList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const box = $("exerciseList"); skeleton(box, 4);
     const r = await api("exercise_list");
     const list = (r.data && r.data.exercises) || [];
     box.innerHTML = "";
@@ -1018,7 +1034,7 @@
   }
   const activeTrainers = () => (trainersCache || []).filter((t) => t.is_active);
   async function loadTrainers() {
-    const box = $("trainerList"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+    const box = $("trainerList"); skeleton(box, 3);
     await fetchTrainers();
     box.innerHTML = "";
     if (!trainersCache.length) { box.innerHTML = '<p class="muted">Hali trener yo\'q.</p>'; return; }
