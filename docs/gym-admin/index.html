@@ -4,11 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Nerofit — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-  :root { --bg:#000; --card:#141414; --line:#262626; --hi:#fff; --lo:#8a8a8a; --acc:#D4E924; --ok:#D4E924; --bad:#ff5a5a; }
+  :root { --bg:#000; --card:#141414; --line:#1f1f1f; --hi:#fff; --lo:#8a8a8a; --acc:#D4E924; --ok:#D4E924; --bad:#ff5a5a; }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--hi); font-family:-apple-system,Segoe UI,Roboto,sans-serif; padding:16px; max-width:640px; margin:0 auto; }
-  h1 { font-size:18px; letter-spacing:.14em; text-transform:uppercase; color:var(--lo); font-weight:700; }
+  body { margin:0; background:var(--bg); color:var(--hi); font-family:"Inter",-apple-system,Segoe UI,Roboto,sans-serif; padding:16px; max-width:640px; margin:0 auto; }
+  h1 { font-family:"Hanken Grotesk",sans-serif; font-size:20px; letter-spacing:.14em; text-transform:uppercase; color:var(--lo); font-weight:800; }
   h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--lo); margin:22px 0 8px; }
   input, select, textarea, button { font-size:16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--hi); padding:11px 13px; width:100%; font-family:inherit; }
   textarea { resize:vertical; }
@@ -25,12 +28,13 @@
   .badge.warn { background:#333; color:#fff; }
   .badge.soon { background:#2a2a12; color:var(--acc); } .badge.info { background:#2a2a2a; color:#fff; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
-  .chip { padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--lo); font-size:12px; font-weight:700; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
+  .chip { width:auto; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--lo); font-size:12px; font-weight:700; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
   .chip.on { background:var(--acc); color:#000; border-color:var(--acc); }
   .muted { color:var(--lo); font-size:13px; }
-  .big { font-size:22px; font-weight:800; margin:4px 0; }
-  .nav { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
-  .nav button { flex:1 1 28%; font-size:14px; padding:10px 8px; }
+  .big { font-family:"Hanken Grotesk",sans-serif; font-size:22px; font-weight:800; margin:4px 0; }
+  .nav { display:flex; flex-wrap:nowrap; gap:8px; margin-top:14px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav button { flex:0 0 auto; width:auto; font-size:13px; padding:9px 14px; white-space:nowrap; }
   input[type=date] { color-scheme:dark; }
   .nav button.on { background:var(--acc); color:#000; } .nav button.off { background:transparent; color:var(--hi); border:1px solid var(--line); }
   .hidden { display:none; }
@@ -40,7 +44,7 @@
   label { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--lo); display:block; margin:12px 0 5px; }
   .kpis { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:14px; }
   .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 14px; }
-  .kpi .n { font-size:24px; font-weight:800; letter-spacing:-.02em; }
+  .kpi .n { font-family:"Hanken Grotesk",sans-serif; font-size:24px; font-weight:800; letter-spacing:-.02em; }
   .kpi .n.acc { color:var(--acc); }
   .kpi .l { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--lo); margin-top:3px; }
   .bars { display:flex; align-items:flex-end; gap:3px; height:110px; margin-top:4px; }
@@ -48,9 +52,18 @@
   .bars .bar.dim { background:var(--line); }
   .bars .bar.hi { background:#fff; }
   .barlabels { display:flex; justify-content:space-between; font-size:9px; color:var(--lo); margin-top:5px; }
+  button, .chip { transition:background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease; }
+  :focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
+  button:disabled { opacity:.5; cursor:default; }
+  /* Toasts (D1): replace alert() with non-blocking notifications */
+  #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; width:max-content; max-width:92vw; }
+  .toast { background:var(--card); color:var(--hi); border:1px solid var(--line); border-radius:12px; padding:11px 16px; font-size:14px; font-weight:600; box-shadow:0 8px 28px rgba(0,0,0,.55); animation:toastIn .18s ease; }
+  .toast.ok { border-color:var(--acc); } .toast.err { border-color:var(--bad); }
+  @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 </style>
 </head>
 <body>
+  <div id="toast"></div>
   <h1>Nerofit · Admin</h1>
 
   <!-- Login -->
@@ -269,6 +282,13 @@
   const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
   const btn = (text, cls, on) => { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; };
   const escapeHtml = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  // Non-blocking toast (D1). type: "err" (default) | "ok". Auto-dismisses.
+  function toast(msg, type) {
+    const box = $("toast"); if (!box) return;
+    const t = el("div", "toast " + (type === "ok" ? "ok" : "err"), String(msg == null ? "" : msg));
+    box.appendChild(t);
+    setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 200); }, 2600);
+  }
 
   async function api(action, extra) {
     const res = await fetch(API, {
@@ -431,8 +451,8 @@
       const pwSave = btn("Saqlash", "", async () => {
         const v = pwInput.value.trim(); if (!v) return;
         const rr = await api("staff_set_password", { staff_id: s.id, new_password: v });
-        if (rr.data && rr.data.ok) { pwInput.value = ""; pwWrap.style.display = "none"; alert("Parol o‘zgartirildi"); }
-        else { alert((rr.data && rr.data.error) || "Xato"); }
+        if (rr.data && rr.data.ok) { pwInput.value = ""; pwWrap.style.display = "none"; toast("Parol o‘zgartirildi", "ok"); }
+        else { toast((rr.data && rr.data.error) || "Xato"); }
       });
       pwSave.style.marginTop = "8px";
       pwWrap.appendChild(pwInput); pwWrap.appendChild(pwSave);
@@ -522,13 +542,13 @@
     exInput.placeholder = "masalan 7"; exInput.setAttribute("inputmode", "numeric");
     const exBtn = btn("Uzaytirish", "mini", async () => {
       const days = parseInt(exInput.value, 10);
-      if (!days || days < 1) { alert("Kun kiriting"); return; }
+      if (!days || days < 1) { toast("Kun kiriting"); return; }
       if (!confirm("Muddat " + days + " kunga uzaytirilsinmi?")) return;
       exBtn.disabled = true;
       const rr = await api("membership_extend", { user_id: userId, days });
       exBtn.disabled = false;
       if (rr.data && rr.data.ok) { exInput.value = ""; await refreshMemberDetail(detail, userId); }
-      else alert((rr.data && rr.data.error) || "Xato");
+      else toast((rr.data && rr.data.error) || "Xato");
     });
     exBtn.style.flex = "0 0 120px";
     exRow.appendChild(exInput); exRow.appendChild(exBtn);
@@ -542,7 +562,7 @@
         const rr = await api(frozen ? "unfreeze" : "freeze", { user_id: userId });
         fBtn.disabled = false;
         if (rr.data && rr.data.ok) await refreshMemberDetail(detail, userId);
-        else alert((rr.data && rr.data.error) || "Xato");
+        else toast((rr.data && rr.data.error) || "Xato");
       });
       fBtn.style.marginTop = "10px";
       wrap.appendChild(fBtn);
@@ -563,7 +583,7 @@
       const rr = await api("member_assign_trainer", { user_id: userId, trainer_id: tSel.value });
       tBtn.disabled = false;
       if (rr.data && rr.data.ok) await refreshMemberDetail(detail, userId);
-      else alert((rr.data && rr.data.error) || "Xato");
+      else toast((rr.data && rr.data.error) || "Xato");
     });
     tBtn.style.flex = "0 0 120px";
     tRow.appendChild(tSel); tRow.appendChild(tBtn);
@@ -578,7 +598,7 @@
       const rr = await api("member_note_add", { user_id: userId, body: t });
       nBtn.disabled = false;
       if (rr.data && rr.data.ok) { nInput.value = ""; await refreshMemberDetail(detail, userId); }
-      else alert((rr.data && rr.data.error) || "Xato");
+      else toast((rr.data && rr.data.error) || "Xato");
     });
     nBtn.style.marginTop = "8px";
     wrap.appendChild(nInput); wrap.appendChild(nBtn);
@@ -596,7 +616,7 @@
   function renderFilters() {
     const box = $("mFilters"); box.innerHTML = "";
     MEMBER_FILTERS.forEach(([val, label]) => {
-      const c = el("div", "chip" + (membersState.status === val ? " on" : ""), label);
+      const c = el("button", "chip" + (membersState.status === val ? " on" : ""), label);
       c.onclick = () => { membersState.status = val; renderFilters(); applyMemberFilter(); };
       box.appendChild(c);
     });
@@ -658,7 +678,7 @@
   async function exportMembersCsv() {
     const r = await api("members_list", { status: membersState.status, plan_id: membersState.plan_id, q: membersState.q, sort: membersState.sort, limit: 10000, offset: 0 });
     const list = (r.data && r.data.members) || [];
-    if (!list.length) { alert("Eksport uchun a’zo yo‘q"); return; }
+    if (!list.length) { toast("Eksport uchun a’zo yo‘q"); return; }
     const head = ["Ism", "Holat", "Tarif", "Tugaydi", "ID"];
     const rows = list.map((m) => [m.name || "", STATUS_LABEL[m.status] || m.status, m.plan_name || "", m.end_date || "", m.user_id]);
     const csv = [head, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
@@ -722,9 +742,9 @@
   }
   function renderPayFilters() {
     const pb = $("fProvFilters"); pb.innerHTML = "";
-    PROV_FILTERS.forEach(([v, l]) => { const c = el("div", "chip" + (payState.provider === v ? " on" : ""), l); c.onclick = () => { payState.provider = v; renderPayFilters(); applyPayFilter(); }; pb.appendChild(c); });
+    PROV_FILTERS.forEach(([v, l]) => { const c = el("button", "chip" + (payState.provider === v ? " on" : ""), l); c.onclick = () => { payState.provider = v; renderPayFilters(); applyPayFilter(); }; pb.appendChild(c); });
     const sb = $("fStatFilters"); sb.innerHTML = "";
-    PAY_STAT_FILTERS.forEach(([v, l]) => { const c = el("div", "chip" + (payState.status === v ? " on" : ""), l); c.onclick = () => { payState.status = v; renderPayFilters(); applyPayFilter(); }; sb.appendChild(c); });
+    PAY_STAT_FILTERS.forEach(([v, l]) => { const c = el("button", "chip" + (payState.status === v ? " on" : ""), l); c.onclick = () => { payState.status = v; renderPayFilters(); applyPayFilter(); }; sb.appendChild(c); });
   }
   function applyPayFilter() {
     payState.from = $("fFrom").value;
@@ -776,8 +796,8 @@
     if (!confirm("To‘lov (" + uzs(amount) + " so‘m) qaytarilsinmi? Bog‘langan a'zolik bekor qilinishi mumkin.")) return;
     if (!confirm("Aniqmi? Bu amalni orqaga qaytarib bo‘lmaydi.")) return;
     const r = await api("payment_refund", { payment_id: id });
-    if (r.data && r.data.ok) { alert("Qaytarildi" + (r.data.membership_cancelled ? " · a'zolik bekor qilindi" : "")); loadPayments(false); }
-    else alert((r.data && r.data.error) || "Xato");
+    if (r.data && r.data.ok) { toast("Qaytarildi" + (r.data.membership_cancelled ? " · a'zolik bekor qilindi" : ""), "ok"); loadPayments(false); }
+    else toast((r.data && r.data.error) || "Xato");
   }
   async function loadCash() {
     const date = $("cashDate").value || new Date().toISOString().slice(0, 10);
@@ -868,7 +888,7 @@
     });
     const toggle = btn(p.is_active ? "Nofaol qilish" : "Faollashtirish", "ghost mini", async () => {
       const r = await api("plan_set_active", { plan_id: p.id, is_active: !p.is_active });
-      if (r.data && r.data.ok) loadPlansAdmin(); else alert((r.data && r.data.error) || "Xato");
+      if (r.data && r.data.ok) loadPlansAdmin(); else toast((r.data && r.data.error) || "Xato");
     });
     row.appendChild(save); row.appendChild(toggle);
     form.appendChild(row); form.appendChild(msg);
@@ -935,7 +955,7 @@
     const del = btn("O'chirish", "danger mini", async () => {
       if (!confirm("'" + e.title + "' o'chirilsinmi?")) return;
       const r = await api("exercise_delete", { exercise_id: e.id });
-      if (r.data && r.data.ok) { expandedEx.delete(e.id); loadContent(); } else { alert((r.data && r.data.error) || "Xato"); }
+      if (r.data && r.data.ok) { expandedEx.delete(e.id); loadContent(); } else { toast((r.data && r.data.error) || "Xato"); }
     });
     saveRow.appendChild(save); saveRow.appendChild(del);
     form.appendChild(saveRow); form.appendChild(emsg);
@@ -950,7 +970,7 @@
         link.innerHTML = '<span class="muted">' + escapeHtml(v.url) + (v.duration_sec ? ' · ' + v.duration_sec + 's' : '') + '</span>';
         const rm = btn("O'chir", "danger mini", async () => {
           const r = await api("exercise_video_delete", { video_id: v.id });
-          if (r.data && r.data.ok) loadContent(); else alert((r.data && r.data.error) || "Xato");
+          if (r.data && r.data.ok) loadContent(); else toast((r.data && r.data.error) || "Xato");
         });
         b.appendChild(link); b.appendChild(rm);
         it.appendChild(b); form.appendChild(it);
@@ -961,7 +981,7 @@
     const vDur = el("input"); vDur.type = "number"; vDur.setAttribute("inputmode", "numeric"); vDur.placeholder = "sek (ixtiyoriy)";
     const vAdd = btn("Video qo'shish", "mini", async () => {
       const r = await api("exercise_video_add", { exercise_id: e.id, url: vUrl.value, duration_sec: vDur.value });
-      if (r.data && r.data.ok) { vUrl.value = ""; vDur.value = ""; loadContent(); } else { alert((r.data && r.data.error) || "Xato"); }
+      if (r.data && r.data.ok) { vUrl.value = ""; vDur.value = ""; loadContent(); } else { toast((r.data && r.data.error) || "Xato"); }
     });
     vRow.appendChild(vDur); vRow.appendChild(vAdd);
     form.appendChild(vUrl); form.appendChild(vRow);
@@ -1032,7 +1052,7 @@
     });
     const toggle = btn(t.is_active ? "Nofaol qilish" : "Faollashtirish", "ghost mini", async () => {
       const r = await api("trainer_set_active", { trainer_id: t.id, is_active: !t.is_active });
-      if (r.data && r.data.ok) loadTrainers(); else alert((r.data && r.data.error) || "Xato");
+      if (r.data && r.data.ok) loadTrainers(); else toast((r.data && r.data.error) || "Xato");
     });
     row.appendChild(save); row.appendChild(toggle);
     form.appendChild(row); form.appendChild(msg);

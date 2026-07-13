@@ -318,5 +318,22 @@ Keyingi polish (D1) yoki alohida qadamда.
 **Verify:** `deno check` + `deno test` (17/17) + panel syntaksis + brauzer mock (8 tab, trener ro'yxat/tahrir, a'zo dropdown faqat faol + joriy tanlov) — ✓.
 **Deploy:** 1) migration `0022` → 2) `admin-verify` → 3) `gym-admin` Vercel.
 
-### ⬜ P1 — Push bildirishnoma + retention — keyingi (C2 kurikulum ham kutmoqda)
+### ✅ D1 — Dizayn sayqal (2026-07, `admin-d1-design` branch, migration yo'q)
+**Nima o'zgardi (`gym-admin`, faqat UI):**
+- **Tipografika** — Hanken Grotesk (sarlavha/raqamlar: h1, .big, .kpi .n) + Inter (matn),
+  Google Fonts orqali. Editorial ko'rinish.
+- **Nav tozalandi** — 8 tab endi **gorizontal siljiydigan bitta qator** (nowrap + overflow-x,
+  yashirin scrollbar) — 3 qatorли o'ralish yo'q.
+- **Toast** — 15 ta `alert()` → chiройли `toast()` bildirishnomalar (xato = qizil chegara,
+  muvaffaqiyat = chartreuse). `confirm()` (destruktiv tasdiq) qoldi.
+- **a11y** — filtr chiplari `<div>` → `<button>` (klaviatura/skrin-rider); global
+  `:focus-visible` chartreuse outline; `button:disabled` opacity.
+- **Polish** — chegaralar yumshoqroq (--line #262626 → #1f1f1f), silliq `transition`.
+  Accent-intizom saqlangan (chartreuse faqat asosiy tugma/faol tab/tanlangan chip).
+**Verify:** panel syntaksis + brauzer (nav nowrap+scrollable, Hanken/Inter yuklandi, chip=BUTTON,
+toast ishlaydi, konsol toza) — ✓.
+**Deploy:** `gym-admin` Vercel (migration yo'q; backend tegilmagan).
+**Deferred → D2:** i18n (UZ/RU/EN) — 100+ satrni lug'atga ko'chirish + til almashtirgich (katta, alohida).
+
+### ⬜ Keyingi: D2 (i18n) · C2 (kurikulum) · P1 (push+retention) · Z (rollar UI + audit viewer + yakuniy /security-review)
 
