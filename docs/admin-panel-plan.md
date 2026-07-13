@@ -334,6 +334,12 @@ Keyingi polish (D1) yoki alohida qadamда.
   o'rnatildi): **skeleton loaderlar** (7 ro'yxatda "Yuklanmoqda…" o'rniga shimmer bloklar) +
   **tactile :active** (tugma/chip bosilganda `scale(.97)` — jismoniy his). Data-UI zichligi
   saqlandi (landing-page airiness qo'llanmadi).
+- **Gymove-uslub sidebar (katta layout qayta qurish)** — tepadagi nav o'rniga **chap
+  vertikal sidebar** (216px, brand + 8 ikonkali tugma), main kontent o'ngда, KPI grid
+  auto-fit (keng ekranда ko'proq ustun). Bo'limlar **qayta tartiblandi** (Gymove kabi):
+  Dashboard · A'zolar · Trenerlar · Kontent · Moliya · Tariflar · Xodimlar · Audit.
+  Faol element chartreuse. Mobil (<760px): sidebar → yuqori gorizontal-scroll bar.
+  Ikonkalar Feather-uslub `aria-hidden` inline SVG. `#dash.hidden` specificity tuzatildi.
 **Verify:** panel syntaksis + brauzer (nav nowrap+scrollable, Hanken/Inter yuklandi, chip=BUTTON,
 toast ishlaydi, konsol toza) — ✓.
 **Deploy:** `gym-admin` Vercel (migration yo'q; backend tegilmagan).
