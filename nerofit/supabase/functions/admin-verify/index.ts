@@ -11,6 +11,7 @@ import {
   deriveMemberStatus,
   validateExercise,
   validatePlan,
+  validateTrainer,
   validateVideoUrl,
 } from "./logic.ts";
 
@@ -569,6 +570,68 @@ async function handlePost(req: Request): Promise<Response> {
     return json({ ok: true });
   }
 
+  // ── T1: trainers + per-member assignment (admin/owner) ─────────────────
+  if (action === "trainer_list") {
+    const { data } = await db
+      .from("trainers")
+      .select("id, name, specialization, bio, photo_url, is_active, created_at")
+      .order("is_active", { ascending: false })
+      .order("name", { ascending: true });
+    const { data: assigns } = await db.from("member_trainers").select("trainer_id");
+    const counts: Record<string, number> = {};
+    for (const a of assigns ?? []) counts[a.trainer_id] = (counts[a.trainer_id] ?? 0) + 1;
+    return json({ trainers: (data ?? []).map((t) => ({ ...t, member_count: counts[t.id] ?? 0 })) });
+  }
+
+  if (action === "trainer_create") {
+    const v = validateTrainer(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { data, error } = await db.from("trainers").insert(v.value).select("id").single();
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "trainer_create", data.id, { name: v.value.name });
+    return json({ ok: true, id: data.id });
+  }
+
+  if (action === "trainer_update") {
+    const id = String(body.trainer_id ?? "").trim();
+    if (!isUuid(id)) return json({ error: "trainer_id noto'g'ri" }, 400);
+    const v = validateTrainer(body);
+    if (!v.ok) return json({ error: v.error }, 400);
+    const { error } = await db.from("trainers").update(v.value).eq("id", id);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "trainer_update", id, { name: v.value.name });
+    return json({ ok: true });
+  }
+
+  if (action === "trainer_set_active") {
+    const id = String(body.trainer_id ?? "").trim();
+    if (!isUuid(id)) return json({ error: "trainer_id noto'g'ri" }, 400);
+    const isActive = !!body.is_active;
+    const { error } = await db.from("trainers").update({ is_active: isActive }).eq("id", id);
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "trainer_set_active", id, { is_active: isActive });
+    return json({ ok: true });
+  }
+
+  // Assign (upsert) or clear (empty trainer_id) a member's trainer.
+  if (action === "member_assign_trainer") {
+    const userId = String(body.user_id ?? "").trim();
+    if (!isUuid(userId)) return json({ error: "user_id noto'g'ri" }, 400);
+    const trainerId = String(body.trainer_id ?? "").trim();
+    if (!trainerId) {
+      await db.from("member_trainers").delete().eq("user_id", userId);
+      await audit(db, auth, "member_assign_trainer", userId, { trainer_id: null });
+      return json({ ok: true, trainer_id: null });
+    }
+    if (!isUuid(trainerId)) return json({ error: "trainer_id noto'g'ri" }, 400);
+    const { error } = await db
+      .from("member_trainers")
+      .upsert({ user_id: userId, trainer_id: trainerId, assigned_at: new Date().toISOString() }, { onConflict: "user_id" });
+    if (error) return json({ error: error.message }, 500);
+    await audit(db, auth, "member_assign_trainer", userId, { trainer_id: trainerId });
+    return json({ ok: true, trainer_id: trainerId });
+  }
+
   if (action === "staff_list") {
     const { data } = await db
       .from("gym_staff")
@@ -667,6 +730,11 @@ async function handlePost(req: Request): Promise<Response> {
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
+    const { data: mt } = await db
+      .from("member_trainers")
+      .select("trainer_id, trainers(name)")
+      .eq("user_id", userId)
+      .maybeSingle();
     if (!prof && !m) return json({ found: false });
 
     const names = await staffNames(db, [
@@ -683,6 +751,8 @@ async function handlePost(req: Request): Promise<Response> {
       payments: (pays ?? []).map((p) => ({ ...p, staff_name: p.activated_by ? names[p.activated_by] ?? null : null })),
       checkins: (checks ?? []).map((c) => ({ ...c, staff_name: c.staff_id ? names[c.staff_id] ?? null : "admin" })),
       notes: notes ?? [],
+      // deno-lint-ignore no-explicit-any
+      trainer: mt ? { id: mt.trainer_id, name: (mt as any).trainers?.name ?? null } : null,
     });
   }
 

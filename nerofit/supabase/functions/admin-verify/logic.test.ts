@@ -10,6 +10,7 @@ import {
   normalizeMuscles,
   validateExercise,
   validatePlan,
+  validateTrainer,
   validateVideoUrl,
 } from "./logic.ts";
 
@@ -115,6 +116,19 @@ Deno.test("validateVideoUrl — url + optional duration", () => {
   assertEquals(validateVideoUrl("https://cdn/x.mp4", ""), { ok: true, value: { url: "https://cdn/x.mp4", duration_sec: null } }, "no duration → null");
   assertEquals(validateVideoUrl("", "10").ok, false, "empty url");
   assertEquals(validateVideoUrl("javascript:alert(1)", "10").ok, false, "non-http url rejected");
+});
+
+Deno.test("validateTrainer — valid, optional fields nulled", () => {
+  assertEquals(validateTrainer({ name: " Aziz ", specialization: "Bodybuilding", bio: "", photo_url: "" }), {
+    ok: true,
+    value: { name: "Aziz", specialization: "Bodybuilding", bio: null, photo_url: null },
+  });
+});
+
+Deno.test("validateTrainer — rejects bad input", () => {
+  assertEquals(validateTrainer({ name: "" }).ok, false, "empty name");
+  assertEquals(validateTrainer({ name: "x".repeat(101) }).ok, false, "name too long");
+  assertEquals(validateTrainer({ name: "Aziz", photo_url: "data:xxx" }).ok, false, "bad photo url");
 });
 
 Deno.test("aggregateRevenue — by provider + plan, fallbacks, totals", () => {

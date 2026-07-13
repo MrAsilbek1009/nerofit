@@ -152,6 +152,40 @@ export function validateVideoUrl(
   return { ok: true, value: { url: u, duration_sec } };
 }
 
+// ── Trainer validation (T1) ────────────────────────────────────────────────
+export type TrainerInput = {
+  name?: unknown;
+  specialization?: unknown;
+  bio?: unknown;
+  photo_url?: unknown;
+};
+export type CleanTrainer = {
+  name: string;
+  specialization: string | null;
+  bio: string | null;
+  photo_url: string | null;
+};
+export function validateTrainer(
+  input: TrainerInput,
+): { ok: true; value: CleanTrainer } | { ok: false; error: string } {
+  const name = String(input.name ?? "").trim();
+  if (!name) return { ok: false, error: "Ism kerak" };
+  if (name.length > 100) return { ok: false, error: "Ism juda uzun (max 100)" };
+  const specialization = String(input.specialization ?? "").trim();
+  if (specialization.length > 100) return { ok: false, error: "Mutaxassislik juda uzun (max 100)" };
+  const bio = String(input.bio ?? "").trim();
+  if (bio.length > 1000) return { ok: false, error: "Bio juda uzun (max 1000)" };
+  const photo = String(input.photo_url ?? "").trim();
+  if (photo && !/^https?:\/\//i.test(photo)) {
+    return { ok: false, error: "Rasm havolasi http(s):// bilan boshlanishi kerak" };
+  }
+  if (photo.length > 500) return { ok: false, error: "Rasm havolasi juda uzun" };
+  return {
+    ok: true,
+    value: { name, specialization: specialization || null, bio: bio || null, photo_url: photo || null },
+  };
+}
+
 // ── Cash reconciliation (cash_report) ──────────────────────────────────────
 export type CashRow = { amount_uzs: number | null; activated_by: string | null };
 export type CashGroup = { key: string; count: number; sum: number };
