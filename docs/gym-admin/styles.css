@@ -71,6 +71,11 @@
   .bars .bar.dim { background:var(--line); }
   .bars .bar.hi { background:#fff; }
   .barlabels { display:flex; justify-content:space-between; font-size:9px; color:var(--lo); margin-top:5px; }
+  /* Segmented time-range toggle (step 2): active = chartreuse, rest = ghost */
+  .seg { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .seg button { width:auto; font-size:12px; font-weight:700; letter-spacing:.03em; padding:6px 11px; border-radius:999px; }
+  .seg button.on { background:var(--acc); color:#000; border:none; }
+  .seg button.off { background:transparent; color:var(--lo); border:1px solid var(--line); }
   button, .chip { transition:background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease, transform .06s ease; }
   button:active:not(:disabled), .chip:active { transform:scale(.97); } /* tactile press feedback */
   :focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
