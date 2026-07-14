@@ -88,6 +88,18 @@
   .skel { background:linear-gradient(90deg,#161616 25%,#20200f 37%,#161616 63%); background-size:400% 100%; border-radius:8px; animation:shimmer 1.4s ease infinite; }
   .skel-row { height:13px; margin:11px 0; }
   @keyframes shimmer { from { background-position:100% 0; } to { background-position:-100% 0; } }
+  /* Tabular figures (D3): align digits in KPIs, money lists, counts, tables */
+  .kpi .n, .big, .num, .item, table { font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+  /* Empty & error states (D3): centered icon + message, one shape for all lists */
+  .state { text-align:center; color:var(--lo); padding:32px 16px; }
+  .state svg { width:32px; height:32px; stroke:currentColor; fill:none; opacity:.5; margin-bottom:10px; }
+  .state p { margin:0; font-size:14px; }
+  .state.err svg { color:var(--bad); opacity:.75; }
+  .state button { width:auto; margin-top:14px; }
+  /* KPI icon (D3): muted glyph, reference-dashboard card craft (accent stays on the number) */
+  .kpi { position:relative; }
+  .kpi .ico { position:absolute; top:12px; right:12px; width:15px; height:15px; color:var(--lo); opacity:.5; }
+  .kpi .ico svg { width:100%; height:100%; stroke:currentColor; fill:none; }
   /* Toasts (D1): replace alert() with non-blocking notifications */
   #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; width:max-content; max-width:92vw; }
   .toast { background:var(--card); color:var(--hi); border:1px solid var(--line); border-radius:12px; padding:11px 16px; font-size:14px; font-weight:600; box-shadow:0 8px 28px rgba(0,0,0,.55); animation:toastIn .18s ease; }
@@ -343,22 +355,54 @@
     }
     box.appendChild(c);
   }
+  // Icon glyphs (D3): small outline SVGs reused by states + KPI cards.
+  const SVG = {
+    inbox: '<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    users: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    snow: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>',
+    door: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>',
+    cash: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    peak: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>',
+  };
+  // Empty state (D3): centered icon + message; replaces bare "<p class=muted>".
+  function emptyState(box, msg, icon) {
+    box.innerHTML = '<div class="state">' + (SVG[icon] || SVG.inbox) + '<p>' + escapeHtml(msg) + '</p></div>';
+  }
+  // Error state (D3): honest failure + retry, so a dropped request never reads as "topilmadi".
+  function errorState(box, retry) {
+    box.innerHTML = "";
+    const w = el("div", "state err");
+    w.innerHTML = SVG.alert + '<p>Ulanishda xato yuz berdi.</p>';
+    if (retry) w.appendChild(btn("Qayta urinish", "ghost mini", retry));
+    box.appendChild(w);
+  }
 
   async function api(action, extra) {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(Object.assign({ action, token: TOKEN }, extra || {})),
-    });
-    let data = {}; try { data = await res.json(); } catch (e) {}
+    let res, data = {};
+    try {
+      res = await fetch(API, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(Object.assign({ action, token: TOKEN }, extra || {})),
+      });
+      try { data = await res.json(); } catch (e) {}
+    } catch (e) {
+      // Network failure (offline, DNS, CORS) — surface as an error, not empty data.
+      return { status: 0, data: {}, error: true };
+    }
     // Session expired mid-use → drop back to login (avoid recursing via logout()).
     if (res.status === 401 && TOKEN && action !== "session") {
       TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {}
       $("dash").classList.add("hidden"); $("login").classList.remove("hidden");
       $("loginMsg").textContent = "Sessiya tugadi — qayta kiring.";
     }
-    return { status: res.status, data };
+    return { status: res.status, data, error: res.status >= 500 };
   }
+  // True when a call failed at the transport/server level (vs. a valid empty result).
+  const failed = (r) => !!(r && (r.error || r.status === 0 || r.status >= 500));
   // kun.oy.yil — date-only "2026-10-03" → "03.10.2026"; datetime keeps HH:MM.
   function fmt(dt) {
     if (!dt) return "-";
@@ -430,9 +474,10 @@
   async function loadAudit() {
     const box = $("auditList"); skeleton(box, 5);
     const r = await api("audit_list");
+    if (failed(r)) { errorState(box, loadAudit); return; }
     const list = (r.data && r.data.audit) || [];
     box.innerHTML = "";
-    if (list.length === 0) { box.innerHTML = '<p class="muted">Hali yozuv yo’q.</p>'; return; }
+    if (list.length === 0) { emptyState(box, "Hali yozuv yo'q.", "inbox"); return; }
     const c = el("div", "card");
     list.forEach((a) => {
       const it = el("div", "item");
@@ -447,6 +492,7 @@
   // ── Dashboard ───────────────────────────────────────────────────────────
   async function loadDash() {
     const r = await api("dashboard_stats");
+    if (failed(r)) { errorState($("kpis"), loadDash); $("revChart").innerHTML = ""; $("hourChart").innerHTML = ""; return; }
     const d = r.data || {};
     renderKpis(d);
     const rev = d.revDaily || [];
@@ -454,21 +500,22 @@
     const hours = d.checkinsByHour || [];
     renderBars($("hourChart"), hours, hours.map((_, h) => h), d.peakHour == null ? -1 : d.peakHour, null);
   }
-  function kpi(box, n, l, acc) {
+  function kpi(box, n, l, acc, icon) {
     const c = el("div", "kpi");
-    c.innerHTML = '<div class="n' + (acc ? " acc" : "") + '">' + escapeHtml(String(n)) + '</div><div class="l">' + escapeHtml(l) + '</div>';
+    c.innerHTML = (icon && SVG[icon] ? '<div class="ico">' + SVG[icon] + '</div>' : '')
+      + '<div class="n' + (acc ? " acc" : "") + '">' + escapeHtml(String(n)) + '</div><div class="l">' + escapeHtml(l) + '</div>';
     box.appendChild(c);
   }
   function renderKpis(d) {
     const box = $("kpis"); box.innerHTML = "";
-    kpi(box, d.active || 0, "Faol a'zo", true);
-    kpi(box, d.expiring7 || 0, "7 kunda tugaydi");
-    kpi(box, d.frozen || 0, "Muzlatilgan");
-    kpi(box, d.checkinsToday || 0, "Bugungi kelish");
-    kpi(box, uzs(d.revenueToday || 0), "Bugun daromad", true);
-    kpi(box, uzs(d.revenueWeek || 0), "7 kun daromad");
-    kpi(box, uzs(d.revenueMonth || 0), "30 kun daromad");
-    kpi(box, d.peakHour == null ? "-" : (String(d.peakHour).padStart(2, "0") + ":00"), "Peak soat");
+    kpi(box, d.active || 0, "Faol a'zo", true, "users");
+    kpi(box, d.expiring7 || 0, "7 kunda tugaydi", false, "clock");
+    kpi(box, d.frozen || 0, "Muzlatilgan", false, "snow");
+    kpi(box, d.checkinsToday || 0, "Bugungi kelish", false, "door");
+    kpi(box, uzs(d.revenueToday || 0), "Bugun daromad", true, "cash");
+    kpi(box, uzs(d.revenueWeek || 0), "7 kun daromad", false, "cash");
+    kpi(box, uzs(d.revenueMonth || 0), "30 kun daromad", false, "cal");
+    kpi(box, d.peakHour == null ? "-" : (String(d.peakHour).padStart(2, "0") + ":00"), "Peak soat", false, "peak");
   }
   // Minimal CSS bar chart. values[], labels[], hi = highlight index (-1 none), fmt for tooltip.
   function renderBars(box, values, labels, hi, fmt) {
@@ -494,9 +541,11 @@
   // ── Staff management ────────────────────────────────────────────────────
   async function loadStaff() {
     const r = await api("staff_list");
+    const box = $("staffList");
+    if (failed(r)) { errorState(box, loadStaff); return; }
     staffCache = (r.data && r.data.staff) || [];
-    const box = $("staffList"); box.innerHTML = "";
-    if (staffCache.length === 0) { box.innerHTML = '<p class="muted">Hali xodim yo’q.</p>'; return; }
+    box.innerHTML = "";
+    if (staffCache.length === 0) { emptyState(box, "Hali xodim yo'q.", "users"); return; }
     staffCache.forEach((s) => {
       const c = el("div", "card");
       const top = el("div", "between");
@@ -708,6 +757,7 @@
       sort: membersState.sort, limit: PAGE, offset: membersState.offset,
     });
     membersState.loading = false;
+    if (failed(r)) { if (!append) errorState($("membersList"), () => loadMembers(false)); return; }
     const d = r.data || {};
     membersState.total = d.total || 0;
     renderMembersList(d.members || [], append);
@@ -720,7 +770,7 @@
     let card = append ? box.querySelector(".card") : null;
     if (!card) {
       box.innerHTML = "";
-      if (members.length === 0) { box.innerHTML = '<p class="muted">A’zo topilmadi.</p>'; return; }
+      if (members.length === 0) { emptyState(box, "A'zo topilmadi.", "users"); return; }
       card = el("div", "card"); box.appendChild(card);
     }
     members.forEach((m) => card.appendChild(memberItem(m)));
@@ -756,9 +806,10 @@
   async function loadFeed() {
     const box = $("feed"); skeleton(box, 4);
     const r = await api("checkins_recent");
+    if (failed(r)) { errorState(box, loadFeed); return; }
     const list = (r.data && r.data.checkins) || [];
     box.innerHTML = "";
-    if (list.length === 0) { box.innerHTML = '<p class="muted">Hali kelishlar yo’q.</p>'; return; }
+    if (list.length === 0) { emptyState(box, "Hali kelishlar yo'q.", "door"); return; }
     const c = el("div", "card");
     list.forEach((k) => {
       const it = el("div", "item");
@@ -823,6 +874,7 @@
     if (!append) { payState.offset = 0; skeleton($("paymentsList"), 6); }
     const r = await api("payments_list", { provider: payState.provider, status: payState.status, from: payState.from, to: payState.to, q: payState.q, limit: PAGE, offset: payState.offset });
     payState.loading = false;
+    if (failed(r)) { if (!append) errorState($("paymentsList"), () => loadPayments(false)); return; }
     const d = r.data || {};
     payState.total = d.total || 0;
     renderPaymentsList(d.payments || [], append);
@@ -835,7 +887,7 @@
     let card = append ? box.querySelector(".card") : null;
     if (!card) {
       box.innerHTML = "";
-      if (payments.length === 0) { box.innerHTML = '<p class="muted">To‘lov topilmadi.</p>'; return; }
+      if (payments.length === 0) { emptyState(box, "To'lov topilmadi.", "cash"); return; }
       card = el("div", "card"); box.appendChild(card);
     }
     payments.forEach((p) => card.appendChild(paymentItem(p)));
@@ -868,6 +920,7 @@
     const date = $("cashDate").value || new Date().toISOString().slice(0, 10);
     const box = $("cashReport"); box.innerHTML = '<p class="muted">Yuklanmoqda…</p>';
     const r = await api("cash_report", { date });
+    if (failed(r)) { errorState(box, loadCash); return; }
     const d = r.data || {};
     box.innerHTML = "";
     const head = el("div", "card");
@@ -887,6 +940,7 @@
     const box = $("revReport"); box.innerHTML = '<p class="muted">Hisoblanmoqda…</p>';
     const extra = {}; if (from) extra.from = from; if (to) extra.to = to;
     const r = await api("revenue_report", extra);
+    if (failed(r)) { errorState(box, loadRevenue); return; }
     const d = r.data || {};
     box.innerHTML = "";
     const head = el("div", "card");
@@ -915,9 +969,10 @@
   async function loadPlansAdmin() {
     const box = $("plansList"); skeleton(box, 3);
     const r = await api("plan_list_all");
+    if (failed(r)) { errorState(box, loadPlansAdmin); return; }
     const plans = (r.data && r.data.plans) || [];
     box.innerHTML = "";
-    if (plans.length === 0) { box.innerHTML = '<p class="muted">Hali tarif yo\'q.</p>'; return; }
+    if (plans.length === 0) { emptyState(box, "Hali tarif yo'q.", "inbox"); return; }
     plans.forEach((p) => box.appendChild(planItem(p)));
   }
   function planItem(p) {
@@ -985,9 +1040,10 @@
   async function loadContent() {
     const box = $("exerciseList"); skeleton(box, 4);
     const r = await api("exercise_list");
+    if (failed(r)) { errorState(box, loadContent); return; }
     const list = (r.data && r.data.exercises) || [];
     box.innerHTML = "";
-    if (list.length === 0) { box.innerHTML = '<p class="muted">Hali mashq yo\'q.</p>'; return; }
+    if (list.length === 0) { emptyState(box, "Hali mashq yo'q.", "inbox"); return; }
     list.forEach((e) => box.appendChild(exerciseItem(e)));
   }
   function exerciseItem(e) {
@@ -1084,9 +1140,11 @@
   const activeTrainers = () => (trainersCache || []).filter((t) => t.is_active);
   async function loadTrainers() {
     const box = $("trainerList"); skeleton(box, 3);
-    await fetchTrainers();
+    const r = await api("trainer_list");
+    if (failed(r)) { errorState(box, loadTrainers); return; }
+    trainersCache = (r.data && r.data.trainers) || [];
     box.innerHTML = "";
-    if (!trainersCache.length) { box.innerHTML = '<p class="muted">Hali trener yo\'q.</p>'; return; }
+    if (!trainersCache.length) { emptyState(box, "Hali trener yo'q.", "users"); return; }
     trainersCache.forEach((t) => box.appendChild(trainerItem(t)));
   }
   function trainerItem(t) {
