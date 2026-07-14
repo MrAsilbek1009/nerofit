@@ -1,90 +1,8 @@
-  const API = "https://orhhiqdvukshlvtqorgp.functions.supabase.co/admin-verify";
-  let TOKEN = "";
+import { $, el, btn, escapeHtml, toast, skeleton, SVG, emptyState, errorState, fmt, uzs } from "./ui.js";
+import { API, api, failed, getToken, setToken } from "./api.js";
+
   let staffCache = [];
   const expandedStaff = new Set();
-  const $ = (id) => document.getElementById(id);
-  const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
-  const btn = (text, cls, on) => { const b = document.createElement("button"); b.className = cls; b.textContent = text; b.onclick = on; return b; };
-  const escapeHtml = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-  // Non-blocking toast (D1). type: "err" (default) | "ok". Auto-dismisses.
-  function toast(msg, type) {
-    const box = $("toast"); if (!box) return;
-    const t = el("div", "toast " + (type === "ok" ? "ok" : "err"), String(msg == null ? "" : msg));
-    box.appendChild(t);
-    setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 200); }, 2600);
-  }
-  // Skeleton loader (D1): shimmer rows in a card while a list loads.
-  function skeleton(box, rows) {
-    box.innerHTML = "";
-    const c = el("div", "card");
-    for (let i = 0; i < (rows || 4); i++) {
-      const s = el("div", "skel skel-row");
-      s.style.width = (55 + Math.floor(Math.random() * 40)) + "%";
-      c.appendChild(s);
-    }
-    box.appendChild(c);
-  }
-  // Icon glyphs (D3): small outline SVGs reused by states + KPI cards.
-  const SVG = {
-    inbox: '<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
-    alert: '<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    users: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
-    clock: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
-    snow: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>',
-    door: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>',
-    cash: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>',
-    cal: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-    peak: '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>',
-  };
-  // Empty state (D3): centered icon + message; replaces bare "<p class=muted>".
-  function emptyState(box, msg, icon) {
-    box.innerHTML = '<div class="state">' + (SVG[icon] || SVG.inbox) + '<p>' + escapeHtml(msg) + '</p></div>';
-  }
-  // Error state (D3): honest failure + retry, so a dropped request never reads as "topilmadi".
-  function errorState(box, retry) {
-    box.innerHTML = "";
-    const w = el("div", "state err");
-    w.innerHTML = SVG.alert + '<p>Ulanishda xato yuz berdi.</p>';
-    if (retry) w.appendChild(btn("Qayta urinish", "ghost mini", retry));
-    box.appendChild(w);
-  }
-
-  async function api(action, extra) {
-    let res, data = {};
-    try {
-      res = await fetch(API, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(Object.assign({ action, token: TOKEN }, extra || {})),
-      });
-      try { data = await res.json(); } catch (e) {}
-    } catch (e) {
-      // Network failure (offline, DNS, CORS) — surface as an error, not empty data.
-      return { status: 0, data: {}, error: true };
-    }
-    // Session expired mid-use → drop back to login (avoid recursing via logout()).
-    if (res.status === 401 && TOKEN && action !== "session") {
-      TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {}
-      $("dash").classList.add("hidden"); $("login").classList.remove("hidden");
-      $("loginMsg").textContent = "Sessiya tugadi — qayta kiring.";
-    }
-    return { status: res.status, data, error: res.status >= 500 };
-  }
-  // True when a call failed at the transport/server level (vs. a valid empty result).
-  const failed = (r) => !!(r && (r.error || r.status === 0 || r.status >= 500));
-  // kun.oy.yil — date-only "2026-10-03" → "03.10.2026"; datetime keeps HH:MM.
-  function fmt(dt) {
-    if (!dt) return "-";
-    const s = String(dt);
-    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(s);
-    const d = new Date(dt); if (isNaN(d)) return s;
-    const p = (n) => String(n).padStart(2, "0");
-    const date = dateOnly
-      ? s.slice(8, 10) + "." + s.slice(5, 7) + "." + s.slice(0, 4)
-      : p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear();
-    return dateOnly ? date : date + " " + p(d.getHours()) + ":" + p(d.getMinutes());
-  }
-  const uzs = (n) => (n || 0).toLocaleString("ru-RU");
 
   // ── Auth ──────────────────────────────────────────────────────────────
   async function login() {
@@ -94,7 +12,7 @@
     let d = {}; try { d = await res.json(); } catch (e) {}
     if (res.status !== 200 || !d.token) { $("loginMsg").textContent = (d && d.error) || "Parol noto'g'ri"; return; }
     if (d.role !== "admin" && d.role !== "owner") { $("loginMsg").textContent = "Bu parol admin emas (xodim). Admin parol kerak."; return; }
-    TOKEN = d.token; try { localStorage.setItem("na_token", TOKEN); } catch (e) {}
+    setToken(d.token); try { localStorage.setItem("na_token", getToken()); } catch (e) {}
     $("loginMsg").textContent = "";
     $("login").classList.add("hidden");
     $("dash").classList.remove("hidden");
@@ -102,7 +20,7 @@
   }
   function logout() {
     try { api("logout"); } catch (e) {}
-    TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {}
+    setToken(""); try { localStorage.removeItem("na_token"); } catch (e) {}
     $("dash").classList.add("hidden"); $("login").classList.remove("hidden"); $("pwd").value = "";
   }
   // Mobile off-canvas sidebar drawer (Gymove-style).
@@ -869,11 +787,11 @@
   (function () {
     let saved = ""; try { saved = localStorage.getItem("na_token") || ""; } catch (e) {}
     if (!saved) return;
-    TOKEN = saved;
+    setToken(saved);
     api("session").then((r) => {
       if (r.status === 200 && (r.data.role === "admin" || r.data.role === "owner")) {
         $("login").classList.add("hidden"); $("dash").classList.remove("hidden"); show("dash");
-      } else { TOKEN = ""; try { localStorage.removeItem("na_token"); } catch (e) {} }
+      } else { setToken(""); try { localStorage.removeItem("na_token"); } catch (e) {} }
     });
   })();
 
@@ -916,3 +834,33 @@
   }
   // Esc closes the sheet.
   addEventListener("keydown", (e) => { if (e.key === "Escape") closeQuickAdd(); });
+
+  // ── Event delegation (Issue 4b): one listener each for click/change/Enter,
+  // replacing ~40 inline on* attributes. Dynamic list buttons keep their own
+  // JS onclick (via btn()), so only the static markup is data-* driven.
+  const ACTIONS = {
+    login, logout, toggleSidebar, closeSidebar, changeAdminPw,
+    addStaff, addPlan, addExercise, addTrainer, exportMembersCsv,
+    applyMemberFilter, applyPayFilter,
+    loadDash, loadFeed, loadContent, loadTrainers, loadAudit, loadCash, loadRevenue,
+    openQuickAdd, closeQuickAdd,
+    show: (a) => show(a),
+    showFinance: (a) => showFinance(a),
+    quickCreate: (a) => quickCreate(a),
+    membersMore: () => loadMembers(true),
+    paymentsMore: () => loadPayments(true),
+  };
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-action]"); if (!t) return;
+    const fn = ACTIONS[t.getAttribute("data-action")];
+    if (fn) fn(t.getAttribute("data-arg"));
+  });
+  document.addEventListener("change", (e) => {
+    const t = e.target.closest("[data-change]"); if (!t) return;
+    const fn = ACTIONS[t.getAttribute("data-change")]; if (fn) fn();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    const t = e.target.closest("[data-enter]"); if (!t) return;
+    const fn = ACTIONS[t.getAttribute("data-enter")]; if (fn) fn();
+  });

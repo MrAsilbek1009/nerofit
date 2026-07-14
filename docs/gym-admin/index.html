@@ -18,7 +18,7 @@
     <label>Admin parol</label>
     <div class="row">
       <input id="pwd" type="password" placeholder="parol" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
-      <button style="flex:0 0 110px" onclick="login()">Kirish</button>
+      <button style="flex:0 0 110px" data-action="login">Kirish</button>
     </div>
     <p id="loginMsg" class="muted"></p>
   </div>
@@ -26,28 +26,28 @@
   <!-- Dashboard -->
   <div id="dash" class="hidden">
     <div class="topbar">
-      <button class="burger" onclick="toggleSidebar()" aria-label="Menyu"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <button class="burger" data-action="toggleSidebar" aria-label="Menyu"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <div class="tb-brand">Nero<span>fit</span></div>
     </div>
-    <div class="backdrop" onclick="closeSidebar()"></div>
+    <div class="backdrop" data-action="closeSidebar"></div>
     <aside class="sidebar">
       <div class="brand">Nero<span>fit</span></div>
       <nav class="nav">
-        <button id="tab-dash" class="on" onclick="show('dash')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
-        <button id="tab-members" class="off" onclick="show('members')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>A'zolar</span></button>
-        <button id="tab-trainers" class="off" onclick="show('trainers')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg><span>Trenerlar</span></button>
-        <button id="tab-content" class="off" onclick="show('content')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 7-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Kontent</span></button>
-        <button id="tab-finance" class="off" onclick="show('finance')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Moliya</span></button>
-        <button id="tab-plans" class="off" onclick="show('plans')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span>Tariflar</span></button>
-        <button id="tab-staff" class="off" onclick="show('staff')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg><span>Xodimlar</span></button>
-        <button id="tab-audit" class="off" onclick="show('audit')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg><span>Audit</span></button>
+        <button id="tab-dash" class="on" data-action="show" data-arg="dash"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
+        <button id="tab-members" class="off" data-action="show" data-arg="members"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>A'zolar</span></button>
+        <button id="tab-trainers" class="off" data-action="show" data-arg="trainers"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg><span>Trenerlar</span></button>
+        <button id="tab-content" class="off" data-action="show" data-arg="content"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 7-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Kontent</span></button>
+        <button id="tab-finance" class="off" data-action="show" data-arg="finance"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Moliya</span></button>
+        <button id="tab-plans" class="off" data-action="show" data-arg="plans"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span>Tariflar</span></button>
+        <button id="tab-staff" class="off" data-action="show" data-arg="staff"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg><span>Xodimlar</span></button>
+        <button id="tab-audit" class="off" data-action="show" data-arg="audit"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg><span>Audit</span></button>
       </nav>
     </aside>
     <main class="main">
 
     <!-- Dashboard -->
     <section id="sec-dash">
-      <div class="between"><h2 style="margin:14px 0 0">Bugungi holat</h2><button class="ghost mini" onclick="loadDash()">Yangilash</button></div>
+      <div class="between"><h2 style="margin:14px 0 0">Bugungi holat</h2><button class="ghost mini" data-action="loadDash">Yangilash</button></div>
       <div id="kpis" class="kpis"></div>
       <h2>Daromad · 14 kun</h2>
       <div class="card"><div id="revChart"></div></div>
@@ -63,7 +63,7 @@
         <input id="ns-name" placeholder="Xodim ismi" autocomplete="off" />
         <label>Parol (noyob)</label>
         <input id="ns-pwd" placeholder="parol" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
-        <button style="margin-top:10px" onclick="addStaff()">Qo'shish</button>
+        <button style="margin-top:10px" data-action="addStaff">Qo'shish</button>
         <p id="ns-msg" class="muted"></p>
       </div>
 
@@ -76,26 +76,26 @@
         <input id="ap-cur" type="password" placeholder="hozirgi" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
         <label>Yangi parol</label>
         <input id="ap-new" type="password" placeholder="yangi" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
-        <button style="margin-top:10px" onclick="changeAdminPw()">Saqlash</button>
+        <button style="margin-top:10px" data-action="changeAdminPw">Saqlash</button>
         <p id="ap-msg" class="muted"></p>
       </div>
 
-      <button class="ghost" style="margin-top:24px" onclick="logout()">Chiqish</button>
+      <button class="ghost" style="margin-top:24px" data-action="logout">Chiqish</button>
     </section>
 
     <!-- Members list (paginated + filtered) + activity -->
     <section id="sec-members" class="hidden">
-      <div class="between"><h2 style="margin:14px 0 0">A'zolar</h2><button class="ghost mini" onclick="exportMembersCsv()">Eksport ⤓</button></div>
+      <div class="between"><h2 style="margin:14px 0 0">A'zolar</h2><button class="ghost mini" data-action="exportMembersCsv">Eksport ⤓</button></div>
 
       <div id="mFilters" class="chips"></div>
 
       <div class="row" style="margin-top:10px">
-        <input id="mq" placeholder="Ism yoki ID..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')applyMemberFilter()" />
-        <button style="flex:0 0 96px" onclick="applyMemberFilter()">Qidirish</button>
+        <input id="mq" placeholder="Ism yoki ID..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-enter="applyMemberFilter" />
+        <button style="flex:0 0 96px" data-action="applyMemberFilter">Qidirish</button>
       </div>
       <div class="row">
-        <select id="mPlan" onchange="applyMemberFilter()"><option value="">Barcha tarif</option></select>
-        <select id="mSort" onchange="applyMemberFilter()">
+        <select id="mPlan" data-change="applyMemberFilter"><option value="">Barcha tarif</option></select>
+        <select id="mSort" data-change="applyMemberFilter">
           <option value="asc">Tugash: yaqin → uzoq</option>
           <option value="desc">Tugash: uzoq → yaqin</option>
         </select>
@@ -103,11 +103,11 @@
 
       <p id="mCount" class="muted" style="margin-top:12px"></p>
       <div id="membersList"></div>
-      <button id="mMore" class="ghost hidden" style="margin-top:12px" onclick="loadMembers(true)">Ko'proq yuklash</button>
+      <button id="mMore" class="ghost hidden" style="margin-top:12px" data-action="membersMore">Ko'proq yuklash</button>
 
       <div class="between" style="margin-top:24px">
         <h2 style="margin:0">So'nggi kelishlar</h2>
-        <button class="ghost mini" onclick="loadFeed()">Yangilash</button>
+        <button class="ghost mini" data-action="loadFeed">Yangilash</button>
       </div>
       <div id="feed"></div>
     </section>
@@ -115,9 +115,9 @@
     <!-- Finance (journal · cash · revenue) -->
     <section id="sec-finance" class="hidden">
       <div class="nav" style="margin-top:14px">
-        <button id="ftab-journal" class="on" onclick="showFinance('journal')">Jurnal</button>
-        <button id="ftab-cash" class="off" onclick="showFinance('cash')">Kassa</button>
-        <button id="ftab-revenue" class="off" onclick="showFinance('revenue')">Daromad</button>
+        <button id="ftab-journal" class="on" data-action="showFinance" data-arg="journal">Jurnal</button>
+        <button id="ftab-cash" class="off" data-action="showFinance" data-arg="cash">Kassa</button>
+        <button id="ftab-revenue" class="off" data-action="showFinance" data-arg="revenue">Daromad</button>
       </div>
 
       <!-- Payments journal -->
@@ -125,16 +125,16 @@
         <div id="fProvFilters" class="chips"></div>
         <div id="fStatFilters" class="chips"></div>
         <div class="row" style="margin-top:6px">
-          <div><label>Dan</label><input id="fFrom" type="date" onchange="applyPayFilter()" /></div>
-          <div><label>Gacha</label><input id="fTo" type="date" onchange="applyPayFilter()" /></div>
+          <div><label>Dan</label><input id="fFrom" type="date" data-change="applyPayFilter" /></div>
+          <div><label>Gacha</label><input id="fTo" type="date" data-change="applyPayFilter" /></div>
         </div>
         <div class="row">
-          <input id="fq" placeholder="A'zo ismi..." autocomplete="off" onkeydown="if(event.key==='Enter')applyPayFilter()" />
-          <button style="flex:0 0 96px" onclick="applyPayFilter()">Filtr</button>
+          <input id="fq" placeholder="A'zo ismi..." autocomplete="off" data-enter="applyPayFilter" />
+          <button style="flex:0 0 96px" data-action="applyPayFilter">Filtr</button>
         </div>
         <p id="fSum" class="muted" style="margin-top:12px"></p>
         <div id="paymentsList"></div>
-        <button id="fMore" class="ghost hidden" style="margin-top:12px" onclick="loadPayments(true)">Ko'proq yuklash</button>
+        <button id="fMore" class="ghost hidden" style="margin-top:12px" data-action="paymentsMore">Ko'proq yuklash</button>
       </div>
 
       <!-- Daily cash -->
@@ -142,7 +142,7 @@
         <label>Sana</label>
         <div class="row">
           <input id="cashDate" type="date" />
-          <button style="flex:0 0 110px" onclick="loadCash()">Ko'rish</button>
+          <button style="flex:0 0 110px" data-action="loadCash">Ko'rish</button>
         </div>
         <div id="cashReport"></div>
       </div>
@@ -153,7 +153,7 @@
           <div><label>Dan</label><input id="revFrom" type="date" /></div>
           <div><label>Gacha</label><input id="revTo" type="date" /></div>
         </div>
-        <button style="margin-top:10px" onclick="loadRevenue()">Hisoblash</button>
+        <button style="margin-top:10px" data-action="loadRevenue">Hisoblash</button>
         <div id="revReport"></div>
       </div>
     </section>
@@ -172,7 +172,7 @@
         <input id="np-gym" type="number" inputmode="numeric" placeholder="350000" />
         <label>Tartib (kichik = yuqorida)</label>
         <input id="np-sort" type="number" inputmode="numeric" placeholder="1" />
-        <button style="margin-top:10px" onclick="addPlan()">Qo'shish</button>
+        <button style="margin-top:10px" data-action="addPlan">Qo'shish</button>
         <p id="np-msg" class="muted"></p>
       </div>
 
@@ -194,11 +194,11 @@
         </div>
         <label>Rasm havolasi (ixtiyoriy)</label>
         <input id="ne-img" placeholder="https://..." autocomplete="off" />
-        <button style="margin-top:10px" onclick="addExercise()">Qo'shish</button>
+        <button style="margin-top:10px" data-action="addExercise">Qo'shish</button>
         <p id="ne-msg" class="muted"></p>
       </div>
 
-      <div class="between" style="margin-top:8px"><h2 style="margin:0">Mashqlar</h2><button class="ghost mini" onclick="loadContent()">Yangilash</button></div>
+      <div class="between" style="margin-top:8px"><h2 style="margin:0">Mashqlar</h2><button class="ghost mini" data-action="loadContent">Yangilash</button></div>
       <div id="exerciseList"></div>
     </section>
 
@@ -214,36 +214,36 @@
         <textarea id="nt-bio" rows="2" placeholder="Qisqacha"></textarea>
         <label>Rasm havolasi (ixtiyoriy)</label>
         <input id="nt-photo" placeholder="https://..." autocomplete="off" />
-        <button style="margin-top:10px" onclick="addTrainer()">Qo'shish</button>
+        <button style="margin-top:10px" data-action="addTrainer">Qo'shish</button>
         <p id="nt-msg" class="muted"></p>
       </div>
 
-      <div class="between" style="margin-top:8px"><h2 style="margin:0">Trenerlar</h2><button class="ghost mini" onclick="loadTrainers()">Yangilash</button></div>
+      <div class="between" style="margin-top:8px"><h2 style="margin:0">Trenerlar</h2><button class="ghost mini" data-action="loadTrainers">Yangilash</button></div>
       <div id="trainerList"></div>
     </section>
 
     <!-- Audit log -->
     <section id="sec-audit" class="hidden">
-      <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" onclick="loadAudit()">Yangilash</button></div>
+      <div class="between"><h2 style="margin:0">Audit jurnali (kim nima qildi)</h2><button class="ghost mini" data-action="loadAudit">Yangilash</button></div>
       <div id="auditList"></div>
     </section>
     </main>
 
     <!-- Quick-add: floating "+" opens a create-shortcuts bottom sheet -->
-    <button id="quickFab" class="quick-fab" onclick="openQuickAdd()" aria-label="Yangi qo'shish">
+    <button id="quickFab" class="quick-fab" data-action="openQuickAdd" aria-label="Yangi qo'shish">
       <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
-    <div id="quickBackdrop" class="sheet-backdrop" onclick="closeQuickAdd()"></div>
+    <div id="quickBackdrop" class="sheet-backdrop" data-action="closeQuickAdd"></div>
     <div id="quickSheet" class="sheet" role="dialog" aria-modal="true" aria-label="Yangi qo'shish">
       <div class="sheet-handle"></div>
       <h2 style="margin:2px 0 12px">Yangi qo'shish</h2>
-      <button class="sheet-item" onclick="quickCreate('plans')"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><span>Yangi tarif</span></button>
-      <button class="sheet-item" onclick="quickCreate('trainers')"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg></span><span>Yangi trener</span></button>
-      <button class="sheet-item" onclick="quickCreate('content')"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 7-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span><span>Yangi mashq</span></button>
-      <button class="sheet-item" onclick="quickCreate('staff')"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg></span><span>Yangi xodim</span></button>
+      <button class="sheet-item" data-action="quickCreate" data-arg="plans"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><span>Yangi tarif</span></button>
+      <button class="sheet-item" data-action="quickCreate" data-arg="trainers"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg></span><span>Yangi trener</span></button>
+      <button class="sheet-item" data-action="quickCreate" data-arg="content"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 7-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span><span>Yangi mashq</span></button>
+      <button class="sheet-item" data-action="quickCreate" data-arg="staff"><span class="si-ico"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg></span><span>Yangi xodim</span></button>
     </div>
   </div>
 
-<script src="js/app.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
