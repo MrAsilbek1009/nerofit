@@ -77,15 +77,52 @@ import { API, api, failed, getToken, setToken } from "./api.js";
   }
 
   // ── Dashboard ───────────────────────────────────────────────────────────
+  // Revenue chart period toggle (Daily/Weekly/Monthly). Daily reuses the
+  // dashboard_stats series; week/month fetch admin_revenue_series (migration 0024).
+  let revPeriod = "day";
+  let revDailyCache = [];
+  let revSeries = []; // the series currently on screen — for CSV export
   async function loadDash() {
     const r = await api("dashboard_stats");
     if (failed(r)) { errorState($("kpis"), loadDash); $("revChart").innerHTML = ""; $("hourChart").innerHTML = ""; return; }
     const d = r.data || {};
     renderKpis(d);
-    const rev = d.revDaily || [];
-    renderBars($("revChart"), rev.map((x) => x.v), rev.map((x) => x.d), -1, uzs);
+    revDailyCache = d.revDaily || [];
+    await renderRevChart();
     const hours = d.checkinsByHour || [];
     renderBars($("hourChart"), hours, hours.map((_, h) => h), d.peakHour == null ? -1 : d.peakHour, null);
+  }
+  async function renderRevChart() {
+    let series;
+    if (revPeriod === "day") {
+      series = revDailyCache;
+    } else {
+      $("revChart").innerHTML = '<p class="muted">Yuklanmoqda…</p>';
+      const r = await api("revenue_series", { period: revPeriod });
+      if (failed(r)) { errorState($("revChart"), renderRevChart); revSeries = []; return; }
+      series = (r.data && r.data.series) || [];
+    }
+    revSeries = series;
+    renderBars($("revChart"), series.map((x) => x.v), series.map((x) => x.d), -1, uzs);
+  }
+  function setRevPeriod(p) {
+    revPeriod = (p === "week" || p === "month") ? p : "day";
+    ["day", "week", "month"].forEach((k) => {
+      const b = document.querySelector('#revSeg button[data-arg="' + k + '"]');
+      if (b) b.className = k === revPeriod ? "on" : "off";
+    });
+    renderRevChart();
+  }
+  function exportRevenueCsv() {
+    if (!revSeries.length) { toast("Eksport uchun ma'lumot yo'q"); return; }
+    const head = ["Davr", "Daromad (so'm)"];
+    const rows = revSeries.map((x) => [x.d, x.v]);
+    const csv = [head, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "nerofit-daromad-" + revPeriod + "-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function kpi(box, n, l, acc, icon) {
     const c = el("div", "kpi");
@@ -849,6 +886,8 @@ import { API, api, failed, getToken, setToken } from "./api.js";
     quickCreate: (a) => quickCreate(a),
     membersMore: () => loadMembers(true),
     paymentsMore: () => loadPayments(true),
+    revPeriod: (a) => setRevPeriod(a),
+    exportRevenueCsv,
   };
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-action]"); if (!t) return;

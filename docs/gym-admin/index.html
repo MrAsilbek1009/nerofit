@@ -49,7 +49,15 @@
     <section id="sec-dash">
       <div class="between"><h2 style="margin:14px 0 0">Bugungi holat</h2><button class="ghost mini" data-action="loadDash">Yangilash</button></div>
       <div id="kpis" class="kpis"></div>
-      <h2>Daromad · 14 kun</h2>
+      <div class="between" style="margin:22px 0 8px">
+        <h2 style="margin:0">Daromad</h2>
+        <div class="seg" id="revSeg">
+          <button class="on" data-action="revPeriod" data-arg="day">Kunlik</button>
+          <button class="off" data-action="revPeriod" data-arg="week">Haftalik</button>
+          <button class="off" data-action="revPeriod" data-arg="month">Oylik</button>
+          <button class="ghost mini" data-action="exportRevenueCsv" title="CSV eksport" style="margin-left:4px">⤓</button>
+        </div>
+      </div>
       <div class="card"><div id="revChart"></div></div>
       <h2>Kelishlar · soat bo'yicha (14 kun)</h2>
       <div class="card"><div id="hourChart"></div></div>

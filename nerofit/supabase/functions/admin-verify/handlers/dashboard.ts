@@ -13,6 +13,17 @@ export const routes: Registry = {
       return json(data);
     },
   },
+  // Time-range revenue series for the Daily/Weekly/Monthly chart toggle
+  // (migration 0024). Bucketed DB-side; returns { series: [{ d, v }] }.
+  revenue_series: {
+    role: "admin",
+    handler: async ({ db, body }) => {
+      const period = ["day", "week", "month"].includes(String(body.period)) ? String(body.period) : "day";
+      const { data, error } = await db.rpc("admin_revenue_series", { period });
+      if (error) return json({ error: error.message }, 500);
+      return json({ series: data });
+    },
+  },
   audit_list: {
     role: "admin",
     handler: async ({ db }) => {
