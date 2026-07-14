@@ -9,16 +9,18 @@
 -- indexed SQL round-trip and returns the SAME json shape the panel already reads.
 --
 -- Timezone parity with the old code: revenue uses UTC day boundaries; check-in
--- hours are bucketed to UTC+5 (Uzbekistan, no DST). Behavior is preserved 1:1.
+-- hours are bucketed to Asia/Tashkent local time (UTC+5, no DST) — identical
+-- result to the old manual +5 arithmetic, just clearer. Behavior preserved 1:1.
 
 -- ── Supporting indexes (Issue 3) ─────────────────────────────────────────
 -- gym_checkins already has (checked_at desc) from 0017 — not repeated here.
--- Revenue sums + finance journal filter payments by status + paid_at:
+-- Covering indexes: the include() column lets these queries run as Index-Only
+-- Scans (no heap fetch). Kept as composite (not a partial WHERE status='paid')
+-- so the finance journal (payments_list, arbitrary status filters) is served too.
 create index if not exists payments_status_paid_idx
-  on public.payments (status, paid_at desc);
--- Dashboard active/expiring + members_list status filter scan memberships by status/end:
+  on public.payments (status, paid_at desc) include (amount_uzs);
 create index if not exists memberships_status_end_idx
-  on public.memberships (status, end_date);
+  on public.memberships (status, end_date) include (user_id);
 
 -- ── Dashboard stats RPC ──────────────────────────────────────────────────
 -- SECURITY DEFINER + revoked from anon/authenticated: only the service-role
@@ -58,7 +60,7 @@ as $$
       where p.status = 'paid' and p.paid_at >= (d.today - 29)::timestamp at time zone 'UTC'),
     'peakHour', (
       select h from (
-        select ((extract(hour from c.checked_at at time zone 'UTC')::int + 5) % 24) as h,
+        select extract(hour from timezone('Asia/Tashkent', c.checked_at))::int as h,
                count(*) as cnt
         from public.gym_checkins c, d
         where c.checked_at >= (d.today - 13)::timestamp at time zone 'UTC'
@@ -82,7 +84,7 @@ as $$
       select coalesce(jsonb_agg(coalesce(c.cnt, 0) order by hr), '[]'::jsonb)
       from generate_series(0, 23) hr
       left join (
-        select ((extract(hour from ck.checked_at at time zone 'UTC')::int + 5) % 24) as h,
+        select extract(hour from timezone('Asia/Tashkent', ck.checked_at))::int as h,
                count(*) as cnt
         from public.gym_checkins ck, d
         where ck.checked_at >= (d.today - 13)::timestamp at time zone 'UTC'
