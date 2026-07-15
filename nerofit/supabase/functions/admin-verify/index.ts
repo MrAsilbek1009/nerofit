@@ -27,6 +27,7 @@ import { routes as contentRoutes } from "./handlers/content.ts";
 import { routes as trainerRoutes } from "./handlers/trainers.ts";
 import { routes as financeRoutes } from "./handlers/finance.ts";
 import { routes as dashboardRoutes } from "./handlers/dashboard.ts";
+import { routes as supportRoutes } from "./handlers/support.ts";
 
 const registry: Registry = {
   ...authRoutes,
@@ -37,6 +38,7 @@ const registry: Registry = {
   ...trainerRoutes,
   ...financeRoutes,
   ...dashboardRoutes,
+  ...supportRoutes,
 };
 
 async function handlePost(req: Request): Promise<Response> {

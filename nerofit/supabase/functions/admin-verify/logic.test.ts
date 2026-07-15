@@ -10,6 +10,7 @@ import {
   normalizeMuscles,
   validateExercise,
   validatePlan,
+  validateTicket,
   validateTrainer,
   validateVideoUrl,
 } from "./logic.ts";
@@ -21,6 +22,18 @@ function assertEquals(actual: unknown, expected: unknown, msg?: string): void {
 
 const TODAY = "2026-07-13";
 const IN7 = "2026-07-20";
+
+Deno.test("validateTicket — valid, priority coerced", () => {
+  const r = validateTicket({ subject: " Ishlamayapti ", body: " Video ochilmayapti ", priority: "high" });
+  assertEquals(r, { ok: true, value: { subject: "Ishlamayapti", body: "Video ochilmayapti", priority: "high" } });
+  const d = validateTicket({ subject: "x", body: "y", priority: "bogus" });
+  assertEquals(d.ok && d.value.priority, "normal");
+});
+
+Deno.test("validateTicket — rejects empty subject/body", () => {
+  assertEquals(validateTicket({ subject: "", body: "y" }).ok, false);
+  assertEquals(validateTicket({ subject: "x", body: "  " }).ok, false);
+});
 
 Deno.test("deriveMemberStatus — frozen/pending win first", () => {
   assertEquals(deriveMemberStatus({ status: "frozen", end_date: "2026-08-01" }, TODAY, IN7), "frozen");

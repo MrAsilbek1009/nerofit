@@ -239,3 +239,23 @@ export function aggregateRevenue(
       .sort((a, b) => b.sum_uzs - a.sum_uzs);
   return { by_provider: asRows(byProv), by_plan: asRows(byPlan), total_uzs: total, total_count: cnt };
 }
+
+// ── Support ticket validation (step 3) ─────────────────────────────────────
+const TICKET_PRIORITIES = ["low", "normal", "high", "urgent"];
+export type TicketInput = { subject?: unknown; body?: unknown; priority?: unknown };
+export type CleanTicket = { subject: string; body: string; priority: string };
+// Validate + coerce a new ticket. priority falls back to "normal" for anything
+// off the enum; subject/body are required and length-capped.
+export function validateTicket(
+  input: TicketInput,
+): { ok: true; value: CleanTicket } | { ok: false; error: string } {
+  const subject = String(input.subject ?? "").trim();
+  if (!subject) return { ok: false, error: "Mavzu kerak" };
+  if (subject.length > 150) return { ok: false, error: "Mavzu juda uzun (max 150)" };
+  const body = String(input.body ?? "").trim();
+  if (!body) return { ok: false, error: "Matn kerak" };
+  if (body.length > 2000) return { ok: false, error: "Matn juda uzun (max 2000)" };
+  const pr = String(input.priority ?? "normal");
+  const priority = TICKET_PRIORITIES.includes(pr) ? pr : "normal";
+  return { ok: true, value: { subject, body, priority } };
+}
