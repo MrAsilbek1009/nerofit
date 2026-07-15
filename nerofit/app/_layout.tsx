@@ -198,6 +198,7 @@ function AuthGate() {
       <Stack.Screen name="custom-workout" />
       <Stack.Screen name="custom-workout-player/[id]" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="progress" />
+      <Stack.Screen name="support" />
       <Stack.Screen name="body-composition" />
       <Stack.Screen name="delete-account" />
       <Stack.Screen name="paywall" options={{ presentation: "modal" }} />
