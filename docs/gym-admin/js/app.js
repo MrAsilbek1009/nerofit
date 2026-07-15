@@ -35,7 +35,7 @@ import { API, api, failed, getToken, setToken } from "./api.js";
   }
   function show(tab) {
     closeSidebar(); // tapping a nav item closes the mobile drawer
-    ["dash", "staff", "members", "finance", "plans", "content", "trainers", "audit"].forEach((t) => {
+    ["dash", "staff", "members", "finance", "plans", "content", "trainers", "audit", "support"].forEach((t) => {
       $("sec-" + t).classList.toggle("hidden", t !== tab);
       $("tab-" + t).className = t === tab ? "on" : "off";
     });
@@ -47,6 +47,7 @@ import { API, api, failed, getToken, setToken } from "./api.js";
     if (tab === "content") loadContent();
     if (tab === "trainers") loadTrainers();
     if (tab === "audit") loadAudit();
+    if (tab === "support") loadSupport(false);
   }
   async function changeAdminPw() {
     const nw = $("ap-new").value.trim();
@@ -820,6 +821,121 @@ import { API, api, failed, getToken, setToken } from "./api.js";
     } else { $("nt-msg").textContent = (r.data && r.data.error) || "Xato"; }
   }
 
+  // ── Support inbox (step 3) ──────────────────────────────────────────────
+  const SUP_FILTERS = [["all", "Hammasi"], ["open", "Ochiq"], ["pending", "Kutilmoqda"], ["resolved", "Hal qilindi"], ["closed", "Yopilgan"]];
+  const SUP_STATUS_BADGE = { open: "st-open", pending: "st-pending", resolved: "st-resolved", closed: "st-closed" };
+  const SUP_STATUS_LABEL = { open: "OCHIQ", pending: "KUTILMOQDA", resolved: "HAL", closed: "YOPILGAN" };
+  const PRI_BADGE = { urgent: "pri-urgent", high: "pri-high", normal: "pri-normal", low: "pri-low" };
+  const PRI_LABEL = { urgent: "SHOSHILINCH", high: "YUQORI", normal: "ODDIY", low: "PAST" };
+  const supState = { status: "all", offset: 0, total: 0, loading: false };
+
+  function renderSupFilters() {
+    const box = $("supFilters"); box.innerHTML = "";
+    SUP_FILTERS.forEach(([val, label]) => {
+      const c = el("button", "chip" + (supState.status === val ? " on" : ""), label);
+      c.onclick = () => { supState.status = val; renderSupFilters(); loadSupport(false); };
+      box.appendChild(c);
+    });
+  }
+  async function loadSupport(append) {
+    if (supState.loading) return;
+    supState.loading = true;
+    if (!append) { supState.offset = 0; renderSupFilters(); skeleton($("supportList"), 5); }
+    const r = await api("support_list", { status: supState.status, limit: 25, offset: supState.offset });
+    supState.loading = false;
+    if (failed(r)) { if (!append) errorState($("supportList"), () => loadSupport(false)); return; }
+    const d = r.data || {};
+    supState.total = d.total || 0;
+    renderSupportList(d.tickets || [], append);
+    supState.offset += (d.tickets || []).length;
+    $("supCount").textContent = supState.total ? ("Jami: " + supState.total) : "";
+    $("supMore").classList.toggle("hidden", supState.offset >= supState.total);
+  }
+  function renderSupportList(tickets, append) {
+    const box = $("supportList");
+    let card = append ? box.querySelector(".card") : null;
+    if (!card) {
+      box.innerHTML = "";
+      if (tickets.length === 0) { emptyState(box, "Murojaat yo'q.", "inbox"); return; }
+      card = el("div", "card"); box.appendChild(card);
+    }
+    tickets.forEach((t) => card.appendChild(ticketItem(t)));
+  }
+  function ticketItem(t) {
+    const it = el("div", "item");
+    const top = el("div", "between");
+    const left = el("div");
+    left.innerHTML = '<div style="font-weight:700">' + escapeHtml(t.subject) + '</div>'
+      + '<div class="muted">' + escapeHtml(t.member_name || "A'zo") + ' · ' + fmt(t.last_reply_at || t.created_at) + '</div>';
+    const right = el("div"); right.style.display = "flex"; right.style.gap = "6px"; right.style.alignItems = "center"; right.style.flexShrink = "0";
+    right.appendChild(el("span", "badge " + (PRI_BADGE[t.priority] || "pri-normal"), PRI_LABEL[t.priority] || t.priority));
+    right.appendChild(el("span", "badge " + (SUP_STATUS_BADGE[t.status] || "st-open"), SUP_STATUS_LABEL[t.status] || t.status));
+    const vt = makeTicketToggle(t.id);
+    right.appendChild(vt.button);
+    top.appendChild(left); top.appendChild(right);
+    it.appendChild(top); it.appendChild(vt.detail);
+    return it;
+  }
+  function makeTicketToggle(id) {
+    const detail = el("div", "detail"); detail.style.display = "none";
+    let open = false;
+    const b = btn("Ko'rish ▾", "ghost mini", async () => {
+      open = !open;
+      if (open) { detail.style.display = "block"; b.textContent = "Yopish ▴"; detail.innerHTML = '<p class="muted">Yuklanmoqda…</p>'; await refreshTicketDetail(detail, id); }
+      else { detail.style.display = "none"; detail.innerHTML = ""; b.textContent = "Ko'rish ▾"; }
+    });
+    return { button: b, detail };
+  }
+  async function refreshTicketDetail(detail, id) {
+    const r = await api("support_detail", { ticket_id: id });
+    if (failed(r)) { errorState(detail, () => refreshTicketDetail(detail, id)); return; }
+    const d = r.data || {};
+    if (!d.found) { detail.innerHTML = '<p class="muted">Topilmadi.</p>'; return; }
+    detail.innerHTML = "";
+    (d.messages || []).forEach((m) => {
+      const row = el("div", "msg " + (m.author_kind === "staff" ? "staff" : "member"));
+      row.innerHTML = '<div class="muted" style="font-size:11px">' + escapeHtml(m.author_name || (m.author_kind === "staff" ? "Xodim" : "A'zo")) + ' · ' + fmt(m.created_at) + '</div><div>' + escapeHtml(m.body) + '</div>';
+      detail.appendChild(row);
+    });
+    detail.appendChild(el("label", null, "Javob"));
+    const rInput = el("textarea"); rInput.rows = 2; rInput.placeholder = "Javob matni";
+    const rBtn = btn("Yuborish", "mini", async () => {
+      const v = rInput.value.trim(); if (!v) return;
+      rBtn.disabled = true;
+      const rr = await api("support_reply", { ticket_id: id, body: v });
+      rBtn.disabled = false;
+      if (rr.data && rr.data.ok) { rInput.value = ""; await refreshTicketDetail(detail, id); }
+      else toast((rr.data && rr.data.error) || "Xato");
+    });
+    rBtn.style.marginTop = "8px";
+    detail.appendChild(rInput); detail.appendChild(rBtn);
+    detail.appendChild(el("label", null, "Holat"));
+    const sRow = el("div", "chips");
+    [["open", "Ochiq"], ["pending", "Kutilmoqda"], ["resolved", "Hal qilindi"], ["closed", "Yopilgan"]].forEach(([val, label]) => {
+      const c = el("button", "chip" + (d.ticket.status === val ? " on" : ""), label);
+      c.onclick = async () => {
+        const rr = await api("support_set_status", { ticket_id: id, status: val });
+        if (rr.data && rr.data.ok) { await refreshTicketDetail(detail, id); loadSupport(false); }
+        else toast((rr.data && rr.data.error) || "Xato");
+      };
+      sRow.appendChild(c);
+    });
+    detail.appendChild(sRow);
+  }
+  async function addTicket() {
+    const r = await api("support_create", {
+      subject: $("st-subject").value,
+      body: $("st-body").value,
+      priority: $("st-priority").value,
+      user_id: $("st-user").value,
+    });
+    if (r.data && r.data.ok) {
+      ["st-subject", "st-body", "st-user"].forEach((id) => { $(id).value = ""; });
+      $("st-priority").value = "normal";
+      $("st-msg").textContent = "Qo'shildi ✓"; loadSupport(false);
+    } else { $("st-msg").textContent = (r.data && r.data.error) || "Xato"; }
+  }
+
   // Restore the session token remembered on this device (verify it's still valid).
   (function () {
     let saved = ""; try { saved = localStorage.getItem("na_token") || ""; } catch (e) {}
@@ -888,6 +1004,9 @@ import { API, api, failed, getToken, setToken } from "./api.js";
     paymentsMore: () => loadPayments(true),
     revPeriod: (a) => setRevPeriod(a),
     exportRevenueCsv,
+    addTicket,
+    loadSupport,
+    supportMore: () => loadSupport(true),
   };
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-action]"); if (!t) return;

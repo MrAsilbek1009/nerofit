@@ -20,6 +20,14 @@
   .badge.ok { background:var(--ok); color:#000; } .badge.bad { background:var(--bad); color:#000; }
   .badge.warn { background:#333; color:#fff; }
   .badge.soon { background:#2a2a12; color:var(--acc); } .badge.info { background:#2a2a2a; color:#fff; }
+  /* Support ticket badges (step 3): high-contrast priority + status */
+  .badge.pri-urgent { background:#ff5a5a; color:#3a0000; } .badge.pri-high { background:#ff9f43; color:#3a2200; }
+  .badge.pri-normal { background:#2a2a2a; color:#cfcfcf; } .badge.pri-low { background:#1f1f1f; color:#8a8a8a; }
+  .badge.st-open { background:#4aa3ff; color:#00213f; } .badge.st-pending { background:#f5c451; color:#3a2c00; }
+  .badge.st-resolved { background:var(--acc); color:#000; } .badge.st-closed { background:#333; color:#aaa; }
+  /* Support thread message rows */
+  .msg { border-left:2px solid var(--line); padding:6px 0 6px 10px; margin:8px 0; }
+  .msg.staff { border-left-color:var(--acc); }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
   .chip { width:auto; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--lo); font-size:12px; font-weight:700; letter-spacing:.04em; cursor:pointer; white-space:nowrap; }
   .chip.on { background:var(--acc); color:#000; border-color:var(--acc); }
