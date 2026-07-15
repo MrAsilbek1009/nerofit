@@ -626,5 +626,31 @@
     "backspace": "Delete",
     "confirm": "Confirm",
     "enterValue": "Enter value"
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "TICKET",
+    "newTicket": "New ticket",
+    "categoryLabel": "Category",
+    "catPayment": "Payment",
+    "catMembership": "Membership",
+    "catTechnical": "Technical",
+    "catTraining": "Training",
+    "catOther": "Other",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe the problem",
+    "submit": "Submit",
+    "submitError": "Couldn't send. Please try again.",
+    "myTickets": "My tickets",
+    "empty": "No tickets yet.",
+    "error": "Failed to load.",
+    "retry": "Retry",
+    "statusOpen": "Open",
+    "statusPending": "In progress",
+    "statusResolved": "Resolved",
+    "statusClosed": "Closed",
+    "authorStaff": "Staff",
+    "authorYou": "You",
+    "profileLink": "Help & support"
   }
 }

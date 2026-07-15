@@ -626,5 +626,31 @@
     "backspace": "Удалить",
     "confirm": "Подтвердить",
     "enterValue": "Ввести значение"
+  },
+  "support": {
+    "title": "Поддержка",
+    "subtitle": "ОБРАЩЕНИЕ",
+    "newTicket": "Новое обращение",
+    "categoryLabel": "Категория",
+    "catPayment": "Оплата",
+    "catMembership": "Абонемент",
+    "catTechnical": "Технич.",
+    "catTraining": "Тренировка",
+    "catOther": "Другое",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Опишите проблему",
+    "submit": "Отправить",
+    "submitError": "Ошибка отправки. Попробуйте снова.",
+    "myTickets": "Мои обращения",
+    "empty": "Обращений пока нет.",
+    "error": "Ошибка загрузки.",
+    "retry": "Повторить",
+    "statusOpen": "Открыто",
+    "statusPending": "В процессе",
+    "statusResolved": "Решено",
+    "statusClosed": "Закрыто",
+    "authorStaff": "Сотрудник",
+    "authorYou": "Вы",
+    "profileLink": "Помощь и поддержка"
   }
 }

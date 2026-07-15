@@ -104,6 +104,56 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];
       };
+      support_tickets: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          subject: string;
+          status: string;
+          priority: string;
+          created_by_staff: string | null;
+          assigned_to: string | null;
+          last_reply_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          subject: string;
+          status?: string;
+          priority?: string;
+          created_by_staff?: string | null;
+          assigned_to?: string | null;
+          last_reply_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["support_tickets"]["Insert"]>;
+        Relationships: [];
+      };
+      support_ticket_messages: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          author_kind: string;
+          author_staff_id: string | null;
+          author_name: string | null;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_id: string;
+          author_kind: string;
+          author_staff_id?: string | null;
+          author_name?: string | null;
+          body: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["support_ticket_messages"]["Insert"]>;
+        Relationships: [];
+      };
       goals: {
         Row: {
           user_id: string;
@@ -884,4 +934,32 @@ export type Payment = {
   perform_time: number | null;
   cancel_time: number | null;
   cancel_reason: number | null;
+};
+
+export type SupportStatus = "open" | "pending" | "resolved" | "closed";
+export type SupportPriority = "low" | "normal" | "high" | "urgent";
+
+// Support inbox (migration 0025). Members read/create their OWN tickets +
+// messages via RLS; staff manage everything server-side (admin-verify).
+export type SupportTicket = {
+  id: string;
+  user_id: string | null;
+  subject: string;
+  status: SupportStatus;
+  priority: SupportPriority;
+  created_by_staff: string | null;
+  assigned_to: string | null;
+  last_reply_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SupportTicketMessage = {
+  id: string;
+  ticket_id: string;
+  author_kind: "member" | "staff";
+  author_staff_id: string | null;
+  author_name: string | null;
+  body: string;
+  created_at: string;
 };

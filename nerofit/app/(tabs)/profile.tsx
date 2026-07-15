@@ -9,6 +9,7 @@ import {
   ChevronRight,
   FileText,
   Globe,
+  LifeBuoy,
   LogOut,
   Shield,
   Star,
@@ -183,6 +184,12 @@ export default function ProfileScreen() {
                 ))}
               </View>
             }
+          />
+          <Row
+            icon={<LifeBuoy size={18} color={colors.textHi} />}
+            label={t("support.profileLink")}
+            onPress={() => router.push("/support")}
+            right={<ChevronRight size={18} color={colors.textLo} />}
           />
           <Row
             icon={<Shield size={18} color={colors.textHi} />}

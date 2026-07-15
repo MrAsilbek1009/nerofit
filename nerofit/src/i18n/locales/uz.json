@@ -626,5 +626,31 @@
     "backspace": "O'chirish",
     "confirm": "Tasdiqlash",
     "enterValue": "Qiymat kiritish"
+  },
+  "support": {
+    "title": "Yordam",
+    "subtitle": "QO'LLAB-QUVVATLASH",
+    "newTicket": "Yangi murojaat",
+    "categoryLabel": "Toifa",
+    "catPayment": "To'lov",
+    "catMembership": "A'zolik",
+    "catTechnical": "Texnik",
+    "catTraining": "Mashg'ulot",
+    "catOther": "Boshqa",
+    "descriptionLabel": "Tavsif",
+    "descriptionPlaceholder": "Muammoni tasvirlab bering",
+    "submit": "Yuborish",
+    "submitError": "Yuborishda xato. Qayta urinib ko'ring.",
+    "myTickets": "Mening murojaatlarim",
+    "empty": "Hali murojaat yo'q.",
+    "error": "Yuklashda xato.",
+    "retry": "Qayta urinish",
+    "statusOpen": "Ochiq",
+    "statusPending": "Jarayonda",
+    "statusResolved": "Hal qilindi",
+    "statusClosed": "Yopilgan",
+    "authorStaff": "Xodim",
+    "authorYou": "Siz",
+    "profileLink": "Yordam va qo'llab-quvvatlash"
   }
 }
